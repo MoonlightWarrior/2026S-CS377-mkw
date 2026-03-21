@@ -13,6 +13,7 @@ import threading
 import signal
 import hashlib
 import platform
+import psutil
 
 # remove any existing shared memory
 try:
@@ -128,7 +129,7 @@ class DolphinEnv:
         self.processes       = [None] * self.num_envs
         self.last_restart    = [0.0] * self.num_envs
 
-        self.timeout = 8.
+        self.timeout = 30.
 
         self.is_resetting = [0] * self.num_envs
 
@@ -330,6 +331,17 @@ class DolphinEnv:
         # these should all be a batch of (num_envs)
         return states, rewards, dones, truns, infos
 
+    def kill_subprocess(pids):
+        try:
+            parent = psutil.Process(pid)
+            # 자식 프로세스들을 먼저 다 죽이고
+            for child in parent.children(recursive=True):
+                child.kill()
+            # 부모를 죽입니다.
+            parent.kill()
+        except psutil.NoSuchProcess:
+            pass
+
     def restart_instance(self, i):
         """Kill env i and then re‐call create_dolphin(i)."""
         print(f"[Master] Restarting Dolphin env {i}…")
@@ -344,7 +356,7 @@ class DolphinEnv:
                 pass
 
         try:
-            subprocess.check_output("Taskkill /PID %d /F" % self.script_pids[i])
+            kill_subprocess(self.script_pids[i])
             print("Minor Crash... Recovering successfully")
         except:
             print("Failed to kill by subprocess PID")
