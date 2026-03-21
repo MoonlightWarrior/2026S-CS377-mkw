@@ -20,13 +20,14 @@ if shared_site_path.exists() and shared_site_path.is_file():
 # Dolphin 내장 Python에서는 sys.executable이 제대로 안 잡히므로 .venv의 python을 지정
 sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
 
-import debugpy
+# Debuging code
+# import debugpy
 
-debugpy.listen(("localhost", 5678))
-print("Waiting for debugger attach...")
-debugpy.wait_for_client()
+# debugpy.listen(("localhost", 5678))
+# print("Waiting for debugger attach...")
+# debugpy.wait_for_client()
 
-print("Script Started!")
+# print("Script Started!")
 
 from dolphin import event, gui, savestate, memory, controller
 

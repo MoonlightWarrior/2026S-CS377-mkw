@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "BTR Debug (uv)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/BTR.py",
+      "args": ["--testing", "1"],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "subProcess": true,
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe"
+    },
+    {
+      "name": "Attach to Dolphin Slave",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "justMyCode": false
+    }
+  ]
+}

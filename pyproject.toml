@@ -4,4 +4,17 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "debugpy>=1.8.20",
+    "gymnasium==1.1.1",
+    "matplotlib==3.10.3",
+    "numpy==2.2.6",
+    "pillow==11.2.1",
+    "psutil>=7.2.2",
+    "pynput>=1.8.1",
+    "requests>=2.32.5",
+    "torchsummary==1.5.1",
+    "torchvision==0.22.1",
+    "tqdm>=4.67.3",
+    "typing-extensions==4.12.2",
+]
