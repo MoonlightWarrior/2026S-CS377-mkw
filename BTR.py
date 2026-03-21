@@ -357,7 +357,7 @@ class PER:
         # everything here is stored as ints as they are just pointers to the actual memory
         # reward contains N values. The first value contains the action. The set of N contains the pointers for both
         # the reward and dones
-        self.trans_dtype = np.dtype([('state', int, self.framestack), ('n_state', int, self.framestack),
+        self.trans_dtype = np.dtype([('state', float, self.framestack), ('n_state', int, self.framestack),
                                      ('reward', int, self.n_step)])
 
         self.blank_trans = (np.zeros(self.framestack, dtype=int), np.zeros(self.framestack, dtype=int),

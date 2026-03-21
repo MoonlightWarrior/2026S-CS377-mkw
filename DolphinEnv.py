@@ -116,11 +116,11 @@ class DolphinEnv:
         set_shared_site()
 
         self.shm = shared_memory.SharedMemory(create=True,
-                                              size=self.num_envs * self.framestack * self.obs_shape,
+                                              size=self.num_envs * self.framestack * self.obs_shape * 4,
                                               name="states_shm")
         self.states = np.ndarray(
             (self.num_envs, self.framestack, self.obs_shape),
-            dtype=np.uint8,
+            dtype=np.float32,
             buffer=self.shm.buf
         )
 
