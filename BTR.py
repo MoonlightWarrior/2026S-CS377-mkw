@@ -117,84 +117,19 @@ class Dueling(nn.Module):
         return value + (advantages - torch.mean(advantages, dim=1, keepdim=True))
 
 
-class ImpalaCNNResidual(nn.Module):
+class MLPIQN(nn.Module):
     """
-    Simple residual block used in the large IMPALA CNN.
+    Simple 2-layer MLP with IQN for 1D variable-based observations.
+    Replaces the IMPALA CNN for non-image inputs.
     """
-    def __init__(self, depth, norm_func, activation=nn.ReLU):
-        super().__init__()
-
-        self.activation = activation()
-
-        self.conv_0 = norm_func(nn.Conv2d(in_channels=depth, out_channels=depth, kernel_size=3, stride=1, padding=1))
-        self.conv_1 = norm_func(nn.Conv2d(in_channels=depth, out_channels=depth, kernel_size=3, stride=1, padding=1))
-
-    #@torch.autocast('cuda')
-    def forward(self, x):
-
-        x_ = self.conv_0(self.activation(x))
-
-        x_ = self.conv_1(self.activation(x_))
-        return x + x_
-
-
-class ImpalaCNNBlock(nn.Module):
-    """
-    Three of these blocks are used in the large IMPALA CNN.
-    """
-    def __init__(self, depth_in, depth_out, norm_func, activation=nn.ReLU, layer_norm=False,
-                 layer_norm_shapes=False):
-        super().__init__()
-        self.layer_norm = layer_norm
-
-        self.conv = nn.Conv2d(in_channels=depth_in, out_channels=depth_out, kernel_size=3, stride=1, padding=1)
-        self.max_pool = nn.MaxPool2d(3, 2, padding=1)
-
-        if self.layer_norm:
-            self.norm_layer1 = nn.LayerNorm(layer_norm_shapes[0])
-
-        self.residual_0 = ImpalaCNNResidual(depth_out, norm_func=norm_func, activation=activation)
-        self.residual_1 = ImpalaCNNResidual(depth_out, norm_func=norm_func, activation=activation)
-
-    def forward(self, x):
-        x = self.conv(x)
-
-        if self.layer_norm:
-            x = self.norm_layer1(x)
-
-        x = self.max_pool(x)
-
-        x = self.residual_0(x)
-
-        x = self.residual_1(x)
-
-        return x
-
-
-class ImpalaCNNLargeIQN(nn.Module):
-    """
-    Implementation of the large variant of the IMPALA CNN introduced in Espeholt et al. (2018).
-    """
-    def __init__(self, in_depth, actions, model_size=2, spectral=True, device='cuda:0', num_tau=8, maxpool_size=6,
+    def __init__(self, obs_size, actions, device='cuda:0', num_tau=8,
                  linear_size=512, ncos=64, layer_norm=True):
         super().__init__()
 
-        self.start = time.time()
-        self.model_size = model_size
         self.actions = actions
         self.device = device
-
-        self.in_depth = in_depth
-
-        conv_activation = nn.ReLU
-        activation = nn.ReLU
-
-        self.linear_size = linear_size
         self.num_tau = num_tau
-
-        self.maxpool_size = maxpool_size
-
-        self.layer_norm = layer_norm
+        self.linear_size = linear_size
 
         self.n_cos = ncos
         #self.pis = torch.FloatTensor([np.pi * i for i in range(self.n_cos)]).view(1, 1, self.n_cos).to(device)
@@ -202,34 +137,27 @@ class ImpalaCNNLargeIQN(nn.Module):
                                                                                                                    self.n_cos))
 
         linear_layer = FactorizedNoisyLinear
+        activation = nn.ReLU
 
-        def identity(p): return p
-
-        if spectral:
-            norm_func = torch.nn.utils.parametrizations.spectral_norm
-        else:
-            norm_func = identity
-
-        self.conv = nn.Sequential(
-            ImpalaCNNBlock(in_depth, int(16*model_size), norm_func=norm_func, activation=conv_activation,),
-            ImpalaCNNBlock(int(16*model_size), int(32*model_size), norm_func=norm_func, activation=conv_activation),
-            ImpalaCNNBlock(int(32 * model_size), int(32 * model_size), norm_func=norm_func, activation=conv_activation),
-            torch.nn.AdaptiveMaxPool2d((6, 6))
+        # 2-layer MLP encoder (flattened framestack * obs_shape -> linear_size)
+        self.encoder = nn.Sequential(
+            nn.Linear(obs_size, linear_size),
+            nn.LayerNorm(linear_size) if layer_norm else nn.Identity(),
+            activation(),
+            nn.Linear(linear_size, linear_size),
+            nn.LayerNorm(linear_size) if layer_norm else nn.Identity(),
+            activation(),
         )
 
-        self.conv.add_module('conv_activation', activation())
-
-        self.conv_out_size = int(32 * model_size * 6 * 6)
-
-        self.cos_embedding = nn.Linear(self.n_cos, self.conv_out_size)
+        self.cos_embedding = nn.Linear(self.n_cos, self.linear_size)
 
         self.linear_layersV = nn.Sequential()
         self.linear_layersA = nn.Sequential()
 
-        self.linear_layersV.add_module('fc1V', linear_layer(self.conv_out_size, self.linear_size))
-        self.linear_layersA.add_module('fc1A', linear_layer(self.conv_out_size, self.linear_size))
+        self.linear_layersV.add_module('fc1V', linear_layer(self.linear_size, self.linear_size))
+        self.linear_layersA.add_module('fc1A', linear_layer(self.linear_size, self.linear_size))
 
-        if self.layer_norm:
+        if layer_norm:
             self.linear_layersV.add_module('LN_V', nn.LayerNorm(self.linear_size))
             self.linear_layersA.add_module('LN_A', nn.LayerNorm(self.linear_size))
 
@@ -242,10 +170,6 @@ class ImpalaCNNLargeIQN(nn.Module):
         self.linear_layers = Dueling(self.linear_layersV, self.linear_layersA)
 
         self.to(device)
-
-    def _get_conv_out(self, shape):
-        o = self.conv(torch.zeros(1, *shape))
-        return int(np.prod(o.size()))
 
     def forward(self, inputt, advantages_only=False):
         """
@@ -262,17 +186,16 @@ class ImpalaCNNLargeIQN(nn.Module):
         inputt = inputt.float() / 255
         #print(input.abs().sum().item())
 
-        x = self.conv(inputt)
-
-        #print(x.device)
-        x = x.view(batch_size, -1)
+        # Flatten framestack * obs_shape into single vector
+        x = inputt.view(batch_size, -1)
+        x = self.encoder(x)
 
         cos, taus = self.calc_cos(batch_size, self.num_tau)  # cos shape (batch, num_tau, layer_size)
         cos = cos.view(batch_size * self.num_tau, self.n_cos)
-        cos_x = torch.relu(self.cos_embedding(cos)).view(batch_size, self.num_tau, self.conv_out_size)  # (batch, n_tau, layer)
+        cos_x = torch.relu(self.cos_embedding(cos)).view(batch_size, self.num_tau, self.linear_size)  # (batch, n_tau, layer)
 
         # x has shape (batch, layer_size) for multiplication –> reshape to (batch, 1, layer)
-        x = (x.unsqueeze(1) * cos_x).view(batch_size * self.num_tau, self.conv_out_size)
+        x = (x.unsqueeze(1) * cos_x).view(batch_size * self.num_tau, self.linear_size)
 
         out = self.linear_layers(x)
 
@@ -387,7 +310,7 @@ class SumTree():
 
 
 class PER:
-    def __init__(self, size, device, n, envs, gamma, alpha=0.2, beta=0.4, framestack=4, imagex=84, imagey=84, rgb=False):
+    def __init__(self, size, device, n, envs, gamma, alpha=0.2, beta=0.4, framestack=4, obs_shape=83):
 
         self.st = SumTree(size)
         self.data = [None for _ in range(size)]
@@ -400,10 +323,7 @@ class PER:
         # with N=3, framestack=4, size=1M, average ep length 20, we need a total frame storage of around 1.35M
         # this however is still pretty light given it uses discrete memory. Careful when using RGB though,
         # as you have to store every frame so memory usage will be notably higher.
-        if rgb:
-            self.storage_size = int(size * 4)
-        else:
-            self.storage_size = int(size * 1.25)
+        self.storage_size = int(size * 1.25)
         self.gamma = gamma
         self.capacity = 0
 
@@ -411,9 +331,6 @@ class PER:
 
         self.state_mem_idx = 0
         self.reward_mem_idx = 0
-
-        self.imagex = imagex
-        self.imagey = imagey
 
         self.max_prio = 1
 
@@ -431,10 +348,7 @@ class PER:
         self.state_buffer = [[] for i in range(envs)]
         self.reward_buffer = [[] for i in range(envs)]
 
-        if rgb:
-            self.state_mem = np.zeros((self.storage_size, 3, self.imagey, self.imagex), dtype=np.uint8)
-        else:
-            self.state_mem = np.zeros((self.storage_size, self.imagey, self.imagex), dtype=np.uint8)
+        self.state_mem = np.zeros((self.storage_size, obs_shape), dtype=np.float64)
         self.action_mem = np.zeros(self.storage_size, dtype=np.int64)
         self.reward_mem = np.zeros(self.storage_size, dtype=float)
         self.done_mem = np.zeros(self.storage_size, dtype=bool)
@@ -777,30 +691,26 @@ def choose_eval_action(observation, eval_net, n_actions, device, rng):
     return x
 
 
-def create_network(input_dims, n_actions, spectral_norm, device, model_size, maxpool_size,
-                   linear_size, num_tau, ncos, layer_norm=True):
+def create_network(obs_size, n_actions, device, num_tau, linear_size, ncos, layer_norm=True):
 
-    return ImpalaCNNLargeIQN(input_dims[0], n_actions, spectral=spectral_norm, device=device,
-                             model_size=model_size, num_tau=num_tau, maxpool_size=maxpool_size,
-                             linear_size=linear_size, ncos=ncos, layer_norm=layer_norm)
+    return MLPIQN(obs_size, n_actions, device=device,
+                  num_tau=num_tau, linear_size=linear_size,
+                  ncos=ncos, layer_norm=layer_norm)
 
 
 #################### The big ol agent class, be prepared
 
 class Agent:
-    def __init__(self, n_actions, input_dims, device, num_envs, agent_name, total_frames, testing=False, batch_size=256
-                 , rr=1, maxpool_size=6, lr=1e-4, target_replace=500, spectral=True, discount=0.997, taus=8, model_size=2,
-                 linear_size=512, ncos=64, non_factorised=False, replay_period=1, framestack=4, rgb=False, imagex=84,
-                 imagey=84, per_alpha=0.2, max_mem_size=1048576, eps_steps=2000000, eps_disable=True, n=3,
+    def __init__(self, n_actions, obs_size, device, num_envs, agent_name, total_frames, testing=False, batch_size=256,
+                 lr=1e-4, target_replace=500, discount=0.997, taus=8,
+                 linear_size=512, ncos=64, replay_period=1, framestack=4, obs_shape=83, per_alpha=0.2, max_mem_size=1048576, eps_steps=2000000, eps_disable=True, n=3,
                  munch_alpha=0.9, grad_clip=10, layer_norm=True, spi=1):
 
         self.per_alpha = per_alpha
-
-        self.procgen = True if input_dims[1] == 64 else False
         self.grad_clip = grad_clip
 
         self.n_actions = n_actions
-        self.input_dims = input_dims
+        self.obs_size = obs_size
         self.device = device
         self.agent_name = agent_name
         self.testing = testing
@@ -811,7 +721,6 @@ class Agent:
 
         self.per_beta = 0.45
 
-        self.replay_ratio = int(rr) if rr > 0.99 else float(rr)
         self.total_frames = total_frames
         self.num_envs = num_envs
 
@@ -843,17 +752,7 @@ class Agent:
 
         self.n = n
         self.gamma = discount
-        self.discount_anneal = False
         self.batch_size = batch_size
-
-        self.model_size = model_size  # Scaling of IMPALA network
-        self.maxpool_size = maxpool_size
-
-        self.spectral_norm = spectral
-
-        # this option is only available for non-impala. I could add it, but factorised seemed
-        # to perform the same and is faster
-        self.non_factorised = non_factorised
 
         self.ncos = ncos
 
@@ -887,13 +786,12 @@ class Agent:
         self.linear_size = linear_size
 
         self.framestack = framestack
-        self.rgb = rgb
         self.memory = PER(self.max_mem_size, device, self.n, num_envs, self.gamma, alpha=self.per_alpha,
-                          beta=self.per_beta, framestack=self.framestack, rgb=self.rgb, imagex=imagex, imagey=imagey)
+                          beta=self.per_beta, framestack=self.framestack, obs_shape=obs_shape)
 
-        self.network_creator_fn = partial(create_network, self.input_dims, self.n_actions, self.spectral_norm,
-                                          self.device, self.model_size, self.maxpool_size, self.linear_size,
-                                          self.num_tau, self.ncos, layer_norm=self.layer_norm)
+        self.network_creator_fn = partial(create_network, self.obs_size, self.n_actions,
+                                          self.device, self.num_tau, self.linear_size,
+                                          self.ncos, layer_norm=self.layer_norm)
 
         self.net = self.network_creator_fn()
         self.tgt_net = self.network_creator_fn()
@@ -930,6 +828,10 @@ class Agent:
                 m.disable_noise()
 
     def choose_action(self, observation):
+        # mock return for random action testing
+        return torch.randint(0, int(self.n_actions), size=tuple([observation.shape[0]]))
+
+        # real MLP-based action selection
         # this chooses an action for a batch. Can be used with a batch of 1 if needed though
         with T.no_grad():
             if not self.eval_mode:
@@ -949,11 +851,6 @@ class Agent:
             return x
 
     def store_transition(self, state, action, reward, next_state, done, trun, stream, prio=True):
-
-        if self.rgb:
-            # expand dims to create "framestack" dim, so it works with my replay buffer
-            state = np.expand_dims(state, axis=0)
-            next_state = np.expand_dims(next_state, axis=0)
 
         self.memory.append(state, action, reward, next_state, done, trun, stream, prio=prio)
 
@@ -1149,18 +1046,15 @@ def main():
     # agent setup
     parser.add_argument('--device', type=str, default=None)
     parser.add_argument('--nstep', type=int, default=3)
-    parser.add_argument('--maxpool_size', type=int, default=6)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--testing', type=bool, default=False)
     parser.add_argument('--munch_alpha', type=float, default=0.9)
     parser.add_argument('--grad_clip', type=int, default=10)
 
-    parser.add_argument('--spectral', type=int, default=1)
     parser.add_argument('--discount', type=float, default=0.997)
     parser.add_argument('--taus', type=int, default=8)
     parser.add_argument('--c', type=int, default=500)
     parser.add_argument('--linear_size', type=int, default=512)
-    parser.add_argument('--model_size', type=float, default=2)
 
     parser.add_argument('--ncos', type=int, default=64)
     parser.add_argument('--per_alpha', type=float, default=0.2)
@@ -1184,14 +1078,11 @@ def main():
     framestack = args.framestack
     device_name = args.device
     nstep = args.nstep
-    maxpool_size = args.maxpool_size
     munch_alpha = args.munch_alpha
     grad_clip = args.grad_clip
-    spectral = args.spectral
     discount = args.discount
     linear_size = args.linear_size
     taus = args.taus
-    model_size = args.model_size
     frames = args.frames // 4
     ncos = args.ncos
     per_alpha = args.per_alpha
@@ -1229,8 +1120,8 @@ def main():
 
     if testing:
         # goes easy on the PC when debugging
-        envs = 2
-        num_envs = 2
+        envs = 1
+        num_envs = 1
         eval_every = 11580000
         n_steps = 11560000
         bs = 32
@@ -1255,13 +1146,18 @@ def main():
     print(env.observation_space)
     print(env.action_space[0])
 
-    agent = Agent(n_actions=env.action_space[0].n, input_dims=[framestack, 75, 140], device=device, num_envs=num_envs,
+    play_num = 1
+    obs_shape = 5 + 78 * play_num
+    # obs_size = flattened input size: framestack * obs_shape
+    obs_size = framestack * obs_shape
+
+    agent = Agent(n_actions=env.action_space[0].n, obs_size=obs_size, device=device, num_envs=num_envs,
                   agent_name=agent_name, total_frames=n_steps, testing=testing, batch_size=bs, lr=lr,
-                  maxpool_size=maxpool_size, target_replace=c, spectral=spectral, discount=discount, taus=taus,
-                  model_size=model_size, linear_size=linear_size, ncos=ncos, replay_period=replay_period,
+                  target_replace=c, discount=discount, taus=taus,
+                  linear_size=linear_size, ncos=ncos, replay_period=replay_period,
                   framestack=framestack, per_alpha=per_alpha, layer_norm=layer_norm,
                   eps_steps=eps_steps, eps_disable=eps_disable, n=nstep,
-                  munch_alpha=munch_alpha, grad_clip=grad_clip, imagex=140, imagey=75, spi=spi)
+                  munch_alpha=munch_alpha, grad_clip=grad_clip, spi=spi, obs_shape=obs_shape)
 
     scores_temp = []
     steps = 0
@@ -1276,7 +1172,7 @@ def main():
 
     if testing:
         from torchsummary import summary
-        summary(agent.net, (framestack, 75, 140))
+        summary(agent.net, (framestack * obs_shape,))
 
     while steps < n_steps:
         steps += num_envs

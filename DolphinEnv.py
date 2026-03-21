@@ -89,14 +89,15 @@ class DolphinEnv:
         set_value(99999.)
 
         self.framestack = 4
-        self.window_x = 140
-        self.window_y = 75
+        
+        self.play_num = 1
+        self.obs_shape = 5 + 78 * self.play_num
 
         self.action_space = [gym.spaces.Discrete(40) for i in range(num_envs)]
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
-            shape=(self.framestack, self.window_y, self.window_x),
+            shape=(self.framestack, self.obs_shape),
             dtype=np.uint8
         )
 
@@ -115,10 +116,10 @@ class DolphinEnv:
         set_shared_site()
 
         self.shm = shared_memory.SharedMemory(create=True,
-                                              size=self.num_envs * self.framestack * self.window_x * self.window_y,
+                                              size=self.num_envs * self.framestack * self.obs_shape,
                                               name="states_shm")
         self.states = np.ndarray(
-            (self.num_envs, self.framestack, self.window_y, self.window_x),
+            (self.num_envs, self.framestack, self.obs_shape),
             dtype=np.uint8,
             buffer=self.shm.buf
         )
@@ -331,7 +332,7 @@ class DolphinEnv:
         # these should all be a batch of (num_envs)
         return states, rewards, dones, truns, infos
 
-    def kill_subprocess(pids):
+    def kill_subprocess(pid):
         try:
             parent = psutil.Process(pid)
             # 자식 프로세스들을 먼저 다 죽이고
@@ -356,7 +357,7 @@ class DolphinEnv:
                 pass
 
         try:
-            kill_subprocess(self.script_pids[i])
+            self.kill_subprocess(self.script_pids[i])
             print("Minor Crash... Recovering successfully")
         except:
             print("Failed to kill by subprocess PID")

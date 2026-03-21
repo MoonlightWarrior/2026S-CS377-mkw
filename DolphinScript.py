@@ -1,9 +1,5 @@
 # slave.py
 
-print("Script Started!")
-
-from dolphin import event, gui, savestate, memory, controller
-
 import sys
 import os
 import inspect
@@ -18,8 +14,21 @@ shared_site_path = script_directory / "shared_site.txt"
 if shared_site_path.exists() and shared_site_path.is_file():
     with open(shared_site_path, 'r', encoding='utf-8') as file:
         site_path = file.read()
-    
+
     sys.path.append(site_path)
+
+# Dolphin 내장 Python에서는 sys.executable이 제대로 안 잡히므로 .venv의 python을 지정
+sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
+
+import debugpy
+
+debugpy.listen(("localhost", 5678))
+print("Waiting for debugger attach...")
+debugpy.wait_for_client()
+
+print("Script Started!")
+
+from dolphin import event, gui, savestate, memory, controller
 
 # Now we can import other libraries safely
 try:
@@ -92,178 +101,459 @@ def set_value(new_val: float):
 
 class Memory:
     class Addresses:
-        def __init__(self):
-            # RaceManagerPlayer
-            self.RaceCompletion = self.resolve_address(0x809BD730, [0xC, 0x0, 0xC])
-            # LapCompletion was on a per-checkpoint basis, RaceCompletion is interpolated
-
-            self.currentLap = self.resolve_address(0x809BD730, [0xC, 0x0, 0x24])
-            self.countdownTimer = self.resolve_address(0x809BD730, [0x22])
+        def __init__(self, num_players):
+            # ================= [RACE INFO Addresses] =================
             self.stage = self.resolve_address(0x809BD730, [0x28])
+            self.countdownTimer = self.resolve_address(0x809BD730, [0x22])
+            self.FrameCount = self.resolve_address(0x809BD730, [0x20])
+            self.PlayerCount_addr = 0x809C38B8
+            self.CourseID = self.resolve_address(0x809BD728, [0xB68])
+            self.EngineClass = self.resolve_address(0x809BD728, [0xB6C])
 
-            # KartDynamics - Iterate 3 times with 4 bytes offset to get X, Y and Z.
-            self.position = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x18])
-            self.acceleration_KartDynamics = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0x80])
-            self.mainRotation = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0xF0])
-            self.internalVelocity = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0x14C])
-            self.externalVelocity = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0x74])
-            self.angularVelocity = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0xA4])
-            self.velocity = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x4, 0xD4])
+            # ================= [PLAYER INFO Addresses (리스트로 확장)] =================
+            self.RaceCompletion = []
+            self.currentLap = []
+            self.position = []
+            self.acceleration_KartDynamics = []
+            self.mainRotation = []
+            self.internalVelocity = []
+            self.externalVelocity = []
+            self.angularVelocity = []
+            self.velocity = []
+            self.speed = []
+            self.acceleration_KartMove = []
+            self.miniturboCharge = []
+            self.offroadInvincibility = []
+            self.wheelieFrames = []
+            self.wheelieCooldown = []
+            self.leanRot = []
+            self.bitfield2 = []
+            self.surfaceFlags = []
+            self.mushroomCount = []
+            self.hopPos = []
+            self.mt_boost_timer = []
+            self.airtime = []
+            self.allmt = []
+            self.mush_and_boost = []
+            self.floor_collision_count = []
+            self.race_position = []
+            self.respawn_timer = []
+            self.wall_collide = []
+            self.soft_speed_limit = []
+            self.trickableTimer = []
+            self.trick_cooldown = []
+            self.LocalPlayerNum = []
+            self.RealControllerID = []
+            self.KartID = []
+            self.CharacterID = []
+            self.MaxRaceCompletion = []
+            self.FirstKcpLapCompletion = []
+            self.NextCheckpointLapCompletion = []
+            self.NextCheckpointLapCompletionMax = []
+            self.MaxLap = []
+            self.currentKCP = []
+            self.maxKCP = []
+            self.StateBit = []
+            self.HardSpeedLimit = []
+            self.DriftState = []
+            self.SMiniturboCharge = []
+            self.BitField0 = []
+            self.BitField1 = []
+            self.BitField3 = []
+            self.HopVector = []
+            self.Item = []
+            self.ItemNum = []
+            self.PassiveItem = []
+            self.PassiveItemNum = []
+            self.StarTimer = []
+            self.ShockTimer = []
+            self.BlooperInkTimer = []
+            self.BlooperStateFlag = []
+            self.CrushTimer = []
+            self.MegaTimer = []
+            self.startBoostCharge = []
+            self.startBoostIdx = []
 
-            # KartMove
-            self.speed = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x20])
-            self.acceleration_KartMove = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x30])
-            self.miniturboCharge = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x44, 0xFE])
+            for i in range(num_players):
+                # RaceManagerPlayer
+                self.RaceCompletion.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0xC]))
+                self.currentLap.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x24]))
+                self.MaxRaceCompletion.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x10]))
+                self.FirstKcpLapCompletion.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x14]))
+                self.NextCheckpointLapCompletion.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x18]))
+                self.NextCheckpointLapCompletionMax.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x1C]))
+                self.MaxLap.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x26]))
+                self.currentKCP.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x27]))
+                self.maxKCP.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x28]))
+                self.StateBit.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x3B]))
 
-            # Can be used as a mushroom timer as well
-            self.offroadInvincibility = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x148])
+                # RaceManager
+                self.LocalPlayerNum.append(self.resolve_address(0x809BD728, [0x2D + 0xF0 * i]))
+                self.RealControllerID.append(self.resolve_address(0x809BD728, [0x2E + 0xF0 * i]))
+                self.KartID.append(self.resolve_address(0x809BD728, [0x30 + 0xF0 * i]))
+                self.CharacterID.append(self.resolve_address(0x809BD728, [0x34 + 0xF0 * i]))
 
-            self.wheelieFrames = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x2A8])
-            self.wheelieCooldown = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x2B6])
-            self.leanRot = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x294])
+                # KartDynamics
+                self.position.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x18]))
+                self.acceleration_KartDynamics.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0x80]))
+                self.mainRotation.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0xF0]))
+                self.internalVelocity.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0x14C]))
+                self.externalVelocity.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0x74]))
+                self.angularVelocity.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0xA4]))
+                self.velocity.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x4, 0xD4]))
+                self.wall_collide.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x8, 0x90, 0x8, 0x8]))
 
-            # KartState
-            self.bitfield2 = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x4, 0xC])
+                # KartMove
+                self.speed.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x20]))
+                self.acceleration_KartMove.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x30]))
+                self.offroadInvincibility.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x148]))
+                self.wheelieFrames.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x2A8]))
+                self.wheelieCooldown.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x2B6]))
+                self.leanRot.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x294]))
+                self.mt_boost_timer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x102]))
+                self.allmt.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x10C]))
+                self.mush_and_boost.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x110]))
+                self.soft_speed_limit.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x18]))
+                self.HardSpeedLimit.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x2C]))
+                self.trick_cooldown.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x258, 0x38]))
+                self.HopVector.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x228]))
+                self.StarTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x18A]))
+                self.ShockTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x18C]))
+                self.BlooperInkTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x18E]))
+                self.BlooperStateFlag.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x190]))
+                self.CrushTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x192]))
+                self.MegaTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x28, 0x194]))
 
-            # KartCollide
-            self.surfaceFlags = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x18, 0x18, 0x2C])
+                # KartState
+                self.bitfield2.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0xC]))
+                self.airtime.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0x1C]))
+                self.trickableTimer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0xA6]))
+                self.BitField0.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0x4]))
+                self.BitField1.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0x8]))
+                self.BitField3.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0x10]))
+                self.startBoostCharge.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0x9C]))
+                self.startBoostIdx.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x4, 0xA0]))
 
-            # Misc
-            self.mushroomCount = self.resolve_address(0x809C3618, [0x14, 0x90])
-            self.hopPos = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x44, 0x22C])
+                # KartCollide
+                self.surfaceFlags.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x18, 0x18, 0x2C]))
+                self.floor_collision_count.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x18, 0x40]))
+                self.race_position.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x18, 0x3C]))
+                self.respawn_timer.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x0, 0x18, 0x18, 0x48]))
 
-            # I added
-            self.mt_boost_timer = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x102])
-            self.airtime = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x4, 0x1C])
-            self.allmt = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x10C])
-            self.mush_and_boost = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x110])
-            self.floor_collision_count = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x18, 0x40])
-            self.race_position = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x18, 0x3C])
-            self.respawn_timer = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x18, 0x18, 0x48])
+                # Misc
+                self.miniturboCharge.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0xFE]))
+                self.SMiniturboCharge.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0x100]))
+                self.DriftState.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0xFC]))
+                self.hopPos.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0x22C]))
+                self.mushroomCount.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x90]))
+                self.Item.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x8C]))
+                self.ItemNum.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x90]))
+                self.PassiveItem.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0xCC]))
+                self.PassiveItemNum.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x104]))
 
-            # this is called m_types in KartPhysics->CollisionGroup->CollisionData
-            self.wall_collide = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x8, 0x90, 0x8, 0x8])
-
-            self.soft_speed_limit = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x18])
-
-            self.trickableTimer = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x4, 0xA6])
-
-            self.trick_cooldown = self.resolve_address(0x809C18F8, [0x20, 0x0, 0x0, 0x28, 0x258, 0x38])
-
-        @staticmethod
-        def resolve_address(base_address, offsets):
-            """
-            This is a helper function to allow multiple ptr dereferences in
-            quick succession. base_address is dereferenced first, and then
-            offsets are applied.
-            """
+        def resolve_address(self, base_address, offsets):
             current_address = memory.read_u32(base_address)
             for offset in offsets:
                 value_address = current_address + offset
                 current_address = memory.read_u32(current_address + offset)
-
             return value_address
 
-    def __init__(self):
-        self.addresses = self.Addresses()
+    def __init__(self, num_players=1):
+        self.num_players = num_players
+        self.addresses = self.Addresses(num_players)
 
-        # RaceManagerPlayer
-        self.RaceCompletion: float = 0.0
-        self.currentLap: int = 0
-        self.countdownTimer: int = 0
+        # ================= [RACE INFO] =================
         self.stage: int = 0
+        self.countdownTimer: int = 0
+        self.FrameCount: int = 0
+        self.PlayerCount: int = 0
+        self.CourseID: int = 0
+        self.EngineClass: int = 0
 
-        # KartDynamics = list[float]
-        self.position = np.array([0.0, 0.0, 0.0])
-        self.acceleration_KartDynamics = np.array([0.0, 0.0, 0.0])
-        self.mainRotation = np.array([0.0, 0.0, 0.0, 0.0])
-        self.mainRotationEuler = np.array([0.0, 0.0, 0.0])
-        self.internalVelocity = np.array([0.0, 0.0, 0.0])
-        self.externalVelocity = np.array([0.0, 0.0, 0.0])
-        self.angularVelocity = np.array([0.0, 0.0, 0.0])
-        self.velocity = np.array([0.0, 0.0, 0.0])
+        # ================= [PLAYER INFO (Lists)] =================
+        self.RaceCompletion = [0.0] * num_players
+        self.currentLap = [0] * num_players
+        
+        self.position = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.acceleration_KartDynamics = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.mainRotation = [np.array([0.0, 0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.mainRotationEuler = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.internalVelocity = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.externalVelocity = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.angularVelocity = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.velocity = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        self.HopVector = [np.array([0.0, 0.0, 0.0]) for _ in range(num_players)]
+        
+        self.speed = [0.0] * num_players
+        self.acceleration_KartMove = [0.0] * num_players
+        self.miniturboCharge = [0] * num_players
+        self.offroadInvincibility = [0] * num_players
+        self.wheelieFrames = [0] * num_players
+        self.wheelieCooldown = [0] * num_players
+        self.leanRot = [0.0] * num_players
 
-        # KartMove
-        self.speed: float = 0.0
-        self.acceleration_KartMove: float = 0.0
-        self.miniturboCharge: int = 0
-        self.offroadInvincibility = False
-        self.wheelieFrames: int = 0
-        self.wheelieCooldown: int = 0
-        self.leanRot: float = 0.0
+        self.bitfield2 = [0] * num_players
+        self.isWheelie = [False] * num_players
 
-        # KartState
-        self.bitfield2: int = 0
-        self.isWheelie = False
+        self.surfaceFlags = [0] * num_players
+        self.isAboveOffroad = [False] * num_players
+        self.isTouchingOffroad = [False] * num_players
 
-        # KartCollide
-        self.surfaceFlags: int = 0
-        self.isAboveOffroad = False
-        self.isTouchingOffroad = False
+        self.mushroomCount = [0] * num_players
+        self.hopPos = [0.0] * num_players
+        # 기존 코드 유지용 추가 변수들
+        self.oilSpillRadians = [0.0] * num_players
+        self.oilSpillDistance = [0.0] * num_players
+        self.boostPanelRadians = [0.0] * num_players
+        self.boostPanelDistance = [0.0] * num_players
 
-        # Misc
-        self.mushroomCount = 0
-        self.hopPos = 0
+        self.mt_boost_timer = [0] * num_players
+        self.airtime = [0] * num_players
+        self.allmt = [0] * num_players
+        self.mush_and_boost = [0] * num_players
+        self.floor_collision_count = [2] * num_players
+        self.race_position = [12] * num_players
+        self.respawn_timer = [0] * num_players
+        self.wall_collide = [0] * num_players
+        self.speed_limit = [100.0] * num_players
+        self.trickableTimer = [0] * num_players
+        self.trick_cooldown = [0] * num_players
 
-        # Oil Spill Radians and Distance
-        self.oilSpillRadians = 0.0
-        self.oilSpillDistance = 0.0
-
-        # Boost Panel Radians and Distance
-        self.boostPanelRadians = 0.0
-        self.boostPanelDistance = 0.0
-
-        # I added
-        self.mt_boost_timer = 0
-        self.airtime = 0
-        self.allmt = 0
-        self.mush_and_boost = 0
-        self.floor_collision_count = 2
-        self.race_position = 12
-        self.respawn_timer = 0
-        self.wall_collide = 0
-        self.speed_limit = 100
-
-        self.trickableTimer = 0
-        self.trick_cooldown = 0
+        self.LocalPlayerNum = [0] * num_players
+        self.RealControllerID = [0] * num_players
+        self.KartID = [0] * num_players
+        self.CharacterID = [0] * num_players
+        
+        self.MaxRaceCompletion = [0.0] * num_players
+        self.FirstKcpLapCompletion = [0.0] * num_players
+        self.NextCheckpointLapCompletion = [0.0] * num_players
+        self.NextCheckpointLapCompletionMax = [0.0] * num_players
+        
+        self.MaxLap = [0] * num_players
+        self.currentKCP = [0] * num_players
+        self.maxKCP = [0] * num_players
+        self.StateBit = [0] * num_players
+        self.HardSpeedLimit = [0.0] * num_players
+        
+        self.DriftState = [0] * num_players
+        self.SMiniturboCharge = [0] * num_players
+        
+        self.BitField0 = [0] * num_players
+        self.BitField1 = [0] * num_players
+        self.BitField3 = [0] * num_players
+        
+        self.Item = [0] * num_players
+        self.ItemNum = [0] * num_players
+        self.PassiveItem = [0] * num_players
+        self.PassiveItemNum = [0] * num_players
+        
+        self.StarTimer = [0] * num_players
+        self.ShockTimer = [0] * num_players
+        self.BlooperInkTimer = [0] * num_players
+        self.BlooperStateFlag = [0] * num_players
+        self.CrushTimer = [0] * num_players
+        self.MegaTimer = [0] * num_players
+        
+        self.startBoostCharge = [0.0] * num_players
+        self.startBoostIdx = [0] * num_players
 
     def update(self):
-
-        # my ones
-        self.mt_boost_timer = memory.read_u16(self.addresses.mt_boost_timer)
-        self.airtime = memory.read_u16(self.addresses.airtime)
-
-        self.allmt = memory.read_u16(self.addresses.allmt)
-        self.mush_and_boost = memory.read_u16(self.addresses.mush_and_boost)
-        self.floor_collision_count = memory.read_u16(self.addresses.floor_collision_count)
-
-        self.race_position = memory.read_u8(self.addresses.race_position)
-        self.respawn_timer = memory.read_u16(self.addresses.respawn_timer)
-        self.wall_collide = memory.read_u32(self.addresses.wall_collide)
-
-        self.speed_limit = memory.read_f32(self.addresses.soft_speed_limit)
-
-        # RaceManagerPlayer
-        self.RaceCompletion = memory.read_f32(self.addresses.RaceCompletion)
-
-        self.currentLap = memory.read_u16(self.addresses.currentLap)
-        self.countdownTimer = memory.read_u16(self.addresses.countdownTimer)
+        # RACE INFO
         self.stage = memory.read_u32(self.addresses.stage)
+        self.countdownTimer = memory.read_u16(self.addresses.countdownTimer)
+        self.FrameCount = memory.read_u32(self.addresses.FrameCount)
+        self.PlayerCount = memory.read_u8(self.addresses.PlayerCount_addr)
+        self.CourseID = memory.read_u32(self.addresses.CourseID)
+        self.EngineClass = memory.read_u32(self.addresses.EngineClass)
+        
+        # PLAYER INFO
+        for i in range(self.num_players):
+            self.RaceCompletion[i] = memory.read_f32(self.addresses.RaceCompletion[i])
+            self.currentLap[i] = memory.read_u16(self.addresses.currentLap[i])
+            self.MaxRaceCompletion[i] = memory.read_f32(self.addresses.MaxRaceCompletion[i])
+            self.FirstKcpLapCompletion[i] = memory.read_f32(self.addresses.FirstKcpLapCompletion[i])
+            self.NextCheckpointLapCompletion[i] = memory.read_f32(self.addresses.NextCheckpointLapCompletion[i])
+            self.NextCheckpointLapCompletionMax[i] = memory.read_f32(self.addresses.NextCheckpointLapCompletionMax[i])
+            
+            self.MaxLap[i] = memory.read_u8(self.addresses.MaxLap[i])
+            self.currentKCP[i] = memory.read_u8(self.addresses.currentKCP[i])
+            self.maxKCP[i] = memory.read_u8(self.addresses.maxKCP[i])
+            self.StateBit[i] = memory.read_u8(self.addresses.StateBit[i])
 
-        # KartMove
-        self.speed = memory.read_f32(self.addresses.speed)
+            self.LocalPlayerNum[i] = memory.read_u8(self.addresses.LocalPlayerNum[i])
+            self.RealControllerID[i] = memory.read_u8(self.addresses.RealControllerID[i])
+            self.KartID[i] = memory.read_u32(self.addresses.KartID[i])
+            self.CharacterID[i] = memory.read_u32(self.addresses.CharacterID[i])
 
-        self.offroadInvincibility = memory.read_u16(self.addresses.offroadInvincibility)
+            # 3D Vectors
+            for j in range(3):
+                self.position[i][j] = memory.read_f32(self.addresses.position[i] + j*4)
+                self.acceleration_KartDynamics[i][j] = memory.read_f32(self.addresses.acceleration_KartDynamics[i] + j*4)
+                self.internalVelocity[i][j] = memory.read_f32(self.addresses.internalVelocity[i] + j*4)
+                self.externalVelocity[i][j] = memory.read_f32(self.addresses.externalVelocity[i] + j*4)
+                self.angularVelocity[i][j] = memory.read_f32(self.addresses.angularVelocity[i] + j*4)
+                self.velocity[i][j] = memory.read_f32(self.addresses.velocity[i] + j*4)
+                self.HopVector[i][j] = memory.read_f32(self.addresses.HopVector[i] + j*4)
+            
+            # Quaternion & Euler
+            for j in range(4):
+                self.mainRotation[i][j] = memory.read_f32(self.addresses.mainRotation[i] + j*4)
+            self.mainRotationEuler[i] = self.Quat2Euler(self.mainRotation[i])
 
-        # KartCollide
-        self.isTouchingOffroad = self.surfaceFlags & (1 << (7 - 1)) != 0
+            self.wall_collide[i] = memory.read_u32(self.addresses.wall_collide[i])
+            
+            self.speed[i] = memory.read_f32(self.addresses.speed[i])
+            self.acceleration_KartMove[i] = memory.read_f32(self.addresses.acceleration_KartMove[i])
+            self.offroadInvincibility[i] = memory.read_u16(self.addresses.offroadInvincibility[i])
+            self.wheelieFrames[i] = memory.read_u32(self.addresses.wheelieFrames[i])
+            self.wheelieCooldown[i] = memory.read_u16(self.addresses.wheelieCooldown[i])
+            self.leanRot[i] = memory.read_f32(self.addresses.leanRot[i])
+            
+            self.mt_boost_timer[i] = memory.read_u16(self.addresses.mt_boost_timer[i])
+            self.allmt[i] = memory.read_u16(self.addresses.allmt[i])
+            self.mush_and_boost[i] = memory.read_u16(self.addresses.mush_and_boost[i])
+            self.speed_limit[i] = memory.read_f32(self.addresses.soft_speed_limit[i])
+            self.HardSpeedLimit[i] = memory.read_f32(self.addresses.HardSpeedLimit[i])
+            self.trick_cooldown[i] = memory.read_u16(self.addresses.trick_cooldown[i])
 
-        # Misc
-        self.mushroomCount = memory.read_u32(self.addresses.mushroomCount)
-        self.hopPos = memory.read_f32(self.addresses.hopPos)
+            self.bitfield2[i] = memory.read_u32(self.addresses.bitfield2[i])
+            self.isWheelie[i] = (self.bitfield2[i] & (1 << 31)) != 0
+            
+            self.airtime[i] = memory.read_u32(self.addresses.airtime[i])
+            self.trickableTimer[i] = memory.read_u16(self.addresses.trickableTimer[i])
+            self.BitField0[i] = memory.read_u32(self.addresses.BitField0[i])
+            self.BitField1[i] = memory.read_u32(self.addresses.BitField1[i])
+            self.BitField3[i] = memory.read_u32(self.addresses.BitField3[i])
+            
+            self.startBoostCharge[i] = memory.read_f32(self.addresses.startBoostCharge[i])
+            self.startBoostIdx[i] = memory.read_u32(self.addresses.startBoostIdx[i])
 
-        self.trickableTimer = memory.read_u16(self.addresses.trickableTimer)
-        self.trick_cooldown = memory.read_u16(self.addresses.trick_cooldown)
+            self.surfaceFlags[i] = memory.read_u32(self.addresses.surfaceFlags[i])
+            self.isTouchingOffroad[i] = (self.surfaceFlags[i] & (1 << (7 - 1))) != 0
+            
+            self.floor_collision_count[i] = memory.read_u16(self.addresses.floor_collision_count[i])
+            self.race_position[i] = memory.read_u8(self.addresses.race_position[i])
+            self.respawn_timer[i] = memory.read_u16(self.addresses.respawn_timer[i])
+
+            self.miniturboCharge[i] = memory.read_u16(self.addresses.miniturboCharge[i])
+            self.SMiniturboCharge[i] = memory.read_u16(self.addresses.SMiniturboCharge[i])
+            self.DriftState[i] = memory.read_u16(self.addresses.DriftState[i])
+            self.hopPos[i] = memory.read_f32(self.addresses.hopPos[i])
+            
+            self.mushroomCount[i] = memory.read_u32(self.addresses.mushroomCount[i])
+            self.Item[i] = memory.read_u32(self.addresses.Item[i])
+            self.ItemNum[i] = memory.read_u32(self.addresses.ItemNum[i])
+            self.PassiveItem[i] = memory.read_u32(self.addresses.PassiveItem[i])
+            self.PassiveItemNum[i] = memory.read_u32(self.addresses.PassiveItemNum[i])
+
+            self.StarTimer[i] = memory.read_u16(self.addresses.StarTimer[i])
+            self.ShockTimer[i] = memory.read_u16(self.addresses.ShockTimer[i])
+            self.BlooperInkTimer[i] = memory.read_u16(self.addresses.BlooperInkTimer[i])
+            self.BlooperStateFlag[i] = memory.read_u8(self.addresses.BlooperStateFlag[i])
+            self.CrushTimer[i] = memory.read_u16(self.addresses.CrushTimer[i])
+            self.MegaTimer[i] = memory.read_u16(self.addresses.MegaTimer[i])
+
+    def get_obs(self):
+        obs = []
+        
+        # 1. RACE_INFO 구성
+        race_info = (
+            self.stage,
+            self.FrameCount,
+            self.PlayerCount,
+            self.CourseID,
+            self.EngineClass
+        )
+        obs.extend(race_info)
+
+        # 2. PLAYER_INFO 구성
+        for n in range(self.num_players):
+            p_info = (
+                n,                          # PlayerID
+                self.LocalPlayerNum[n],
+                self.RealControllerID[n],
+                self.KartID[n],
+                self.CharacterID[n],
+                
+                self.RaceCompletion[n],
+                self.MaxRaceCompletion[n],
+                self.FirstKcpLapCompletion[n],
+                self.NextCheckpointLapCompletion[n],
+                self.NextCheckpointLapCompletionMax[n],
+                
+                self.currentLap[n],
+                self.MaxLap[n],
+                
+                self.currentKCP[n],
+                self.maxKCP[n],
+                
+                self.speed_limit[n],        # SoftSpeedLimit
+                self.HardSpeedLimit[n],
+                
+                *self.position[n],
+                *self.velocity[n],
+                *self.internalVelocity[n],
+                *self.externalVelocity[n],
+                *self.angularVelocity[n],
+                *self.acceleration_KartDynamics[n],
+                *self.mainRotation[n],
+                
+                self.speed[n],
+                self.acceleration_KartMove[n],
+                
+                self.DriftState[n],
+                self.miniturboCharge[n],
+                self.SMiniturboCharge[n],
+                
+                self.offroadInvincibility[n],
+                
+                self.wheelieFrames[n],
+                self.wheelieCooldown[n],
+                self.leanRot[n],
+                
+                self.BitField0[n],
+                self.BitField1[n],
+                self.bitfield2[n],          # BitField2
+                self.BitField3[n],
+                
+                self.surfaceFlags[n],
+                
+                *self.HopVector[n],         # HopVelY, HopPosY, HopGravity
+                
+                self.mt_boost_timer[n],
+                self.allmt[n],
+                self.mush_and_boost[n],
+                
+                self.trickableTimer[n],
+                self.trick_cooldown[n],
+                self.airtime[n],
+                
+                self.race_position[n],
+                self.floor_collision_count[n],
+                self.respawn_timer[n],
+                
+                self.wall_collide[n],
+                
+                self.Item[n],
+                self.ItemNum[n],
+                self.PassiveItem[n],
+                self.PassiveItemNum[n],
+                
+                self.StarTimer[n],
+                self.ShockTimer[n],
+                self.BlooperInkTimer[n],
+                self.BlooperStateFlag[n],
+                self.CrushTimer[n],
+                self.MegaTimer[n],
+                
+                self.StateBit[n],
+                
+                self.startBoostCharge[n],
+                self.startBoostIdx[n]
+            )
+            obs.extend(p_info)
+            
+        return obs
 
     @staticmethod
     def Quat2Euler(quaternion):
@@ -287,15 +577,15 @@ class Memory:
         return np.array([np.degrees(roll), np.degrees(pitch), np.degrees(yaw)])
 
 class DolphinInstance:
-    def __init__(self, id):
+    def __init__(self, id, play_num):
 
         address = ('localhost', 26330 + id)
         print(f"Connecting to master at {address}...")
         self.conn = Client(address, authkey=b'secret password')
         print("Connected to master!")
 
-        self.window_x = 140
-        self.window_y = 75
+        self.play_num = play_num
+        self.obs_shape = 5 + 78 * play_num
 
         self.bestL1 = 999999
         self.bestL2 = 999999
@@ -320,8 +610,8 @@ class DolphinInstance:
                 # Make sure that the shared memory doesn't get deleted on upon exiting script by setting track=False
                 self.shm = shared_memory.SharedMemory(name="states_shm", track=False)
             self.states = np.ndarray(
-                (self.num_envs, self.framestack, self.window_y, self.window_x),
-                dtype=np.uint8,
+                (self.num_envs, self.framestack, self.obs_shape),
+                dtype=np.float64,
                 buffer=self.shm.buf
             )
         except Exception as e:
@@ -353,65 +643,41 @@ class DolphinInstance:
                           len(self.up_values) *
                           len(self.l_values))
 
-    def send_init_state(self, img):
-        self.states[self.env_id] = img
+    def send_init_state(self, status):
+        self.states[self.env_id] = status
         self.conn.send("Sent initial states")
 
     def recieve_action(self):
         self.applied_action = self.conn.recv()
 
-    def send_transition(self, reward, terminal, trun, new_img):
+    def send_transition(self, reward, terminal, trun, new_status):
         # write into shared memory
 
         if self.reset_frame_buffer:
             # Overwrite the entire frame stack with the new frame
-            self.states[self.env_id, ...] = new_img
+            self.states[self.env_id, ...] = new_status
             self.reset_frame_buffer = False
         else:
             # Shift frames left: frames 1..end → 0..end-1
             self.states[self.env_id, :-1] = self.states[self.env_id, 1:]
             # Add new frame at the end (index -1)
-            self.states[self.env_id, -1] = new_img
+            self.states[self.env_id, -1] = new_status
 
         # send the rest over the socket
         self.conn.send((reward, terminal, trun, {}))
 
-
-    def process_indiv_frame(self, img):
-        # img == (834, 456), (this is 832 is the X, this is a widescreen image)
-
-        # greyscale
-        image = img.convert("L")
-
-        # resize image to our size
-        image = image.resize((self.window_x, self.window_y))
-
-        # convert image to numpy uint8
-        image = np.asarray(image).astype(np.uint8) #process Uint
-        # (x, y)
-        return image
-
-    def process_frame(self, img):
-        """
-        :param img: numpy array of most recent (frame_pool) frames
-        :return: returns the pooled observation
-        """
-
-        observation = np.maximum(img[0], img[1])
-        return observation
-
     def get_mem_values(self):
         self.memory_tracker.update()
 
-        self.mem_speed = self.memory_tracker.speed
+        self.mem_speed = self.memory_tracker.speed[0]
 
-        self.mem_race_pos = self.memory_tracker.race_position
+        self.mem_race_pos = self.memory_tracker.race_position[0]
 
         # max race completion
-        self.mem_race_com = self.memory_tracker.RaceCompletion
+        self.mem_race_com = self.memory_tracker.RaceCompletion[0]
 
-        self.mem_offroad_invin = self.memory_tracker.offroadInvincibility
-        self.mem_touching_offroad = self.memory_tracker.isTouchingOffroad
+        self.mem_offroad_invin = self.memory_tracker.offroadInvincibility[0]
+        self.mem_touching_offroad = self.memory_tracker.isTouchingOffroad[0]
 
         self.mem_race_stage = self.memory_tracker.stage
 
@@ -448,7 +714,7 @@ class DolphinInstance:
         save_states = [file for file in Path(save_states_path).rglob('*') if file.is_file() and ".s" in file.name]
         savestate.load_from_file(str(random.choice(save_states)))
 
-        self.memory_tracker = Memory()
+        self.memory_tracker = Memory(self.play_num)
 
         self.get_mem_values()
 
@@ -526,19 +792,20 @@ class DolphinInstance:
 for i in range(4):
     await event.frameadvance()
 
-env = DolphinInstance(id)
+play_num = 1
+obs_shape = 5 + 78 * play_num
+env = DolphinInstance(id,play_num)
 
 for i in range(8):
     await event.frameadvance()
 
-(width, height, data) = await event.framedrawn()
-img = Image.frombytes('RGB', (width, height), data, 'raw')
+await event.frameadvance()
 
-print("Processing init state...")
-img = env.process_indiv_frame(img)
-img = np.array([img for _ in range(env.frameskip)])
+env.memory_tracker.update()
+current_vector = env.memory_tracker.get_obs()
+init_vector = np.array([current_vector for _ in range(env.frameskip)])
 
-env.send_init_state(img)
+env.send_init_state(init_vector)
 
 print("Sent init state")
 
@@ -553,21 +820,21 @@ reward = 0
 terminal = False
 trun = False
 
-frames_pooled = 2
 print("Starting Main Loop...")
 # atari pools the most recent two frames, don't blame me why its so confusing
-frame_data = np.zeros((frames_pooled, env.window_y, env.window_x), dtype=np.uint8)
+frame_data = np.zeros((obs_shape), dtype=np.float64)
+# TODO: data range check
 while True:
 
     # get action from main Dolphin Script
     env.recieve_action()
 
     for i in range(env.frameskip):
-        if i >= env.frameskip - frames_pooled:
-            # get frame data
-            (width, height, data) = await event.framedrawn()
-            new_img = env.process_indiv_frame(Image.frombytes('RGB', (width, height), data, 'raw'))
-            frame_data[i - frames_pooled] = new_img
+        if i >= env.frameskip:
+            await event.frameadvance()
+            env.memory_tracker.update()
+            current_vector = env.memory_tracker.get_obs()
+            frame_data[i] = current_vector
         else:
             # no frame data, just skip frame
             await event.frameadvance()
@@ -581,14 +848,8 @@ while True:
 
         if terminal or trun:
             # send transition so we can carry going on while resetting
-            new_img = Image.frombytes('RGB', (width, height), data, 'raw')
-            new_img = env.process_indiv_frame(new_img)
 
-            for i in range(frames_pooled):
-                frame_data[i] = new_img
-
-            new_img = env.process_frame(np.array(frame_data).copy())
-            env.send_transition(reward, terminal, trun, new_img.copy())
+            env.send_transition(reward, terminal, trun, np.array(frame_data).copy())
 
             # add some time here or dolphin seems to freeze up sometimes
             for _ in range(2):
@@ -604,8 +865,7 @@ while True:
             break
 
     if not (terminal or trun):
-        new_img = env.process_frame(np.array(frame_data).copy())
-        env.send_transition(reward, terminal, trun, new_img)
+        env.send_transition(reward, terminal, trun, np.array(frame_data).copy())
 
     reward = 0
     terminal = False
