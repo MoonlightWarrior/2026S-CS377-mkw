@@ -55,13 +55,13 @@ pid = int((instance_info_folder / 'pid_num.txt').read_text().strip())
 id = int((instance_info_folder / f'instance_id{pid}.txt').read_text().strip())
 
 # Debuging code
-import debugpy
+# import debugpy
 
-debugpy.listen(("localhost", 5678+id))
-print("Waiting for debugger attach...")
-debugpy.wait_for_client()
+# debugpy.listen(("localhost", 5678+id))
+# print("Waiting for debugger attach...")
+# debugpy.wait_for_client()
 
-print("Script Started!")
+# print("Script Started!")
 
 # Write our own PID into script_pid{id}.txt
 (instance_info_folder / f'script_pid{id}.txt').write_text(str(os.getpid()))

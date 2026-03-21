@@ -829,7 +829,7 @@ class Agent:
 
     def choose_action(self, observation):
         # mock return for random action testing
-        return torch.randint(0, int(self.n_actions), size=tuple([observation.shape[0]]))
+        # return torch.randint(0, int(self.n_actions), size=tuple([observation.shape[0]]))
 
         # real MLP-based action selection
         # this chooses an action for a batch. Can be used with a batch of 1 if needed though
@@ -890,25 +890,6 @@ class Agent:
             self.replace_target_network()
 
         idxs, states, actions, rewards, next_states, dones, weights = self.memory.sample(self.batch_size)
-
-        # use this code to check your states are correct!
-        # If you apply BTR to a custom env and don't check your states first, you are killing both
-        # trees and your own time
-
-        # plt.imshow(states[0][0].unsqueeze(dim=0).cpu().permute(1, 2, 0))
-        # plt.show()
-        #
-        # plt.imshow(states[0][1].unsqueeze(dim=0).cpu().permute(1, 2, 0))
-        # plt.show()
-        #
-        # plt.imshow(states[0][2].unsqueeze(dim=0).cpu().permute(1, 2, 0))
-        # plt.show()
-        #
-        # plt.imshow(states[1][0].unsqueeze(dim=0).cpu().permute(1, 2, 0))
-        # plt.show()
-        #
-        # plt.imshow(states[2][0].unsqueeze(dim=0).cpu().permute(1, 2, 0))
-        # plt.show()
 
         self.optimizer.zero_grad()
 

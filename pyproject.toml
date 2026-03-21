@@ -14,7 +14,10 @@ dependencies = [
     "pynput>=1.8.1",
     "requests>=2.32.5",
     "torchsummary==1.5.1",
-    "torchvision==0.22.1",
     "tqdm>=4.67.3",
     "typing-extensions==4.12.2",
+    "wandb>=0.25.1",
 ]
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
