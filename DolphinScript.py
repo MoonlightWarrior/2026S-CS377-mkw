@@ -21,13 +21,13 @@ if shared_site_path.exists() and shared_site_path.is_file():
 sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
 
 # Debuging code
-# import debugpy
+import debugpy
 
-# debugpy.listen(("localhost", 5678))
-# print("Waiting for debugger attach...")
-# debugpy.wait_for_client()
+debugpy.listen(("localhost", 5678))
+print("Waiting for debugger attach...")
+debugpy.wait_for_client()
 
-# print("Script Started!")
+print("Script Started!")
 
 from dolphin import event, gui, savestate, memory, controller
 
@@ -831,11 +831,11 @@ while True:
     env.recieve_action()
 
     for i in range(env.frameskip):
-        if i >= env.frameskip:
+        if i >= env.frameskip-1:
             await event.frameadvance()
             env.memory_tracker.update()
             current_vector = env.memory_tracker.get_obs()
-            frame_data[i] = current_vector
+            frame_data = current_vector
         else:
             # no frame data, just skip frame
             await event.frameadvance()
