@@ -20,15 +20,6 @@ if shared_site_path.exists() and shared_site_path.is_file():
 # Dolphin 내장 Python에서는 sys.executable이 제대로 안 잡히므로 .venv의 python을 지정
 sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
 
-# Debuging code
-import debugpy
-
-debugpy.listen(("localhost", 5678))
-print("Waiting for debugger attach...")
-debugpy.wait_for_client()
-
-print("Script Started!")
-
 from dolphin import event, gui, savestate, memory, controller
 
 # Now we can import other libraries safely
@@ -62,6 +53,15 @@ pid = int((instance_info_folder / 'pid_num.txt').read_text().strip())
 
 # Read our specific ID
 id = int((instance_info_folder / f'instance_id{pid}.txt').read_text().strip())
+
+# Debuging code
+import debugpy
+
+debugpy.listen(("localhost", 5678+id))
+print("Waiting for debugger attach...")
+debugpy.wait_for_client()
+
+print("Script Started!")
 
 # Write our own PID into script_pid{id}.txt
 (instance_info_folder / f'script_pid{id}.txt').write_text(str(os.getpid()))
@@ -606,13 +606,13 @@ class DolphinInstance:
         try:
             # setup shared memory
             if(sys.version_info[1] < 13):
-                self.shm = shared_memory.SharedMemory(name="states_shm")
+                self.shm = shared_memory.SharedMemory(name="states_shm",size=self.num_envs*self.framestack*self.obs_shape)
             else:
                 # Make sure that the shared memory doesn't get deleted on upon exiting script by setting track=False
-                self.shm = shared_memory.SharedMemory(name="states_shm", track=False)
+                self.shm = shared_memory.SharedMemory(name="states_shm", track=False, size=self.num_envs*self.framestack*self.obs_shape)
             self.states = np.ndarray(
                 (self.num_envs, self.framestack, self.obs_shape),
-                dtype=np.float64,
+                dtype=np.float32,
                 buffer=self.shm.buf
             )
         except Exception as e:
@@ -823,7 +823,7 @@ trun = False
 
 print("Starting Main Loop...")
 # atari pools the most recent two frames, don't blame me why its so confusing
-frame_data = np.zeros((obs_shape), dtype=np.float64)
+frame_data = np.zeros((obs_shape), dtype=np.float32)
 # TODO: data range check
 while True:
 

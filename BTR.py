@@ -348,7 +348,7 @@ class PER:
         self.state_buffer = [[] for i in range(envs)]
         self.reward_buffer = [[] for i in range(envs)]
 
-        self.state_mem = np.zeros((self.storage_size, obs_shape), dtype=np.float64)
+        self.state_mem = np.zeros((self.storage_size, obs_shape), dtype=np.float32)
         self.action_mem = np.zeros(self.storage_size, dtype=np.int64)
         self.reward_mem = np.zeros(self.storage_size, dtype=float)
         self.done_mem = np.zeros(self.storage_size, dtype=bool)
