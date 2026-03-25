@@ -266,7 +266,8 @@ class DolphinEnv:
         dones = []
         truns = []
         infos = {"final_observation":[], "Ignore": np.array([False for i in range(self.num_envs)]),
-                 "First": np.array([False for i in range(self.num_envs)])}
+                 "First": np.array([False for i in range(self.num_envs)]),
+                 "RaceCompletion": np.zeros(self.num_envs, dtype=np.float32)}
 
         for i in range(self.num_envs):
 
@@ -297,6 +298,7 @@ class DolphinEnv:
                     self.is_resetting[i] = 8
 
                 infos["final_observation"].append(None)
+                infos["RaceCompletion"][i] = float(info.get("RaceCompletion", 0.0))
                 if self.firsts[i]:
                     self.firsts[i] = False
                     infos["First"][i] = True
@@ -308,6 +310,7 @@ class DolphinEnv:
                 dones.append(False)
                 truns.append(True)
                 infos["final_observation"].append(np.copy(self.states[i]))
+                infos["RaceCompletion"][i] = 0.0
 
                 self.restart_instance(i)
 

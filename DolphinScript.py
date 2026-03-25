@@ -665,7 +665,10 @@ class DolphinInstance:
             self.states[self.env_id, -1] = new_status
 
         # send the rest over the socket
-        self.conn.send((reward, terminal, trun, {}))
+        info = {
+            "RaceCompletion": float(self.mem_race_com),
+        }
+        self.conn.send((reward, terminal, trun, info))
 
     def get_mem_values(self):
         self.memory_tracker.update()
