@@ -154,7 +154,41 @@ Best of Luck!
 2. Can I play games other than Mario Kart Wii?
    Currently this repository only supports a basic scenario using Mario Kart Wii on Luigi Circuit, however when doing videos I might try to add new content for people to play around with. It may take a little while, but you are welcome to attempt to use this repo to get an AI to play your favourite games.
 
-### 9. Add Tip - 기본 레포에는 없었음.
+### 9. Docker
 
-`uv pip install torch torchvision --index https://pypi.org/simple --extra-index-url https://download.pytorch.org/whl/cu130 --index-strategy unsafe-best-match`
-로 적절한 torch 설치해서 사용하기
+#### 사전 준비
+
+```bash
+# game ROM 배치
+cp mkw.iso game/mkw.iso
+
+# savestates 다운로드
+uv run scripts/download_savestates.py
+```
+
+#### Headless (학습 서버, 디스플레이 없음)
+
+```bash
+HEADLESS=1 docker compose up -d --build
+docker compose logs -f
+```
+
+#### GUI (호스트 디스플레이 연결)
+
+`xhost`는 SSH에서 안 됩니다. 물리 모니터가 연결된 로컬 터미널에서 실행하세요.
+
+```bash
+export DISPLAY=:0
+xhost +local:docker
+# "non-network local connections being added to access control list" 한 줄만 나오면 성공
+docker compose up -d --build
+docker compose logs -f
+```
+
+#### 기타
+
+```bash
+docker compose exec wii-rl bash   # 컨테이너 쉘 접속
+docker compose down                # 컨테이너 중지/제거
+docker rm -f wii-rl                # 컨테이너 강제 삭제
+```
