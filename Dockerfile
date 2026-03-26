@@ -46,11 +46,6 @@ RUN cd /opt && \
     unzip MarioKartSaveStates.zip && \
     rm MarioKartSaveStates.zip
 
-# install python requirements via uv (copy manifests for layer caching)
-COPY pyproject.toml uv.lock /tmp/
-RUN --mount=type=cache,target=/root/.cache/uv \
-    cd /tmp && uv sync --frozen --no-dev && rm pyproject.toml uv.lock
-
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
