@@ -721,6 +721,7 @@ class DolphinInstance:
         self.memory_tracker = Memory(self.play_num)
 
         self.get_mem_values()
+        self.prev_race_completion = float(self.mem_race_com)
 
         # move our current checkpoint to where we are based on spawn location
         while self.mem_race_com > self.checkpoints[self.current_checkpoint]:
@@ -766,8 +767,13 @@ class DolphinInstance:
 
         # refresh memory values
         self.get_mem_values()
+        progress_delta = float(self.mem_race_com - self.prev_race_completion)
+        self.prev_race_completion = float(self.mem_race_com)
 
         self.ep_length += 1
+
+        # Dense progress reward makes PPO much easier to optimize than sparse checkpoints alone.
+        reward += 20.0 * min(max(progress_delta, 0.0), 0.05)
 
         # checkpoint bonus
         if self.mem_race_com > self.checkpoints[self.current_checkpoint]:
