@@ -217,29 +217,33 @@ class DolphinEnv:
             )
         elif(platform_name == "Linux"):
             exe_path = self.project_folder / f'dolphin{i}' / 'dolphin-emu'
+            base_args = [
+                f'--no-python-subinterpreters',
+                f'--script', f'{self.project_folder}/DolphinScript.py',
+                f'\\b', f'--exec={self.games_folder/self.gamefile}'
+            ]
+            speed_args = [
+                '-C', 'Dolphin.Core.EmulationSpeed=0.0',
+                '-C', 'Dolphin.Core.OverclockEnable=True',
+                '-C', 'Dolphin.Core.Overclock=0.25',
+                '-C', 'Dolphin.Core.FastDiscSpeed=True',
+                '-C', 'Dolphin.Core.DSPHLE=True',
+                '-C', 'Dolphin.DSP.Backend=No audio output',
+                '-C', 'GFX.Settings.InternalResolution=0',
+                '-C', 'GFX.Settings.FastDepthCalc=True',
+                '-C', 'GFX.Settings.DisableFog=True',
+                '-C', 'GFX.Settings.MSAA=0',
+                '-C', 'GFX.Enhancements.MaxAnisotropy=0',
+                '-C', 'GFX.Hacks.EFBAccessEnable=True',
+                '-C', 'GFX.Hacks.EFBToTextureEnable=True',
+                '-C', 'GFX.Hacks.XFBToTextureEnable=True',
+                '-C', 'GFX.Hacks.SkipDuplicateXFBs=True',
+                '-C', 'GFX.Hardware.VSync=False',
+            ]
             if os.environ.get('HEADLESS') == '1':
-                cmd = (
-                    f'{exe_path}',
-                    f'-v', 'Null',
-                    f'--no-python-subinterpreters',
-                    f'--script', f'{self.project_folder}/DolphinScript.py',
-                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
-                )
-            elif os.environ.get('USE_VGLRUN') == '1':
-                cmd = (
-                    'vglrun',
-                    f'{exe_path}',
-                    f'--no-python-subinterpreters',
-                    f'--script', f'{self.project_folder}/DolphinScript.py',
-                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
-                )
+                cmd = (f'{exe_path}', '-v', 'Null', *speed_args, *base_args)
             else:
-                cmd = (
-                    f'{exe_path}',
-                    f'--no-python-subinterpreters',
-                    f'--script', f'{self.project_folder}/DolphinScript.py',
-                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
-                )
+                cmd = (f'{exe_path}', *base_args)
         elif(platform_name == "Darwin"):
             exe_path = self.project_folder / f'dolphin{i}' / 'DolphinQt.app'
             cmd = (
