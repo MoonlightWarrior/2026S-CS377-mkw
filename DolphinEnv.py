@@ -217,7 +217,15 @@ class DolphinEnv:
             )
         elif(platform_name == "Linux"):
             exe_path = self.project_folder / f'dolphin{i}' / 'dolphin-emu'
-            if os.environ.get('USE_VGLRUN') == '1':
+            if os.environ.get('HEADLESS') == '1':
+                cmd = (
+                    f'{exe_path}',
+                    f'-v', 'Null',
+                    f'--no-python-subinterpreters',
+                    f'--script', f'{self.project_folder}/DolphinScript.py',
+                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
+                )
+            elif os.environ.get('USE_VGLRUN') == '1':
                 cmd = (
                     'vglrun',
                     f'{exe_path}',
