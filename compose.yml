@@ -1,0 +1,30 @@
+services:
+  wii-rl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wii-rl
+    container_name: wii-rl
+    shm_size: 2g
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - XAUTHORITY=/root/.Xauthority
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HEADLESS=${HEADLESS:-0}
+      - DOLPHIN_CLONES=${DOLPHIN_CLONES:-7}
+    volumes:
+      - .:/src/Vlab-WiiRL
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.Xauthority:/root/.Xauthority:ro
+    devices:
+      - /dev/dri:/dev/dri
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
