@@ -32,6 +32,7 @@ OVERCLOCK="${DOLPHIN_OVERCLOCK:-0.25}"
 GFX_BACKEND="${DOLPHIN_GFX_BACKEND:-Null}"
 
 for i in $(seq 0 "$NUM_CLONES"); do
+    touch "$WORKDIR/dolphin${i}/portable.txt"
     CFG_DIR="$WORKDIR/dolphin${i}/User/Config"
     mkdir -p "$CFG_DIR"
 
