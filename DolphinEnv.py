@@ -217,12 +217,21 @@ class DolphinEnv:
             )
         elif(platform_name == "Linux"):
             exe_path = self.project_folder / f'dolphin{i}' / 'dolphin-emu'
-            cmd = (
-                f'{exe_path}',
-                f'--no-python-subinterpreters',
-                f'--script', f'{self.project_folder}/DolphinScript.py',
-                f'\\b', f'--exec={self.games_folder/self.gamefile}'
-            )
+            if os.environ.get('USE_VGLRUN') == '1':
+                cmd = (
+                    'vglrun',
+                    f'{exe_path}',
+                    f'--no-python-subinterpreters',
+                    f'--script', f'{self.project_folder}/DolphinScript.py',
+                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
+                )
+            else:
+                cmd = (
+                    f'{exe_path}',
+                    f'--no-python-subinterpreters',
+                    f'--script', f'{self.project_folder}/DolphinScript.py',
+                    f'\\b', f'--exec={self.games_folder/self.gamefile}'
+                )
         elif(platform_name == "Darwin"):
             exe_path = self.project_folder / f'dolphin{i}' / 'DolphinQt.app'
             cmd = (

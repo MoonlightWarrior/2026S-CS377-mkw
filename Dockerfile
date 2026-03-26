@@ -29,7 +29,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
     libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xkb1 \
     libxkbcommon-x11-0 \
-    xvfb \
+    xvfb libxtst6 libxv1 libglu1-mesa wget \
+    && wget -q https://github.com/VirtualGL/virtualgl/releases/download/3.1.2/virtualgl_3.1.2_amd64.deb -O /tmp/virtualgl.deb \
+    && dpkg -i /tmp/virtualgl.deb && rm /tmp/virtualgl.deb \
     && rm -rf /var/lib/apt/lists/*
 
 # extract prebuilt dolphin binaries

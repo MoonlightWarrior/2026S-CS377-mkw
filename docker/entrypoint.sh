@@ -8,9 +8,10 @@ NUM_CLONES="${DOLPHIN_CLONES:-7}"
 
 # --- display setup ---
 if [ "${HEADLESS:-0}" = "1" ]; then
-    Xvfb :99 -screen 0 1280x720x24 +extension GLX &
+    Xvfb :99 -screen 0 640x480x24 +extension GLX &
     sleep 1
     export DISPLAY=:99
+    export USE_VGLRUN=1
 fi
 
 # --- provision dolphin binaries if not present ---
