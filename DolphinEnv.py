@@ -227,18 +227,18 @@ class DolphinEnv:
                 '-C', 'Dolphin.Core.OverclockEnable=True',
                 '-C', 'Dolphin.Core.Overclock=0.25',
                 '-C', 'Dolphin.Core.FastDiscSpeed=True',
-                '-C', 'Dolphin.Core.DSPHLE=True',
+                # '-C', 'Dolphin.Core.DSPHLE=True',              # default
                 '-C', 'Dolphin.DSP.Backend=No audio output',
-                '-C', 'GFX.Settings.InternalResolution=0',
-                '-C', 'GFX.Settings.FastDepthCalc=True',
+                # '-C', 'GFX.Settings.InternalResolution=0',     # default
+                # '-C', 'GFX.Settings.FastDepthCalc=True',       # default
                 '-C', 'GFX.Settings.DisableFog=True',
-                '-C', 'GFX.Settings.MSAA=0',
-                '-C', 'GFX.Enhancements.MaxAnisotropy=0',
-                '-C', 'GFX.Hacks.EFBAccessEnable=True',
-                '-C', 'GFX.Hacks.EFBToTextureEnable=True',
-                '-C', 'GFX.Hacks.XFBToTextureEnable=True',
-                '-C', 'GFX.Hacks.SkipDuplicateXFBs=True',
-                '-C', 'GFX.Hardware.VSync=False',
+                # '-C', 'GFX.Settings.MSAA=0',                   # default
+                # '-C', 'GFX.Enhancements.MaxAnisotropy=0',      # default
+                # '-C', 'GFX.Hacks.EFBAccessEnable=True',        # default
+                # '-C', 'GFX.Hacks.EFBToTextureEnable=True',     # default
+                # '-C', 'GFX.Hacks.XFBToTextureEnable=True',     # default
+                # '-C', 'GFX.Hacks.SkipDuplicateXFBs=True',      # default
+                # '-C', 'GFX.Hardware.VSync=False',               # default
             ]
             if os.environ.get('HEADLESS') == '1':
                 cmd = (f'{exe_path}', '-v', 'Null', *speed_args, *base_args)

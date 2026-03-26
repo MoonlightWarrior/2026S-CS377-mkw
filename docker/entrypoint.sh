@@ -27,49 +27,6 @@ for i in $(seq 1 "$NUM_CLONES"); do
     fi
 done
 
-# --- apply dolphin config ---
-OVERCLOCK="${DOLPHIN_OVERCLOCK:-0.25}"
-GFX_BACKEND="${DOLPHIN_GFX_BACKEND:-Null}"
-
-for i in $(seq 0 "$NUM_CLONES"); do
-    touch "$WORKDIR/dolphin${i}/portable.txt"
-    CFG_DIR="$WORKDIR/dolphin${i}/User/Config"
-    mkdir -p "$CFG_DIR"
-
-    # Dolphin.ini — Core + DSP
-    cat > "$CFG_DIR/Dolphin.ini" <<DINI
-[Core]
-CPUThread = False
-OverclockEnable = True
-Overclock = ${OVERCLOCK}
-EmulationSpeed = 0.0
-DSPHLE = True
-FastDiscSpeed = True
-GFXBackend = ${GFX_BACKEND}
-[DSP]
-Backend = No audio output
-DINI
-
-    # GFX.ini — Video settings + hacks
-    cat > "$CFG_DIR/GFX.ini" <<GINI
-[Settings]
-InternalResolution = 0
-VSync = False
-FastDepthCalc = True
-DisableFog = True
-MSAA = 0
-[Enhancements]
-MaxAnisotropy = 0
-[Hacks]
-EFBAccessEnable = True
-EFBToTextureEnable = True
-EFBScaledCopy = True
-XFBToTextureEnable = True
-SkipDuplicateXFBs = True
-GINI
-done
-echo "[entrypoint] dolphin config applied (overclock=${OVERCLOCK}, gfx=${GFX_BACKEND})"
-
 # --- provision savestates if not present ---
 if [ ! -d "$WORKDIR/MarioKartSaveStates" ]; then
     echo "[entrypoint] copying savestates from image..."

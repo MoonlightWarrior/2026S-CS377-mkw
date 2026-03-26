@@ -13,8 +13,6 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - HEADLESS=${HEADLESS:-0}
       - DOLPHIN_CLONES=${DOLPHIN_CLONES:-7}
-      - DOLPHIN_OVERCLOCK=${DOLPHIN_OVERCLOCK:-0.25}
-      - DOLPHIN_GFX_BACKEND=${DOLPHIN_GFX_BACKEND:-Null}
       - UV_CACHE_DIR=/root/.cache/uv
     volumes:
       - .:/src/Vlab-WiiRL
