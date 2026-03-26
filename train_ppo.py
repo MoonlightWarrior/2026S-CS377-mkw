@@ -14,6 +14,45 @@ from ppo_buffer import PPOBuffer
 from ppo_env import PPOEnv
 
 
+class RunningMeanStd:
+    def __init__(self, shape: tuple[int, ...], epsilon: float = 1e-4) -> None:
+        self.mean = np.zeros(shape, dtype=np.float64)
+        self.var = np.ones(shape, dtype=np.float64)
+        self.count = epsilon
+
+    def update(self, x: np.ndarray) -> None:
+        x = np.asarray(x, dtype=np.float64)
+        if x.ndim == 1:
+            x = x[None, :]
+        batch_mean = np.mean(x, axis=0)
+        batch_var = np.var(x, axis=0)
+        batch_count = x.shape[0]
+        self._update_from_moments(batch_mean, batch_var, batch_count)
+
+    def _update_from_moments(
+        self,
+        batch_mean: np.ndarray,
+        batch_var: np.ndarray,
+        batch_count: int,
+    ) -> None:
+        delta = batch_mean - self.mean
+        total_count = self.count + batch_count
+
+        new_mean = self.mean + delta * batch_count / total_count
+        m_a = self.var * self.count
+        m_b = batch_var * batch_count
+        m2 = m_a + m_b + np.square(delta) * self.count * batch_count / total_count
+        new_var = m2 / total_count
+
+        self.mean = new_mean
+        self.var = np.maximum(new_var, 1e-6)
+        self.count = total_count
+
+    def normalize(self, x: np.ndarray, clip: float = 10.0) -> np.ndarray:
+        normalized = (x - self.mean) / np.sqrt(self.var + 1e-8)
+        return np.clip(normalized, -clip, clip).astype(np.float32, copy=False)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_envs", type=int, default=1)
@@ -21,9 +60,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--total_updates", type=int, default=1000)
     parser.add_argument("--epochs", type=int, default=4)
     parser.add_argument("--minibatch_size", type=int, default=64)
-    parser.add_argument("--learning_rate", type=float, default=3e-4)
+    parser.add_argument("--learning_rate", type=float, default=1e-4)
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--checkpoint_dir", type=str, default=None)
+    parser.add_argument("--load_checkpoint", type=str, default=None)
     parser.add_argument("--save_every", type=int, default=0)
     return parser.parse_args()
 
@@ -39,11 +79,12 @@ def main() -> None:
     gamma = 0.99
     gae_lambda = 0.95
     clip_coef = 0.2
-    ent_coef = 0.05
+    ent_coef = 0.01
     vf_coef = 0.5
     max_grad_norm = 0.5
     learning_rate = args.learning_rate
     checkpoint_dir = args.checkpoint_dir
+    load_checkpoint = args.load_checkpoint
     save_every = args.save_every
     device = torch.device(args.device) if args.device is not None else torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
@@ -55,9 +96,12 @@ def main() -> None:
     obs, _ = env.reset()
     obs_dim = obs.shape[1]
     action_dim = env.action_space.n
+    obs_rms = RunningMeanStd(shape=(obs_dim,))
+    obs_rms.update(obs)
+    obs = obs_rms.normalize(obs)
 
     agent = PPOAgent(obs_dim=obs_dim, action_dim=action_dim).to(device)
-    optimizer = optim.Adam(agent.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(agent.parameters(), lr=learning_rate, eps=1e-5)
     buffer = PPOBuffer(
         rollout_steps=rollout_steps,
         num_envs=num_envs,
@@ -76,6 +120,7 @@ def main() -> None:
     completed_timeouts = 0
     env_steps = 0
     start_time = time.time()
+    start_update = 0
 
     if checkpoint_dir is not None:
         os.makedirs(checkpoint_dir, exist_ok=True)
@@ -86,13 +131,51 @@ def main() -> None:
         torch.save(
             {
                 "update": update,
+                "env_steps": env_steps,
                 "model_state_dict": agent.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
+                "obs_rms_mean": obs_rms.mean,
+                "obs_rms_var": obs_rms.var,
+                "obs_rms_count": obs_rms.count,
             },
             os.path.join(checkpoint_dir, f"checkpoint_update_{update}.pt"),
         )
 
-    for update in range(1, total_updates + 1):
+    if load_checkpoint is not None:
+        # This checkpoint is produced by this project and includes optimizer and
+        # numpy-based normalization stats, so it must be loaded as a full pickle.
+        checkpoint = torch.load(load_checkpoint, map_location=device, weights_only=False)
+        agent.load_state_dict(checkpoint["model_state_dict"])
+
+        optimizer_state_dict = checkpoint.get("optimizer_state_dict")
+        if optimizer_state_dict is not None:
+            optimizer.load_state_dict(optimizer_state_dict)
+
+        start_update = int(checkpoint.get("update", 0))
+        env_steps = int(checkpoint.get("env_steps", 0))
+
+        if "obs_rms_mean" in checkpoint:
+            obs_rms.mean = np.asarray(checkpoint["obs_rms_mean"], dtype=np.float64)
+        if "obs_rms_var" in checkpoint:
+            obs_rms.var = np.asarray(checkpoint["obs_rms_var"], dtype=np.float64)
+        if "obs_rms_count" in checkpoint:
+            obs_rms.count = float(checkpoint["obs_rms_count"])
+
+        obs = obs_rms.normalize(obs)
+        print(
+            f"Loaded checkpoint: {load_checkpoint} "
+            f"(resume_update={start_update}, env_steps={env_steps})"
+        )
+
+    if total_updates <= start_update:
+        print(
+            f"Nothing to do: total_updates={total_updates} is not greater than "
+            f"checkpoint update={start_update}"
+        )
+        save_checkpoint(start_update)
+        return
+
+    for update in range(start_update + 1, total_updates + 1):
         buffer.reset()
         roll_returns: list[float] = []
         roll_lengths: list[int] = []
@@ -163,7 +246,8 @@ def main() -> None:
                 valid_mask=valid_mask,
             )
 
-            obs = next_obs
+            obs_rms.update(next_obs)
+            obs = obs_rms.normalize(next_obs)
             env_steps += num_envs
 
         with torch.no_grad():
@@ -178,6 +262,8 @@ def main() -> None:
             advantages = advantages[valid_rows]
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
             buffer.advantages[buffer.valid_mask] = advantages
+
+        valid_sample_count = int(buffer.valid_mask.sum())
 
         for _ in range(epochs):
             for batch in buffer.get_batches(minibatch_size=minibatch_size):
@@ -229,6 +315,7 @@ def main() -> None:
             f"timeout_rate={timeout_rate:.3f} "
             f"avg_episode_length={avg_ep_len:.1f} "
             f"entropy={mean_entropy:.3f} "
+            f"valid_samples={valid_sample_count} "
             f"action_dist={action_dist or 'n/a'} "
             f"sps={sps}"
         )
