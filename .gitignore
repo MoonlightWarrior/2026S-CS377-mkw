@@ -22,3 +22,6 @@ pid_num.txt
 instance_id0.txt
 id_num.txt
 alive.txt
+
+# models
+checkpoints/
