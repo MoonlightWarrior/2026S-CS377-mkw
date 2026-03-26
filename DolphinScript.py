@@ -18,7 +18,7 @@ if shared_site_path.exists() and shared_site_path.is_file():
     sys.path.append(site_path)
 
 # Dolphin 내장 Python에서는 sys.executable이 제대로 안 잡히므로 .venv의 python을 지정
-sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
+# sys.executable = str(script_directory / ".venv" / "Scripts" / "python.exe")
 
 from dolphin import event, gui, savestate, memory, controller
 
