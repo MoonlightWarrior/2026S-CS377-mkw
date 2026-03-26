@@ -13,10 +13,12 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - HEADLESS=${HEADLESS:-0}
       - DOLPHIN_CLONES=${DOLPHIN_CLONES:-7}
+      - UV_CACHE_DIR=/root/.cache/uv
     volumes:
       - .:/src/Vlab-WiiRL
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ~/.Xauthority:/root/.Xauthority:ro
+      - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv
     devices:
       - /dev/dri:/dev/dri
     stdin_open: true

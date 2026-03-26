@@ -13,6 +13,9 @@ dependencies = [
     "psutil>=7.2.2",
     "pynput>=1.8.1",
     "requests>=2.32.5",
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "torchaudio==2.6.0",
     "torchsummary==1.5.1",
     "tqdm>=4.67.3",
     "typing-extensions==4.12.2",
@@ -21,3 +24,13 @@ dependencies = [
 
 [[tool.uv.index]]
 url = "https://pypi.org/simple"
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu124"
+name = "pytorch"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
+torchaudio = { index = "pytorch" }

@@ -15,6 +15,10 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
     update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.12 1
 
+# install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+
 # dolphin runtime deps + xvfb for headless
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip tmux \
@@ -40,10 +44,9 @@ RUN cd /opt && \
     unzip MarioKartSaveStates.zip && \
     rm MarioKartSaveStates.zip
 
-# install python requirements (copy only requirements.txt for layer caching)
-COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install -r /tmp/requirements.txt --break-system-packages --ignore-installed && \
-    rm /tmp/requirements.txt
+# install python requirements via uv (copy manifests for layer caching)
+COPY pyproject.toml uv.lock /tmp/
+RUN cd /tmp && uv sync --frozen --no-dev && rm pyproject.toml uv.lock
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
