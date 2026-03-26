@@ -21,6 +21,7 @@ services:
       - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv
     devices:
       - /dev/dri:/dev/dri
+    command: uv run train_ppo.py --num_envs 2
     stdin_open: true
     tty: true
     deploy:
