@@ -224,8 +224,8 @@ class DolphinEnv:
             ]
             speed_args = [
                 '-C', 'Dolphin.Core.EmulationSpeed=0.0',
-                '-C', 'Dolphin.Core.OverclockEnable=True',
-                '-C', 'Dolphin.Core.Overclock=0.25',
+                # '-C', 'Dolphin.Core.OverclockEnable=True',
+                # '-C', 'Dolphin.Core.Overclock=0.25',
                 '-C', 'Dolphin.Core.FastDiscSpeed=True',
                 # '-C', 'Dolphin.Core.DSPHLE=True',              # default
                 '-C', 'Dolphin.DSP.Backend=No audio output',
