@@ -4,7 +4,8 @@ set -e
 WORKDIR="/src/Vlab-WiiRL"
 DOLPHIN_BASE="/opt/dolphin-base"
 SAVESTATES_BASE="/opt/MarioKartSaveStates"
-NUM_CLONES="${DOLPHIN_CLONES:-7}"
+NUM_ENVS="${NUM_ENVS:-8}"
+NUM_CLONES=$((NUM_ENVS - 1))
 
 # --- display setup ---
 if [ "${HEADLESS:-0}" = "1" ]; then

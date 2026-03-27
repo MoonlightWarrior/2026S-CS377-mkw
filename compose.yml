@@ -12,7 +12,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=all
       - NVIDIA_VISIBLE_DEVICES=all
       - HEADLESS=${HEADLESS:-0}
-      - DOLPHIN_CLONES=${DOLPHIN_CLONES:-7}
+      - NUM_ENVS=${NUM_ENVS:-8}
       - UV_CACHE_DIR=/root/.cache/uv
     volumes:
       - .:/src/Vlab-WiiRL
@@ -21,7 +21,7 @@ services:
       - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv
     devices:
       - /dev/dri:/dev/dri
-    command: uv run train_ppo.py --num_envs 8
+    command: uv run train_ppo.py --num_envs ${NUM_ENVS:-8}
     stdin_open: true
     tty: true
     deploy:

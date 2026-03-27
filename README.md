@@ -158,11 +158,11 @@ Best of Luck!
 
 #### 사전 준비
 
-```bash
-# game ROM 배치
-cp mkw.iso game/mkw.iso
+1. prebuilt dolphin 바이너리를 https://www.notion.so/vlab-kaist/Wii-RL-Docker-329b457b891780949854c2aee5c1d5b1 에서 찾아 다운로드하여 `HEREISFILE/dolphin-emu.tar.gz`에 위치
 
-# savestates 다운로드
+2. game ROM 및 savestates 준비
+```bash
+cp mkw.iso game/mkw.iso
 uv run scripts/download_savestates.py
 ```
 
@@ -178,11 +178,18 @@ docker compose logs -f
 `xhost`는 SSH에서 안 됩니다. 물리 모니터가 연결된 로컬 터미널에서 실행하세요.
 
 ```bash
+# ls /tmp/.X11-unix/ 으로 디스플레이 번호 확인 (X0 → :0, X1 → :1)
 export DISPLAY=:0
 xhost +local:docker
 # "non-network local connections being added to access control list" 한 줄만 나오면 성공
 docker compose up -d --build
 docker compose logs -f
+```
+
+#### 환경 수 변경 (기본 8)
+
+```bash
+NUM_ENVS=4 docker compose up -d --build
 ```
 
 #### 기타
