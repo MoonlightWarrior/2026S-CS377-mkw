@@ -120,6 +120,7 @@ def main() -> None:
 
     episode_returns = np.zeros(num_envs, dtype=np.float32)
     episode_lengths = np.zeros(num_envs, dtype=np.int32)
+    episode_start_race_completion = np.full(num_envs, np.nan, dtype=np.float32)
     episode_max_race_completion = np.zeros(args.num_envs, dtype=np.float32)
     completed_returns: list[float] = []
     completed_lengths: list[int] = []
@@ -188,6 +189,8 @@ def main() -> None:
         roll_returns: list[float] = []
         roll_lengths: list[int] = []
         roll_race_completions: list[float] = []
+        roll_relative_race_completions: list[float] = []
+        roll_completion_percents: list[float] = []
         roll_successes = 0
         roll_timeouts = 0
         action_counts = np.zeros(action_dim, dtype=np.int64)
@@ -212,6 +215,8 @@ def main() -> None:
             race_completion_arr = infos.get("RaceCompletion")
             if race_completion_arr is not None:
                 race_completion_arr = np.asarray(race_completion_arr, dtype=np.float32)
+                new_episode_mask = valid_mask & np.isnan(episode_start_race_completion)
+                episode_start_race_completion[new_episode_mask] = race_completion_arr[new_episode_mask]
                 episode_max_race_completion = np.maximum(
                     episode_max_race_completion, race_completion_arr
                 )
@@ -219,11 +224,19 @@ def main() -> None:
             for i in np.where(terminal & valid_mask)[0]:
                 finished = bool(dones[i] and rewards[i] > 0.0)
                 timed_out = bool(truns[i] or (dones[i] and rewards[i] <= 0.0))
+                start_race_completion = float(
+                    1.0 if np.isnan(episode_start_race_completion[i]) else episode_start_race_completion[i]
+                )
                 max_race_completion = float(episode_max_race_completion[i])
+                relative_race_completion = max(0.0, max_race_completion - start_race_completion)
+                remaining_race_completion = max(4.0 - start_race_completion, 1e-6)
+                completion_percent = min(100.0, 100.0 * relative_race_completion / remaining_race_completion)
 
                 roll_returns.append(float(episode_returns[i]))
                 roll_lengths.append(int(episode_lengths[i]))
                 roll_race_completions.append(max_race_completion)
+                roll_relative_race_completions.append(relative_race_completion)
+                roll_completion_percents.append(completion_percent)
                 completed_returns.append(float(episode_returns[i]))
                 completed_lengths.append(int(episode_lengths[i]))
                 completed_race_completions.append(max_race_completion)
@@ -234,12 +247,16 @@ def main() -> None:
 
                 episode_returns[i] = 0.0
                 episode_lengths[i] = 0
+                episode_start_race_completion[i] = np.nan
                 episode_max_race_completion[i] = 0.0
 
                 print(
                     f"episode "
                     f"env={i} "
+                    f"start_race_completion={start_race_completion:.3f} "
                     f"max_race_completion={max_race_completion:.3f} "
+                    f"relative_completion={relative_race_completion:.3f} "
+                    f"completion_percent={completion_percent:.1f} "
                     f"timeout={int(timed_out)} "
                     f"finish={int(finished)}"
                 )
@@ -305,6 +322,15 @@ def main() -> None:
         avg_ep_return = float(np.mean(roll_returns)) if roll_returns else 0.0
         mean_race_completion = float(np.mean(roll_race_completions)) if roll_race_completions else 0.0
         max_race_completion = float(np.max(roll_race_completions)) if roll_race_completions else 0.0
+        mean_relative_race_completion = (
+            float(np.mean(roll_relative_race_completions)) if roll_relative_race_completions else 0.0
+        )
+        max_relative_race_completion = (
+            float(np.max(roll_relative_race_completions)) if roll_relative_race_completions else 0.0
+        )
+        mean_completion_percent = (
+            float(np.mean(roll_completion_percents)) if roll_completion_percents else 0.0
+        )
         mean_entropy = float(np.mean(policy_entropies)) if policy_entropies else 0.0
         action_probs = action_counts / max(action_counts.sum(), 1)
         top_actions = np.argsort(action_probs)[-3:][::-1]
@@ -319,6 +345,9 @@ def main() -> None:
             f"episode_return={avg_ep_return:.3f} "
             f"race_completion_mean={mean_race_completion:.3f} "
             f"race_completion_max={max_race_completion:.3f} "
+            f"relative_completion_mean={mean_relative_race_completion:.3f} "
+            f"relative_completion_max={max_relative_race_completion:.3f} "
+            f"completion_percent_mean={mean_completion_percent:.1f} "
             f"completion_rate={completion_rate:.3f} "
             f"timeout_rate={timeout_rate:.3f} "
             f"avg_episode_length={avg_ep_len:.1f} "

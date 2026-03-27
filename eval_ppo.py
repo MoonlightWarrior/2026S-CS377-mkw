@@ -94,11 +94,14 @@ def main() -> None:
 
     episode_returns = np.zeros(args.num_envs, dtype=np.float32)
     episode_lengths = np.zeros(args.num_envs, dtype=np.int32)
+    episode_start_race_completion = np.full(args.num_envs, np.nan, dtype=np.float32)
     episode_max_race_completion = np.zeros(args.num_envs, dtype=np.float32)
 
     completed_returns: list[float] = []
     completed_lengths: list[int] = []
     completed_max_race_completion: list[float] = []
+    completed_relative_race_completion: list[float] = []
+    completed_completion_percent: list[float] = []
     completed_successes = 0
     completed_timeouts = 0
 
@@ -125,6 +128,8 @@ def main() -> None:
             infos.get("RaceCompletion", np.zeros(args.num_envs, dtype=np.float32)),
             dtype=np.float32,
         )
+        new_episode_mask = valid_mask & np.isnan(episode_start_race_completion)
+        episode_start_race_completion[new_episode_mask] = race_completion[new_episode_mask]
         episode_max_race_completion = np.maximum(
             episode_max_race_completion, race_completion
         )
@@ -133,11 +138,19 @@ def main() -> None:
         for i in np.where(terminal & valid_mask)[0]:
             finished = bool(dones[i] and rewards[i] > 0.0)
             timed_out = bool(truns[i] or (dones[i] and rewards[i] <= 0.0))
+            start_race_completion = float(
+                1.0 if np.isnan(episode_start_race_completion[i]) else episode_start_race_completion[i]
+            )
             max_race_completion = float(episode_max_race_completion[i])
+            relative_race_completion = max(0.0, max_race_completion - start_race_completion)
+            remaining_race_completion = max(4.0 - start_race_completion, 1e-6)
+            completion_percent = min(100.0, 100.0 * relative_race_completion / remaining_race_completion)
 
             completed_returns.append(float(episode_returns[i]))
             completed_lengths.append(int(episode_lengths[i]))
             completed_max_race_completion.append(max_race_completion)
+            completed_relative_race_completion.append(relative_race_completion)
+            completed_completion_percent.append(completion_percent)
             completed_successes += int(finished)
             completed_timeouts += int(timed_out)
 
@@ -146,13 +159,17 @@ def main() -> None:
                 f"env={i} "
                 f"return={episode_returns[i]:.3f} "
                 f"length={episode_lengths[i]} "
+                f"start_race_completion={start_race_completion:.3f} "
                 f"max_race_completion={max_race_completion:.3f} "
+                f"relative_completion={relative_race_completion:.3f} "
+                f"completion_percent={completion_percent:.1f} "
                 f"finish={int(finished)} "
                 f"timeout={int(timed_out)}"
             )
 
             episode_returns[i] = 0.0
             episode_lengths[i] = 0
+            episode_start_race_completion[i] = np.nan
             episode_max_race_completion[i] = 0.0
 
             if len(completed_returns) >= args.episodes:
@@ -168,6 +185,16 @@ def main() -> None:
         if completed_max_race_completion
         else 0.0
     )
+    mean_relative_race_completion = (
+        float(np.mean(completed_relative_race_completion))
+        if completed_relative_race_completion
+        else 0.0
+    )
+    mean_completion_percent = (
+        float(np.mean(completed_completion_percent))
+        if completed_completion_percent
+        else 0.0
+    )
     completion_rate = completed_successes / total_episodes if total_episodes else 0.0
     timeout_rate = completed_timeouts / total_episodes if total_episodes else 0.0
 
@@ -176,6 +203,8 @@ def main() -> None:
     print(f"mean_return={mean_return:.3f}")
     print(f"mean_length={mean_length:.1f}")
     print(f"mean_max_race_completion={mean_race_completion:.3f}")
+    print(f"mean_relative_completion={mean_relative_race_completion:.3f}")
+    print(f"mean_completion_percent={mean_completion_percent:.1f}")
     print(f"completion_rate={completion_rate:.3f}")
     print(f"timeout_rate={timeout_rate:.3f}")
 
