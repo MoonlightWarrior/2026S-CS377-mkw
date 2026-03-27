@@ -826,6 +826,11 @@ class DolphinInstance:
         # Dense progress reward makes PPO much easier to optimize than sparse checkpoints alone.
         reward += 20.0 * min(max(progress_delta, 0.0), 0.05)
 
+        # Encourage faster forward driving, but only when actual progress is happening.
+        if progress_delta > 0.0:
+            speed_bonus = min(max(float(self.mem_speed), 0.0), 120.0) / 120.0
+            reward += 0.02 * speed_bonus
+
         if touching_offroad:
             reward -= 0.01
 
