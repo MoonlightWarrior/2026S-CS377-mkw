@@ -14,6 +14,9 @@ class PPOEnv:
         gamefile: str = "mkw.iso",
         project_folder=None,
         games_folder=None,
+        reset_mode: str = "savestate",
+        reset_savestate: str | None = None,
+        episode_timeout_steps: int | None = None,
     ) -> None:
         self.env = DolphinEnv(
             num_envs=num_envs,
@@ -21,6 +24,9 @@ class PPOEnv:
             gamefile=gamefile,
             project_folder=project_folder,
             games_folder=games_folder,
+            reset_mode=reset_mode,
+            reset_savestate=reset_savestate,
+            episode_timeout_steps=episode_timeout_steps,
         )
         self.num_envs = num_envs
         self.single_action_space = self.env.action_space[0]

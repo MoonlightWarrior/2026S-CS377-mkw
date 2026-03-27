@@ -71,8 +71,17 @@ def set_shared_site():
             break 
 
 class DolphinEnv:
-    def __init__(self, num_envs, gamename="LC", gamefile="mkw.iso", project_folder=None,
-                 games_folder=None):
+    def __init__(
+        self,
+        num_envs,
+        gamename="LC",
+        gamefile="mkw.iso",
+        project_folder=None,
+        games_folder=None,
+        reset_mode: str = "savestate",
+        reset_savestate: str | None = None,
+        episode_timeout_steps: int | None = None,
+    ):
 
         script_directory = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -85,6 +94,9 @@ class DolphinEnv:
         self.num_envs = num_envs
         self.gamename = gamename
         self.gamefile = gamefile
+        self.reset_mode = reset_mode
+        self.reset_savestate = reset_savestate
+        self.episode_timeout_steps = episode_timeout_steps
 
         set_value(99999.)
 
@@ -109,6 +121,13 @@ class DolphinEnv:
 
         # write the number of envs for the slaves to read
         (self.instance_info_folder / 'num_envs.txt').write_text(str(self.num_envs))
+        (self.instance_info_folder / 'reset_mode.txt').write_text(str(self.reset_mode))
+        (self.instance_info_folder / 'reset_savestate.txt').write_text(
+            "" if self.reset_savestate is None else str(self.reset_savestate)
+        )
+        (self.instance_info_folder / 'episode_timeout_steps.txt').write_text(
+            "" if self.episode_timeout_steps is None else str(self.episode_timeout_steps)
+        )
 
         self.ids = list(range(self.num_envs))
         self.script_pids = [-1] * self.num_envs

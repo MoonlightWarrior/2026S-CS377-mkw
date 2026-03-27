@@ -69,6 +69,29 @@ id = int((instance_info_folder / f'instance_id{pid}.txt').read_text().strip())
 alive_num = increment_alive()
 
 num_envs = int((instance_info_folder / 'num_envs.txt').read_text().strip())
+reset_mode_path = instance_info_folder / "reset_mode.txt"
+reset_savestate_path = instance_info_folder / "reset_savestate.txt"
+reset_mode = (
+    reset_mode_path.read_text().strip()
+    if reset_mode_path.exists()
+    else "savestate"
+)
+reset_savestate = (
+    reset_savestate_path.read_text().strip()
+    if reset_savestate_path.exists()
+    else ""
+)
+episode_timeout_steps_path = instance_info_folder / "episode_timeout_steps.txt"
+episode_timeout_steps_text = (
+    episode_timeout_steps_path.read_text().strip()
+    if episode_timeout_steps_path.exists()
+    else ""
+)
+episode_timeout_steps = (
+    int(episode_timeout_steps_text)
+    if episode_timeout_steps_text
+    else (None if reset_mode == "race_start" else 700)
+)
 
 log_path = instance_info_folder / f'slave_{id}.log'
 def log_exc(exc: BaseException):
@@ -594,6 +617,7 @@ class DolphinInstance:
         self.save_idx = 10
 
         self.reset_frame_buffer = False
+        self.prev_wall_collide = 0
 
         self.env_id = id
 
@@ -622,6 +646,35 @@ class DolphinInstance:
         self.define_action_space()
         self.reset()
 
+    def _list_save_states(self):
+        return sorted(
+            [
+                file
+                for file in Path(save_states_path).rglob("*")
+                if file.is_file() and ".s" in file.name
+            ]
+        )
+
+    def _select_reset_savestate(self) -> Path:
+        save_states = self._list_save_states()
+        if not save_states:
+            raise FileNotFoundError(f"No savestates found in {save_states_path}")
+
+        if reset_savestate:
+            requested_path = Path(reset_savestate)
+            if not requested_path.is_absolute():
+                requested_path = script_directory / requested_path
+            if not requested_path.exists():
+                raise FileNotFoundError(
+                    f"Configured reset savestate does not exist: {requested_path}"
+                )
+            return requested_path
+
+        if reset_mode == "race_start":
+            return save_states[0]
+
+        return random.choice(save_states)
+
     def define_action_space(self):
 
         self.wii_dic = {
@@ -637,12 +690,10 @@ class DolphinInstance:
         self.stickX_values = [-1, -0.4, 0, 0.4, 1]
         self.r_values = [False, True]
         self.up_values = [False, True]
-        self.l_values = [False, True]
         # Compute total number of discrete actions
         self.n_actions = (len(self.stickX_values) *
                           len(self.r_values) *
-                          len(self.up_values) *
-                          len(self.l_values))
+                          len(self.up_values))
 
     def send_init_state(self, status):
         self.states[self.env_id] = status
@@ -714,14 +765,14 @@ class DolphinInstance:
         # just make sure we don't list index out of range
         self.checkpoints.append(9999.)
 
-        # pick a random state to reset to
-        save_states = [file for file in Path(save_states_path).rglob('*') if file.is_file() and ".s" in file.name]
-        savestate.load_from_file(str(random.choice(save_states)))
+        savestate_path = self._select_reset_savestate()
+        savestate.load_from_file(str(savestate_path))
 
         self.memory_tracker = Memory(self.play_num)
 
         self.get_mem_values()
         self.prev_race_completion = float(self.mem_race_com)
+        self.prev_wall_collide = int(self.memory_tracker.wall_collide[0])
 
         # move our current checkpoint to where we are based on spawn location
         while self.mem_race_com > self.checkpoints[self.current_checkpoint]:
@@ -744,18 +795,16 @@ class DolphinInstance:
         self.get_mem_values()
 
         # Decode indices. Can't lie ChatGPT did this, idn wtf is going on here
-        stick_idx = action // (2 * 2 * 2)
-        rem = action % (2 * 2 * 2)
-        r_idx = rem // (2 * 2)
-        rem = rem % (2 * 2)
-        up_idx = rem // 2
-        l_idx = rem % 2
+        stick_idx = action // (len(self.r_values) * len(self.up_values))
+        rem = action % (len(self.r_values) * len(self.up_values))
+        r_idx = rem // len(self.up_values)
+        up_idx = rem % len(self.up_values)
 
         # Set relevant fields
         self.wii_dic["StickX"] = self.stickX_values[stick_idx]
         self.wii_dic["R"] = self.r_values[r_idx]
         self.wii_dic["Up"] = self.up_values[up_idx]
-        self.wii_dic["L"] = self.l_values[l_idx]
+        self.wii_dic["L"] = False
 
         self.applied_action = action
         controller.set_gc_buttons(0, self.wii_dic)
@@ -769,11 +818,19 @@ class DolphinInstance:
         self.get_mem_values()
         progress_delta = float(self.mem_race_com - self.prev_race_completion)
         self.prev_race_completion = float(self.mem_race_com)
+        wall_hit = self.mem_wall_collide_changed()
+        touching_offroad = bool(self.mem_touching_offroad)
 
         self.ep_length += 1
 
         # Dense progress reward makes PPO much easier to optimize than sparse checkpoints alone.
         reward += 20.0 * min(max(progress_delta, 0.0), 0.05)
+
+        if touching_offroad:
+            reward -= 0.01
+
+        if wall_hit:
+            reward -= 0.05
 
         # checkpoint bonus
         if self.mem_race_com > self.checkpoints[self.current_checkpoint]:
@@ -791,13 +848,22 @@ class DolphinInstance:
             reward = -1
             terminal = True
         # reset condition.
-        elif self.frames_since_chkpt > 700:
+        elif (
+            episode_timeout_steps is not None
+            and self.frames_since_chkpt > episode_timeout_steps
+        ):
             reward = -1.
             terminal = True
 
         self.frames_since_chkpt += 1
 
         return reward, terminal, trun
+
+    def mem_wall_collide_changed(self):
+        current = int(self.memory_tracker.wall_collide[0])
+        changed = current != 0 and current != self.prev_wall_collide
+        self.prev_wall_collide = current
+        return changed
 
 for i in range(4):
     await event.frameadvance()

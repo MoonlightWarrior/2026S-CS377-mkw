@@ -62,9 +62,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--minibatch_size", type=int, default=64)
     parser.add_argument("--learning_rate", type=float, default=1e-4)
     parser.add_argument("--device", type=str, default=None)
-    parser.add_argument("--checkpoint_dir", type=str, default=None)
+    parser.add_argument("--checkpoint_dir", type=str, default="checkpoints")
     parser.add_argument("--load_checkpoint", type=str, default=None)
-    parser.add_argument("--save_every", type=int, default=0)
+    parser.add_argument("--save_every", type=int, default=500)
+    parser.add_argument("--reset_mode", type=str, default="savestate")
+    parser.add_argument("--reset_savestate", type=str, default=None)
+    parser.add_argument("--episode_timeout_steps", type=int, default=700)
     return parser.parse_args()
 
 
@@ -92,7 +95,12 @@ def main() -> None:
 
     print(f"Using device: {device}")
 
-    env = PPOEnv(num_envs=num_envs)
+    env = PPOEnv(
+        num_envs=num_envs,
+        reset_mode=args.reset_mode,
+        reset_savestate=args.reset_savestate,
+        episode_timeout_steps=args.episode_timeout_steps,
+    )
     obs, _ = env.reset()
     obs_dim = obs.shape[1]
     action_dim = env.action_space.n
