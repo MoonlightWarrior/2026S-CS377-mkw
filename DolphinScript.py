@@ -690,10 +690,12 @@ class DolphinInstance:
         self.stickX_values = [-1, -0.4, 0, 0.4, 1]
         self.r_values = [False, True]
         self.up_values = [False, True]
+        self.l_values = [False, True]
         # Compute total number of discrete actions
         self.n_actions = (len(self.stickX_values) *
                           len(self.r_values) *
-                          len(self.up_values))
+                          len(self.up_values) *
+                          len(self.l_values))
 
     def send_init_state(self, status):
         self.states[self.env_id] = status
@@ -795,16 +797,19 @@ class DolphinInstance:
         self.get_mem_values()
 
         # Decode indices. Can't lie ChatGPT did this, idn wtf is going on here
-        stick_idx = action // (len(self.r_values) * len(self.up_values))
-        rem = action % (len(self.r_values) * len(self.up_values))
-        r_idx = rem // len(self.up_values)
-        up_idx = rem % len(self.up_values)
+        stride = len(self.r_values) * len(self.up_values) * len(self.l_values)
+        stick_idx = action // stride
+        rem = action % stride
+        r_idx = rem // (len(self.up_values) * len(self.l_values))
+        rem = rem % (len(self.up_values) * len(self.l_values))
+        up_idx = rem // len(self.l_values)
+        l_idx = rem % len(self.l_values)
 
         # Set relevant fields
         self.wii_dic["StickX"] = self.stickX_values[stick_idx]
         self.wii_dic["R"] = self.r_values[r_idx]
         self.wii_dic["Up"] = self.up_values[up_idx]
-        self.wii_dic["L"] = False
+        self.wii_dic["L"] = self.l_values[l_idx]
 
         self.applied_action = action
         controller.set_gc_buttons(0, self.wii_dic)
