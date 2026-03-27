@@ -32,6 +32,16 @@ class ObsNormalizer:
         return np.clip(normalized, -clip, clip).astype(np.float32, copy=False)
 
 
+def checkpoint_progress_metrics(
+    start_race_completion: float,
+    max_race_completion: float,
+) -> tuple[float, float, float]:
+    start_checkpoint = min(4.0, np.ceil(max(start_race_completion, 1.0) * 10.0) / 10.0)
+    relative_race_completion = max(0.0, max_race_completion - start_checkpoint)
+    completion_percent = min(100.0, 100.0 * relative_race_completion / 3.0)
+    return start_checkpoint, relative_race_completion, completion_percent
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Evaluate a saved PPO checkpoint on the Dolphin environment."
@@ -142,9 +152,10 @@ def main() -> None:
                 1.0 if np.isnan(episode_start_race_completion[i]) else episode_start_race_completion[i]
             )
             max_race_completion = float(episode_max_race_completion[i])
-            relative_race_completion = max(0.0, max_race_completion - start_race_completion)
-            remaining_race_completion = max(4.0 - start_race_completion, 1e-6)
-            completion_percent = min(100.0, 100.0 * relative_race_completion / remaining_race_completion)
+            start_checkpoint, relative_race_completion, completion_percent = checkpoint_progress_metrics(
+                start_race_completion,
+                max_race_completion,
+            )
 
             completed_returns.append(float(episode_returns[i]))
             completed_lengths.append(int(episode_lengths[i]))
@@ -159,9 +170,8 @@ def main() -> None:
                 f"env={i} "
                 f"return={episode_returns[i]:.3f} "
                 f"length={episode_lengths[i]} "
-                f"start_race_completion={start_race_completion:.3f} "
-                f"max_race_completion={max_race_completion:.3f} "
-                f"relative_completion={relative_race_completion:.3f} "
+                f"start_checkpoint={start_checkpoint:.3f} "
+                f"relative_race_completion={relative_race_completion:.3f} "
                 f"completion_percent={completion_percent:.1f} "
                 f"finish={int(finished)} "
                 f"timeout={int(timed_out)}"
