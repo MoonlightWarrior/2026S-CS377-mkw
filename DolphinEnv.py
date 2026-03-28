@@ -205,19 +205,23 @@ class DolphinEnv:
 
         script_path = self.project_folder / 'DolphinScript.py'
 
-        # launch the process
+        # launch the process — single binary, per-instance user dir via -u
         platform_name = platform.system()
+        user_dir = f'/tmp/dolphin_user{i}'
+
         if(platform_name == "Windows"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'Dolphin.exe'
+            exe_path = self.project_folder / 'dolphin0' / 'Dolphin.exe'
             cmd = (
                 f'cmd /c {exe_path} '
+                f'-u "{user_dir}" '
                 f'--no-python-subinterpreters '
                 f'--script "{script_path}" '
                 f'\\b --exec="{self.games_folder/self.gamefile}"'
             )
         elif(platform_name == "Linux"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'dolphin-emu'
+            exe_path = self.project_folder / 'dolphin0' / 'dolphin-emu'
             base_args = [
+                '-u', user_dir,
                 f'--no-python-subinterpreters',
                 f'--script', f'{self.project_folder}/DolphinScript.py',
                 f'\\b', f'--exec={self.games_folder/self.gamefile}'
@@ -243,13 +247,14 @@ class DolphinEnv:
             if os.environ.get('HEADLESS') == '1':
                 cmd = (f'{exe_path}', '-v', 'Null', *speed_args, *base_args)
             else:
-                cmd = (f'{exe_path}', *base_args)
+                cmd = (f'{exe_path}', *speed_args, *base_args)
         elif(platform_name == "Darwin"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'DolphinQt.app'
+            exe_path = self.project_folder / 'dolphin0' / 'DolphinQt.app'
             cmd = (
                 f'open',
                 f'{exe_path}',
                 '--args',
+                f'-u', user_dir,
                 f'--no-python-subinterpreters',
                 f'--script', f'{self.project_folder}/DolphinScript.py',
                 f'\\b', f'--exec={self.games_folder/self.gamefile}'
