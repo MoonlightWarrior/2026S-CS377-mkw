@@ -71,8 +71,17 @@ def set_shared_site():
             break 
 
 class DolphinEnv:
-    def __init__(self, num_envs, gamename="LC", gamefile="mkw.iso", project_folder=None,
-                 games_folder=None):
+    def __init__(
+        self,
+        num_envs,
+        gamename="LC",
+        gamefile="mkw.iso",
+        project_folder=None,
+        games_folder=None,
+        reset_mode: str = "savestate",
+        reset_savestate: str | None = None,
+        episode_timeout_steps: int | None = None,
+    ):
 
         script_directory = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -85,18 +94,22 @@ class DolphinEnv:
         self.num_envs = num_envs
         self.gamename = gamename
         self.gamefile = gamefile
+        self.reset_mode = reset_mode
+        self.reset_savestate = reset_savestate
+        self.episode_timeout_steps = episode_timeout_steps
 
         set_value(99999.)
 
         self.framestack = 4
-        self.window_x = 140
-        self.window_y = 75
+        
+        self.play_num = 1
+        self.obs_shape = 5 + 78 * self.play_num
 
         self.action_space = [gym.spaces.Discrete(40) for i in range(num_envs)]
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
-            shape=(self.framestack, self.window_y, self.window_x),
+            shape=(self.framestack, self.obs_shape),
             dtype=np.uint8
         )
 
@@ -108,6 +121,13 @@ class DolphinEnv:
 
         # write the number of envs for the slaves to read
         (self.instance_info_folder / 'num_envs.txt').write_text(str(self.num_envs))
+        (self.instance_info_folder / 'reset_mode.txt').write_text(str(self.reset_mode))
+        (self.instance_info_folder / 'reset_savestate.txt').write_text(
+            "" if self.reset_savestate is None else str(self.reset_savestate)
+        )
+        (self.instance_info_folder / 'episode_timeout_steps.txt').write_text(
+            "" if self.episode_timeout_steps is None else str(self.episode_timeout_steps)
+        )
 
         self.ids = list(range(self.num_envs))
         self.script_pids = [-1] * self.num_envs
@@ -115,11 +135,11 @@ class DolphinEnv:
         set_shared_site()
 
         self.shm = shared_memory.SharedMemory(create=True,
-                                              size=self.num_envs * self.framestack * self.window_x * self.window_y,
+                                              size=self.num_envs * self.framestack * self.obs_shape * 4,
                                               name="states_shm")
         self.states = np.ndarray(
-            (self.num_envs, self.framestack, self.window_y, self.window_x),
-            dtype=np.uint8,
+            (self.num_envs, self.framestack, self.obs_shape),
+            dtype=np.float32,
             buffer=self.shm.buf
         )
 
@@ -185,30 +205,56 @@ class DolphinEnv:
 
         script_path = self.project_folder / 'DolphinScript.py'
 
-        # launch the process
+        # launch the process — single binary, per-instance user dir via -u
         platform_name = platform.system()
+        user_dir = f'/tmp/dolphin_user{i}'
+
         if(platform_name == "Windows"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'Dolphin.exe'
+            exe_path = self.project_folder / 'dolphin0' / 'Dolphin.exe'
             cmd = (
                 f'cmd /c {exe_path} '
+                f'-u "{user_dir}" '
                 f'--no-python-subinterpreters '
                 f'--script "{script_path}" '
                 f'\\b --exec="{self.games_folder/self.gamefile}"'
             )
         elif(platform_name == "Linux"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'dolphin-emu'
-            cmd = (
-                f'{exe_path}',
+            exe_path = self.project_folder / 'dolphin0' / 'dolphin-emu'
+            base_args = [
+                '-u', user_dir,
                 f'--no-python-subinterpreters',
                 f'--script', f'{self.project_folder}/DolphinScript.py',
                 f'\\b', f'--exec={self.games_folder/self.gamefile}'
-            )
+            ]
+            speed_args = [
+                '-C', 'Dolphin.Core.EmulationSpeed=0.0',
+                # '-C', 'Dolphin.Core.OverclockEnable=True',
+                # '-C', 'Dolphin.Core.Overclock=0.25',
+                '-C', 'Dolphin.Core.FastDiscSpeed=True',
+                # '-C', 'Dolphin.Core.DSPHLE=True',              # default
+                '-C', 'Dolphin.DSP.Backend=No audio output',
+                # '-C', 'GFX.Settings.InternalResolution=0',     # default
+                # '-C', 'GFX.Settings.FastDepthCalc=True',       # default
+                '-C', 'GFX.Settings.DisableFog=True',
+                # '-C', 'GFX.Settings.MSAA=0',                   # default
+                # '-C', 'GFX.Enhancements.MaxAnisotropy=0',      # default
+                # '-C', 'GFX.Hacks.EFBAccessEnable=True',        # default
+                # '-C', 'GFX.Hacks.EFBToTextureEnable=True',     # default
+                # '-C', 'GFX.Hacks.XFBToTextureEnable=True',     # default
+                # '-C', 'GFX.Hacks.SkipDuplicateXFBs=True',      # default
+                # '-C', 'GFX.Hardware.VSync=False',               # default
+            ]
+            if os.environ.get('HEADLESS') == '1':
+                cmd = (f'{exe_path}', '-v', 'Null', *speed_args, *base_args)
+            else:
+                cmd = (f'{exe_path}', *speed_args, *base_args)
         elif(platform_name == "Darwin"):
-            exe_path = self.project_folder / f'dolphin{i}' / 'DolphinQt.app'
+            exe_path = self.project_folder / 'dolphin0' / 'DolphinQt.app'
             cmd = (
                 f'open',
                 f'{exe_path}',
                 '--args',
+                f'-u', user_dir,
                 f'--no-python-subinterpreters',
                 f'--script', f'{self.project_folder}/DolphinScript.py',
                 f'\\b', f'--exec={self.games_folder/self.gamefile}'
@@ -265,7 +311,8 @@ class DolphinEnv:
         dones = []
         truns = []
         infos = {"final_observation":[], "Ignore": np.array([False for i in range(self.num_envs)]),
-                 "First": np.array([False for i in range(self.num_envs)])}
+                 "First": np.array([False for i in range(self.num_envs)]),
+                 "RaceCompletion": np.zeros(self.num_envs, dtype=np.float32)}
 
         for i in range(self.num_envs):
 
@@ -296,6 +343,7 @@ class DolphinEnv:
                     self.is_resetting[i] = 8
 
                 infos["final_observation"].append(None)
+                infos["RaceCompletion"][i] = float(info.get("RaceCompletion", 0.0))
                 if self.firsts[i]:
                     self.firsts[i] = False
                     infos["First"][i] = True
@@ -307,6 +355,7 @@ class DolphinEnv:
                 dones.append(False)
                 truns.append(True)
                 infos["final_observation"].append(np.copy(self.states[i]))
+                infos["RaceCompletion"][i] = 0.0
 
                 self.restart_instance(i)
 
@@ -331,7 +380,7 @@ class DolphinEnv:
         # these should all be a batch of (num_envs)
         return states, rewards, dones, truns, infos
 
-    def kill_subprocess(pids):
+    def kill_subprocess(pid):
         try:
             parent = psutil.Process(pid)
             # 자식 프로세스들을 먼저 다 죽이고
@@ -356,7 +405,7 @@ class DolphinEnv:
                 pass
 
         try:
-            kill_subprocess(self.script_pids[i])
+            self.kill_subprocess(self.script_pids[i])
             print("Minor Crash... Recovering successfully")
         except:
             print("Failed to kill by subprocess PID")

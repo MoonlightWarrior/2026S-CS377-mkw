@@ -39,22 +39,26 @@ The algorithm can still be run on lighter hardware, but may take slightly longer
   `https://visualstudio.microsoft.com/downloads/`, then install `Desktop development with C++`
 
 #### Linux:
+
 - You need to have Python 3.12 or higher installed system-wide using your package manager. If you're using a virtual environment, the version should match the system Python version.
 
 #### Mac OS:
+
 - You need to have Python 3.12 or higher installed.
 
 - To use the compiled Dolphin provided by the script, you have to have python 3.13.5 installed via Homebrew:
-   ```sh
-   brew update
-   brew install python@3.13.5
-   ```
-   If you're using a virtual environment, the version should match the one that is installed.
+  ```sh
+  brew update
+  brew install python@3.13.5
+  ```
+  If you're using a virtual environment, the version should match the one that is installed.
 
 #### Clone this repository:
+
 ```sh
 git clone https://github.com/VIPTankz/Wii-RL.git
 ```
+
 ---
 
 ### 2. Game ROM
@@ -81,9 +85,11 @@ To install the relevant libraries, please do `pip install -r requirements.txt`.
 To correctly allow this repo to interact with Dolphin, please follow these steps:
 
 1. Download **Felk's Fork of Dolphin**, which allows programmatic input to the emulator via Python. This can be done by running the `download_dolphin.py` script as shown below (only Windows and macOS are supported):
+
    ```sh
    python3 scripts/download_dolphin.py
    ```
+
    For Linux, you need to compile Dolphin from source. You are likely to encounter build errors; open an issue if you do. Use the script `build-dolphin-linux.sh` as shown below:
 
    ```sh
@@ -95,7 +101,6 @@ To correctly allow this repo to interact with Dolphin, please follow these steps
    ```sh
    python3 scripts/clone_dolphins.py
    ```
-
 
 2. Download the save states (which control the AI's starting position) by running the `download_savestates.py` script as shown below:
    ```sh
@@ -109,6 +114,7 @@ To correctly allow this repo to interact with Dolphin, please follow these steps
 While we provide code to train your own models, we also include a model for you to run and test. To use this model, download the pytorch model file from `https://github.com/VIPTankz/Wii-RL/releases/tag/model`, and place this in this directory.
 
 ---
+
 ### 6. Running The AI with Dolphin
 
 To first test whether everything is set up as intended, we recommend first running `python BTR_test.py --model_path YOUR_MODEL_PATH_HERE`. This will run the pretrained model installed in the last step, in two emulators in parallel.
@@ -118,10 +124,13 @@ To test if training on your machine works quickly, you can also run `python BTR.
 To actually do your own training, simply run `python BTR.py`. This will use 4 instances of dolphin by default. This will put quite some strain on most PCs, so you may want to reduce this to 2 or 1 (You can also do 8 if you have a crazy good machine and don't mind your fans going crazy).
 
 #### Note on Mac OS:
+
 To train using the Mac GPU, run the following command:
+
 ```sh
 python BTR.py --spectral 0 --device mps
 ```
+
 ---
 
 ### 7. What to Expect
@@ -140,7 +149,53 @@ Best of Luck!
 ### 8. FAQs
 
 1. Can I run this on MacOS/Linux/{my_favourite_os}?
-Currently this has only been tested mostly on Windows, but we have also tested on Linux and MacOS. If you need anything else, considering doing a pull request. 
+   Currently this has only been tested mostly on Windows, but we have also tested on Linux and MacOS. If you need anything else, considering doing a pull request.
 
 2. Can I play games other than Mario Kart Wii?
-Currently this repository only supports a basic scenario using Mario Kart Wii on Luigi Circuit, however when doing videos I might try to add new content for people to play around with. It may take a little while, but you are welcome to attempt to use this repo to get an AI to play your favourite games.
+   Currently this repository only supports a basic scenario using Mario Kart Wii on Luigi Circuit, however when doing videos I might try to add new content for people to play around with. It may take a little while, but you are welcome to attempt to use this repo to get an AI to play your favourite games.
+
+### 9. Docker
+
+#### 사전 준비
+
+1. prebuilt dolphin 바이너리를 https://www.notion.so/vlab-kaist/Wii-RL-Docker-329b457b891780949854c2aee5c1d5b1 에서 찾아 다운로드하여 `HEREISFILE/dolphin-emu.tar.gz`에 위치
+
+2. game ROM 및 savestates 준비
+```bash
+cp mkw.iso game/mkw.iso
+uv run scripts/download_savestates.py
+```
+
+#### Headless (학습 서버, 디스플레이 없음)
+
+```bash
+HEADLESS=1 docker compose up -d --build
+docker compose logs -f
+```
+
+#### GUI (호스트 디스플레이 연결)
+
+`xhost`는 SSH에서 안 됩니다. 물리 모니터가 연결된 로컬 터미널에서 실행하세요.
+
+```bash
+# ls /tmp/.X11-unix/ 으로 디스플레이 번호 확인 (X0 → :0, X1 → :1)
+export DISPLAY=:0
+xhost +local:docker
+# "non-network local connections being added to access control list" 한 줄만 나오면 성공
+docker compose up -d --build
+docker compose logs -f
+```
+
+#### 환경 수 변경 (기본 8)
+
+```bash
+NUM_ENVS=4 docker compose up -d --build
+```
+
+#### 기타
+
+```bash
+docker compose exec wii-rl bash   # 컨테이너 쉘 접속
+docker compose down                # 컨테이너 중지/제거
+docker rm -f wii-rl                # 컨테이너 강제 삭제
+```

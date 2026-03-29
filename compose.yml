@@ -1,0 +1,33 @@
+services:
+  wii-rl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wii-rl
+    container_name: wii-rl
+    shm_size: 2g
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - XAUTHORITY=/root/.Xauthority
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HEADLESS=${HEADLESS:-0}
+      - NUM_ENVS=${NUM_ENVS:-8}
+      - UV_CACHE_DIR=/root/.cache/uv
+    volumes:
+      - .:/src/Vlab-WiiRL
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.Xauthority:/root/.Xauthority:ro
+      - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv
+    devices:
+      - /dev/dri:/dev/dri
+    command: uv run train_ppo.py --num_envs ${NUM_ENVS:-8}
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

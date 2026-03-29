@@ -1,3 +1,6 @@
+
+# TODO: cant run yet. Need add obs_shape to Agent and DolphinEnv like BTR.py
+
 import time
 import argparse
 import multiprocessing as mp

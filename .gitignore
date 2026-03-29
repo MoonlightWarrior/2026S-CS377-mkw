@@ -9,9 +9,6 @@ __pycache__/
 env/
 venv/
 
-# Visual Studio Code
-.vscode/
-
 # Project-related files
 MarioKartSaveStates
 dolphin*
@@ -25,3 +22,7 @@ pid_num.txt
 instance_id0.txt
 id_num.txt
 alive.txt
+
+# models
+checkpoints/
+saved/
