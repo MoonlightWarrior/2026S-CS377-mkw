@@ -101,11 +101,18 @@ class DolphinEnv:
         set_value(99999.)
 
         self.framestack = 4
-        
-        self.play_num = 1
-        self.obs_shape = 5 + 78 * self.play_num
 
-        self.action_space = [gym.spaces.Discrete(40) for i in range(num_envs)]
+        # 12-player override mode: observe and (optionally) drive all 12 karts.
+        # Actions are sent as a length-12 list of Discrete(40) ints per env.
+        self.num_karts = 12
+        self.play_num = self.num_karts
+        self.obs_shape = 5 + 78 * self.play_num  # 941
+
+        self.n_actions_per_kart = 40
+        self.action_space = [
+            gym.spaces.MultiDiscrete([self.n_actions_per_kart] * self.num_karts)
+            for _ in range(num_envs)
+        ]
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
@@ -291,14 +298,26 @@ class DolphinEnv:
         return np.copy(self.states), [{} for i in range(self.num_envs)]
 
     def step_async(self, actions):
+        """Send a length-12 action list per env to its slave.
+
+        actions: array-like of shape (num_envs, num_karts) or list-of-lists. Each
+        per-env entry is a sequence of NUM_KARTS ints (one Discrete action per kart).
+        For backwards-compat, a 1-D actions array is treated as one int per env (slot 0).
+        """
+        actions_arr = np.asarray(actions, dtype=np.int64)
+
         for i in range(self.num_envs):
 
             if self.is_resetting[i] != 0:
                 continue
 
             try:
-                # normal send
-                self.listeners[i].send(actions[i].item())
+                if actions_arr.ndim == 2:
+                    payload = actions_arr[i].tolist()
+                else:
+                    # legacy single-int-per-env path
+                    payload = int(actions_arr[i])
+                self.listeners[i].send(payload)
             except Exception as e:
                 print(f"[WARN] Slave {i} connection broken at step_async: {e}")
                 time.sleep(0.5)
@@ -310,9 +329,19 @@ class DolphinEnv:
         rewards = []
         dones = []
         truns = []
-        infos = {"final_observation":[], "Ignore": np.array([False for i in range(self.num_envs)]),
-                 "First": np.array([False for i in range(self.num_envs)]),
-                 "RaceCompletion": np.zeros(self.num_envs, dtype=np.float32)}
+        nk = self.num_karts
+        infos = {
+            "final_observation": [],
+            "Ignore": np.array([False for i in range(self.num_envs)]),
+            "First": np.array([False for i in range(self.num_envs)]),
+            "RaceCompletion": np.zeros(self.num_envs, dtype=np.float32),
+            # per-kart arrays for the 12p path. Slot-0 is the legacy lane.
+            "RaceCompletion_all": np.zeros((self.num_envs, nk), dtype=np.float32),
+            "kart_x_all": np.zeros((self.num_envs, nk), dtype=np.float32),
+            "kart_z_all": np.zeros((self.num_envs, nk), dtype=np.float32),
+            "race_pos_all": np.zeros((self.num_envs, nk), dtype=np.int32),
+            "race_stage": np.zeros(self.num_envs, dtype=np.int32),
+        }
 
         for i in range(self.num_envs):
 
@@ -344,6 +373,16 @@ class DolphinEnv:
 
                 infos["final_observation"].append(None)
                 infos["RaceCompletion"][i] = float(info.get("RaceCompletion", 0.0))
+                # forward per-kart arrays if the slave provided them; pad/truncate to nk.
+                for key in ("RaceCompletion_all", "kart_x_all", "kart_z_all", "race_pos_all"):
+                    src = info.get(key)
+                    if src is None:
+                        continue
+                    arr = np.asarray(src, dtype=infos[key].dtype)
+                    n = min(len(arr), nk)
+                    infos[key][i, :n] = arr[:n]
+                if "race_stage" in info:
+                    infos["race_stage"][i] = int(info["race_stage"])
                 if self.firsts[i]:
                     self.firsts[i] = False
                     infos["First"][i] = True

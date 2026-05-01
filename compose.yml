@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: wii-rl
-    container_name: wii-rl
-    shm_size: 2g
+    container_name: wii-rl-hackcpu
+    shm_size: 20g
     environment:
       - DISPLAY=${DISPLAY:-:0}
       - XAUTHORITY=/root/.Xauthority
@@ -21,7 +21,7 @@ services:
       - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv
     devices:
       - /dev/dri:/dev/dri
-    command: uv run train_ppo.py --num_envs ${NUM_ENVS:-8}
+    # command: uv run train_ppo.py --num_envs ${NUM_ENVS:-8}
     stdin_open: true
     tty: true
     deploy:

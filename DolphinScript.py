@@ -100,6 +100,14 @@ def log_exc(exc: BaseException):
         traceback.print_exc(file=f)
         f.write('\n\n')
 
+def log_diag(msg: str):
+    """File-only diagnostic log (Dolphin embedded Python's stdout doesn't reach master)."""
+    try:
+        with open(log_path, 'a') as f:
+            f.write(f"[diag {time.strftime('%H:%M:%S')}] {msg}\n")
+    except Exception:
+        pass
+
 
 FILE_PATH = script_directory / "shared_value.txt"
 
@@ -122,6 +130,109 @@ def set_value(new_val: float):
     Overwrite shared_value.txt in the current directory with the given float.
     """
     FILE_PATH.write_text(str(float(new_val)))
+
+
+# ============= [InputData layout - PAL/RMCP01] =============
+# Source: https://github.com/SeekyCt/mkw-structures/blob/master/inputdata.h
+#   InputData *sInstance @ 0x809BD70C   (read_u32 to get base)
+#   InputData {
+#     RealControllerHolder    realControllerHolders[4];     // @ +0x000, each 0xEC
+#     VirtualControllerHolder virtualControllerHolders[12]; // @ +0x3B0, each 0x180
+#   }
+#   ControllerHolder { ...; InputState inputStates[2] @ +0x28 }
+#   InputState (size 0x18) {  vtable @ +0x00 (0x808B2F2C); members start at +0x04:
+#     u32 vtable        @ +0x00  (DO NOT WRITE)
+#     u16 buttonActions @ +0x04  (bit0=accel, bit1=brake, bit2=item, bit3=drift, bit5=rear-view)
+#     u16 buttonRaw     @ +0x06
+#     f32 stickX        @ +0x08   (-1.0..1.0)
+#     f32 stickY        @ +0x0C
+#     u8  qStickX       @ +0x10   (0..14)
+#     u8  qStickY       @ +0x11
+#     u8  motionFlick   @ +0x12   (1=up, 2=down, 3=left, 4=right)
+#     u8  motionFlick2  @ +0x13
+#     u8  unknown       @ +0x14   (suffix in mkw-structures confirms offset)
+#   }
+INPUT_DATA_PTR    = 0x809BD70C
+# InputData layout: vtable u32 @ +0x00; then realControllerHolders[4] (each 0xEC) at +0x04;
+# then virtualControllerHolders[12] (each 0x180) at +0x3B4.
+REAL_HOLDERS      = 0x004
+REAL_STRIDE       = 0x0EC
+VIRTUAL_HOLDERS   = 0x3B4
+VIRTUAL_STRIDE    = 0x180
+INPUT_STATE_OFF   = 0x28          # inputStates[0] within ControllerHolder
+NUM_KARTS         = 12
+NUM_REAL          = 4             # only first 4 slots have a realControllerHolder
+
+# Phase-1 probe gate. When set, no input writes happen and per-frame InputState reads
+# are dumped to instance_info/input_probe_*.csv for offline correlation analysis.
+PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
+
+
+class KartInputWriter:
+    """Writes per-kart input to MKW's InputData controller holders.
+
+    Slot mapping discovered empirically:
+      * virtualControllerHolders[i] (i ∈ 0..11) drives slots 4..11 (CPU karts).
+        For slots 0..3 the game reads from realControllerHolders[i] instead, so
+        writing only to virtualControllerHolders has no effect for those slots.
+      * For uniform 12-kart override we write to BOTH holders for slots 0..3.
+
+    The InputData base pointer can change after savestate loads; call
+    refresh_base() after each savestate.load_from_file().
+    """
+
+    def __init__(self):
+        self.base = 0
+        # Per-slot list of InputState addresses we write each frame. Slots 0..3 get
+        # both real and virtual holders; slots 4..11 get only their virtual holder.
+        self.state_addrs = [[] for _ in range(NUM_KARTS)]
+        self.refresh_base()
+
+    def refresh_base(self):
+        self.base = memory.read_u32(INPUT_DATA_PTR)
+        for i in range(NUM_KARTS):
+            addrs = []
+            if i < NUM_REAL:
+                addrs.append(self.base + REAL_HOLDERS + i * REAL_STRIDE + INPUT_STATE_OFF)
+            addrs.append(self.base + VIRTUAL_HOLDERS + i * VIRTUAL_STRIDE + INPUT_STATE_OFF)
+            self.state_addrs[i] = addrs
+
+    def write(self, slot, stickX, buttons, motion_flick, stickY=0.0):
+        q = max(0, min(14, int(round(float(stickX) * 7)) + 7))
+        b = int(buttons) & 0xFFFF
+        sx = float(stickX)
+        sy = float(stickY)
+        mf = int(motion_flick) & 0xFF
+        for s in self.state_addrs[slot]:  # InputState base (vtable @ +0x0)
+            memory.write_u16(s + 0x04, b)    # buttonActions
+            memory.write_f32(s + 0x08, sx)   # stickX
+            memory.write_f32(s + 0x0C, sy)   # stickY
+            memory.write_u8(s + 0x10, q)     # quantisedStickX
+            memory.write_u8(s + 0x12, mf)    # motionControlFlick
+
+    def read_state(self, slot, which="virtual"):
+        """Read InputState at slot for probe / verification.
+
+        which: 'virtual' (default; always present) or 'real' (only for slots 0..3).
+        """
+        if which == "real":
+            if slot >= NUM_REAL:
+                return None
+            s = self.base + REAL_HOLDERS + slot * REAL_STRIDE + INPUT_STATE_OFF
+        else:
+            s = self.base + VIRTUAL_HOLDERS + slot * VIRTUAL_STRIDE + INPUT_STATE_OFF
+        return {
+            "vtable":        memory.read_u32(s + 0x00),
+            "buttonActions": memory.read_u16(s + 0x04),
+            "buttonRaw":     memory.read_u16(s + 0x06),
+            "stickX":        memory.read_f32(s + 0x08),
+            "stickY":        memory.read_f32(s + 0x0C),
+            "qStickX":       memory.read_u8(s + 0x10),
+            "qStickY":       memory.read_u8(s + 0x11),
+            "motionFlick":   memory.read_u8(s + 0x12),
+            "motionFlick2":  memory.read_u8(s + 0x13),
+        }
+
 
 class Memory:
     class Addresses:
@@ -199,6 +310,10 @@ class Memory:
             self.startBoostIdx = []
 
             for i in range(num_players):
+                try:
+                    log_diag(f"Memory.Addresses: resolving slot {i}")
+                except Exception:
+                    pass
                 # RaceManagerPlayer
                 self.RaceCompletion.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0xC]))
                 self.currentLap.append(self.resolve_address(0x809BD730, [0xC, 0x4 * i, 0x24]))
@@ -644,6 +759,15 @@ class DolphinInstance:
             print("Error when creating shared memory")
 
         self.define_action_space()
+        # current per-kart action list, updated by recieve_actions(); driven into the
+        # input struct each frame inside event.on_frameadvance.
+        self.applied_actions = [0] * NUM_KARTS
+        # Probe-mode CSV writer for Phase-1 verification (gated by MKW_PROBE_INPUT=1).
+        self._probe_csv_path = (
+            instance_info_folder / f"input_probe_env{id}.csv" if PROBE_INPUT else None
+        )
+        self._probe_frame = 0
+        self.input_writer = None  # initialized in reset() once the savestate is loaded
         self.reset()
 
     def _list_save_states(self):
@@ -701,8 +825,17 @@ class DolphinInstance:
         self.states[self.env_id] = status
         self.conn.send("Sent initial states")
 
-    def recieve_action(self):
-        self.applied_action = self.conn.recv()
+    def recieve_actions(self):
+        """Receive a list of NUM_KARTS action ints from the master.
+
+        Backwards-compat: if the master sends a single int (legacy slot-0-only path),
+        we broadcast it to slot 0 only and leave the other slots' last values intact.
+        """
+        a = self.conn.recv()
+        if isinstance(a, (list, tuple)):
+            self.applied_actions = list(a)
+        else:
+            self.applied_actions[0] = int(a)
 
     def send_transition(self, reward, terminal, trun, new_status):
         # write into shared memory
@@ -717,9 +850,65 @@ class DolphinInstance:
             # Add new frame at the end (index -1)
             self.states[self.env_id, -1] = new_status
 
-        # send the rest over the socket
+        # Per-kart arrays for the 12p logging path. Memory(play_num=N) only tracks
+        # slots 0..N-1, so we always do a lightweight direct chain read for slots N..11
+        # so the runner CSV captures all 12 trajectories.
+        rc_all = [0.0] * NUM_KARTS
+        kx_all = [0.0] * NUM_KARTS
+        kz_all = [0.0] * NUM_KARTS
+        rp_all = [0]   * NUM_KARTS
+        try:
+            mgr = memory.read_u32(0x809C18F8)
+            kart_array = memory.read_u32(mgr + 0x20) if mgr else 0
+        except Exception:
+            kart_array = 0
+        for i in range(NUM_KARTS):
+            if i < self.memory_tracker.num_players:
+                rc_all[i] = float(self.memory_tracker.RaceCompletion[i])
+                kx_all[i] = float(self.memory_tracker.position[i][0])
+                kz_all[i] = float(self.memory_tracker.position[i][2])
+                rp_all[i] = int(self.memory_tracker.race_position[i])
+                continue
+            try:
+                # RaceCompletion via 0x809BD730 → [0xC, 0x4*i, 0xC]
+                rmp = memory.read_u32(0x809BD730)
+                arr = memory.read_u32(rmp + 0xC) if rmp else 0
+                pl  = memory.read_u32(arr + 0x4 * i) if arr else 0
+                if pl >= 0x80000000 and pl < 0x81800000:
+                    rc_all[i] = memory.read_f32(pl + 0xC)
+                # position via kart_array → kart_ptr → kart_obj → +0x8 → +0x90 → +0x18
+                if kart_array:
+                    kp = memory.read_u32(kart_array + 0x4 * i)
+                    if kp >= 0x80000000 and kp < 0x81800000:
+                        ko = memory.read_u32(kp)
+                        if ko and ko < 0x81800000:
+                            kdc = memory.read_u32(ko + 0x8)
+                            if kdc and kdc < 0x81800000:
+                                kdyn = memory.read_u32(kdc + 0x90)
+                                if kdyn and kdyn < 0x81800000:
+                                    pos_addr = kdyn + 0x18
+                                    kx_all[i] = memory.read_f32(pos_addr + 0)
+                                    # +0x4 = y, +0x8 = z
+                                    kz_all[i] = memory.read_f32(pos_addr + 8)
+                # race_position via kart_obj+0x18 → +0x3C
+                if kart_array:
+                    kp = memory.read_u32(kart_array + 0x4 * i)
+                    if kp >= 0x80000000 and kp < 0x81800000:
+                        ko = memory.read_u32(kp)
+                        if ko and ko < 0x81800000:
+                            kc = memory.read_u32(ko + 0x18)
+                            if kc and kc < 0x81800000:
+                                rp_all[i] = memory.read_u8(kc + 0x3C)
+            except Exception:
+                pass
+
         info = {
             "RaceCompletion": float(self.mem_race_com),
+            "RaceCompletion_all": rc_all,
+            "kart_x_all": kx_all,
+            "kart_z_all": kz_all,
+            "race_pos_all": rp_all,
+            "race_stage": int(self.mem_race_stage) if hasattr(self, "mem_race_stage") else int(self.memory_tracker.stage),
         }
         self.conn.send((reward, terminal, trun, info))
 
@@ -742,8 +931,8 @@ class DolphinInstance:
 
         self.ep_length = 0
 
-        # this action will be applied directly before the frame is drawn
-        self.applied_action = 0
+        # per-kart actions applied each frame; default 0 = stickX 0, no R, no L.
+        self.applied_actions = [0] * NUM_KARTS
 
         self.frames_since_chkpt = 0
 
@@ -768,9 +957,49 @@ class DolphinInstance:
         self.checkpoints.append(9999.)
 
         savestate_path = self._select_reset_savestate()
+        log_diag(f"reset: loading savestate {savestate_path}")
         savestate.load_from_file(str(savestate_path))
+        log_diag("reset: savestate loaded; probing kart-array layout before Memory(...)")
+        # Diagnostic: walk the kart-pointer array at 0x809C18F8 → [0x20, 0x4*i] for i in 0..15
+        # and log each slot's pointer + KartObject base + KartState/Move/Collide pointers.
+        # This tells us which slots are actually live in this savestate before we let
+        # Memory.Addresses iterate (which currently hangs/crashes on bad slots).
+        try:
+            mgr = memory.read_u32(0x809C18F8)
+            arr = memory.read_u32(mgr + 0x20) if mgr else 0
+            log_diag(f"  KartObjectManager @ 0x809C18F8 -> mgr=0x{mgr:08x}; kart_array=0x{arr:08x}")
+            for i in range(16):
+                if arr == 0:
+                    break
+                kart_ptr_addr = arr + 0x4 * i
+                if kart_ptr_addr < 0x80000000 or kart_ptr_addr >= 0x81800000:
+                    log_diag(f"  slot {i}: array slot @0x{kart_ptr_addr:08x} OUT OF RANGE")
+                    break
+                kp = memory.read_u32(kart_ptr_addr)
+                ko = memory.read_u32(kp) if (kp >= 0x80000000 and kp < 0x81800000) else 0
+                log_diag(f"  slot {i}: ptr@0x{kart_ptr_addr:08x} -> kart_ptr=0x{kp:08x} kart_obj=0x{ko:08x}")
+        except Exception as e:
+            log_exc(e)
 
+        log_diag("reset: building Memory(play_num={})".format(self.play_num))
         self.memory_tracker = Memory(self.play_num)
+        log_diag("reset: Memory built; resolving InputData base")
+
+        # InputData base pointer can change after savestate load. Resolve it now.
+        if self.input_writer is None:
+            self.input_writer = KartInputWriter()
+        else:
+            self.input_writer.refresh_base()
+        log_diag(f"reset: input_writer base=0x{self.input_writer.base:08x}")
+
+        # Probe-mode CSV header (write once, on the first reset that creates the file).
+        if PROBE_INPUT and self._probe_csv_path is not None:
+            try:
+                if not self._probe_csv_path.exists():
+                    header = "frame,slot,vtable,buttonActions,buttonRaw,stickX,stickY,qStickX,qStickY,motionFlick,motionFlick2,yaw_deg\n"
+                    self._probe_csv_path.write_text(header)
+            except Exception as e:
+                log_exc(e)
 
         self.get_mem_values()
         self.prev_race_completion = float(self.mem_race_com)
@@ -781,22 +1010,9 @@ class DolphinInstance:
             self.current_checkpoint += 1
 
 
-    def apply_action(self, action):
-        assert 0 <= action < self.n_actions, f"Action must be in 0..{self.n_actions-1}"
-
-        # reset dictionary to default state (A is always held down)
-        self.wii_dic = {
-            "Left": False, "Right": False, "Down": False,
-            "Up": False, "Z": False, "R": False, "L": False,
-            "A": True, "B": False, "X": False, "Y": False,
-            "Start": False, "StickX": 0, "StickY": 0, "CStickX": 0,
-            "CStickY": 0, "TriggerLeft": 0, "TriggerRight": 0,
-            "AnalogA": 0, "AnalogB": 0, "Connected": True
-        }
-
-        self.get_mem_values()
-
-        # Decode indices. Can't lie ChatGPT did this, idn wtf is going on here
+    def _decode_action(self, action):
+        """Decode a single Discrete action int into (stickX, R, Up, L) bools/values."""
+        action = int(action) % self.n_actions
         stride = len(self.r_values) * len(self.up_values) * len(self.l_values)
         stick_idx = action // stride
         rem = action % stride
@@ -804,15 +1020,71 @@ class DolphinInstance:
         rem = rem % (len(self.up_values) * len(self.l_values))
         up_idx = rem // len(self.l_values)
         l_idx = rem % len(self.l_values)
+        return (
+            self.stickX_values[stick_idx],
+            bool(self.r_values[r_idx]),
+            bool(self.up_values[up_idx]),
+            bool(self.l_values[l_idx]),
+        )
 
-        # Set relevant fields
-        self.wii_dic["StickX"] = self.stickX_values[stick_idx]
-        self.wii_dic["R"] = self.r_values[r_idx]
-        self.wii_dic["Up"] = self.up_values[up_idx]
-        self.wii_dic["L"] = self.l_values[l_idx]
+    def apply_actions(self, actions):
+        """Write per-kart input for all 12 karts.
 
-        self.applied_action = action
-        controller.set_gc_buttons(0, self.wii_dic)
+        Slot 0 is the local player and is driven via Dolphin's GC port 0 (the proven
+        path that has been working all along). Slots 1..11 are driven by direct memory
+        writes into MKW's virtualControllerHolders[i].inputStates[0] (and also the
+        matching realControllerHolders[1..3] for slots 1..3, since those map to
+        physical GC ports the game also reads from).
+
+        In probe mode (MKW_PROBE_INPUT=1), no writes happen; instead, we read every
+        kart's InputState + yaw and dump a CSV row.
+        """
+        self.get_mem_values()
+
+        if PROBE_INPUT:
+            try:
+                rows = []
+                for i in range(NUM_KARTS):
+                    st = self.input_writer.read_state(i)
+                    yaw_deg = float(self.memory_tracker.mainRotationEuler[i][2]) if i < self.memory_tracker.num_players else 0.0
+                    rows.append(
+                        f"{self._probe_frame},{i},0x{st['vtable']:08x},{st['buttonActions']},{st['buttonRaw']},"
+                        f"{st['stickX']:.6f},{st['stickY']:.6f},{st['qStickX']},{st['qStickY']},"
+                        f"{st['motionFlick']},{st['motionFlick2']},{yaw_deg:.4f}\n"
+                    )
+                if self._probe_csv_path is not None:
+                    with open(self._probe_csv_path, "a") as f:
+                        f.writelines(rows)
+                self._probe_frame += 1
+            except Exception as e:
+                log_exc(e)
+            return
+
+        for i in range(NUM_KARTS):
+            try:
+                stickX, R, Up, L = self._decode_action(actions[i])
+            except Exception:
+                stickX, R, Up, L = 0.0, False, False, False
+            if i == 0:
+                # Slot 0: local player. Drive via Dolphin's GC controller API (proven path).
+                self.wii_dic = {
+                    "Left": False, "Right": False, "Down": False,
+                    "Up": Up, "Z": False, "R": R, "L": L,
+                    "A": True, "B": False, "X": False, "Y": False,
+                    "Start": False, "StickX": stickX, "StickY": 0, "CStickX": 0,
+                    "CStickY": 0, "TriggerLeft": 0, "TriggerRight": 0,
+                    "AnalogA": 0, "AnalogB": 0, "Connected": True,
+                }
+                controller.set_gc_buttons(0, self.wii_dic)
+            else:
+                # Slots 1..11: memory hijack of MKW's input struct.
+                buttons = 0x01  # A (accel) always held
+                if R:
+                    buttons |= 0x08  # drift
+                if L:
+                    buttons |= 0x04  # item
+                motion_flick = 1 if Up else 0
+                self.input_writer.write(i, stickX, buttons, motion_flick)
 
     def get_reward_terminal_trun(self):
         reward = 0.
@@ -875,30 +1147,43 @@ class DolphinInstance:
         self.prev_wall_collide = current
         return changed
 
+log_diag(f"slave bootstrap: PROBE_INPUT={PROBE_INPUT} NUM_KARTS={NUM_KARTS}")
+log_diag(f"dolphin api: dir(memory) has write_u32? {'write_u32' in dir(memory)}; dir(event)={[x for x in dir(event) if 'frame' in x.lower() or 'memory' in x.lower()]}")
+
 for i in range(4):
     await event.frameadvance()
+log_diag("4 warm-up frames advanced; constructing DolphinInstance(play_num=NUM_KARTS)")
 
-play_num = 1
+# Allow narrowing for debugging via env var. 12 = full hijack, lower = bisect.
+play_num = int(os.environ.get("MKW_PLAY_NUM", str(NUM_KARTS)))
+play_num = max(1, min(NUM_KARTS, play_num))
 obs_shape = 5 + 78 * play_num
-env = DolphinInstance(id,play_num)
+log_diag(f"play_num={play_num} (MKW_PLAY_NUM env override applied if set)")
+env = DolphinInstance(id, play_num)
+log_diag(f"DolphinInstance constructed; play_num={play_num} obs_shape={obs_shape}")
 
 for i in range(8):
     await event.frameadvance()
+log_diag("8 post-init frames advanced; updating memory_tracker for init state")
 
 await event.frameadvance()
 
 env.memory_tracker.update()
+log_diag("memory_tracker.update OK; calling get_obs()")
 current_vector = env.memory_tracker.get_obs()
+log_diag(f"get_obs OK; len={len(current_vector)}")
 init_vector = np.array([current_vector for _ in range(env.frameskip)])
 
 env.send_init_state(init_vector)
+log_diag("send_init_state sent")
 
-print("Sent init state")
+print(f"Sent init state | play_num={play_num} obs_shape={obs_shape} probe={PROBE_INPUT}")
 
 def my_callback():
-    env.apply_action(env.applied_action)
+    env.apply_actions(env.applied_actions)
 
 event.on_frameadvance(my_callback)
+log_diag("on_frameadvance(my_callback) registered; entering main loop")
 # make sure we apply the action every single frame. Otherwise this can lead to some weird stuttering
 # behaviour
 
@@ -913,7 +1198,7 @@ frame_data = np.zeros((obs_shape), dtype=np.float32)
 while True:
 
     # get action from main Dolphin Script
-    env.recieve_action()
+    env.recieve_actions()
 
     for i in range(env.frameskip):
         if i >= env.frameskip-1:
