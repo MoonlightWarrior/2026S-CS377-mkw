@@ -234,6 +234,90 @@ class KartInputWriter:
         }
 
 
+def _safe_read_u32(addr):
+    if not addr or addr < 0x80000000 or addr >= 0x81800000:
+        return 0
+    try:
+        return memory.read_u32(addr)
+    except Exception:
+        return 0
+
+
+def _safe_read_f32(addr):
+    if not addr or addr < 0x80000000 or addr >= 0x81800000:
+        return 0.0
+    try:
+        return float(memory.read_f32(addr))
+    except Exception:
+        return 0.0
+
+
+def _safe_read_u8(addr):
+    if not addr or addr < 0x80000000 or addr >= 0x81800000:
+        return 0
+    try:
+        return int(memory.read_u8(addr))
+    except Exception:
+        return 0
+
+
+def _safe_read_u16(addr):
+    if not addr or addr < 0x80000000 or addr >= 0x81800000:
+        return 0
+    try:
+        return int(memory.read_u16(addr))
+    except Exception:
+        return 0
+
+
+def _lite_per_kart_obs(n, karr, plr_arr):
+    """Return the 78-element per-kart observation slice for slot n via direct
+    chain reads (no Memory.Addresses cache). Matches the field order in
+    Memory.get_obs for tracked karts so the obs width stays aligned. Most
+    fields fall back to 0 if the chain can't be resolved.
+
+    karr     -- KartObjectManager kart pointer array base (read once per get_obs)
+    plr_arr  -- RaceManagerPlayer per-player array base (read once per get_obs)
+    """
+    out = [0.0] * 78
+    out[0] = float(n)  # PlayerID
+
+    # RaceCompletion (5), currentLap (10) — RaceManagerPlayer chain
+    if plr_arr:
+        plr = _safe_read_u32(plr_arr + 0x4 * n)
+        if plr:
+            out[5]  = _safe_read_f32(plr + 0xC)             # RaceCompletion
+            out[6]  = _safe_read_f32(plr + 0x10)            # MaxRaceCompletion
+            out[10] = _safe_read_u16(plr + 0x24)            # currentLap
+
+    # KartObject chain — position (16-18), velocity (19-21), speed (38), race_pos (61)
+    if karr:
+        kp = _safe_read_u32(karr + 0x4 * n)
+        ko = _safe_read_u32(kp) if kp else 0
+        if ko:
+            kdc = _safe_read_u32(ko + 0x8)
+            kdyn = _safe_read_u32(kdc + 0x90) if kdc else 0
+            if kdyn:
+                # position f32 ×3 @ +0x18
+                out[16] = _safe_read_f32(kdyn + 0x18 + 0)
+                out[17] = _safe_read_f32(kdyn + 0x18 + 4)
+                out[18] = _safe_read_f32(kdyn + 0x18 + 8)
+                # velocity f32 ×3 @ +0xD4
+                out[19] = _safe_read_f32(kdyn + 0xD4 + 0)
+                out[20] = _safe_read_f32(kdyn + 0xD4 + 4)
+                out[21] = _safe_read_f32(kdyn + 0xD4 + 8)
+            # KartMove chain @ ko + 0x28
+            kmove = _safe_read_u32(ko + 0x28)
+            if kmove:
+                out[38] = _safe_read_f32(kmove + 0x20)      # speed
+            # KartCollide chain @ ko + 0x18
+            kcoll = _safe_read_u32(ko + 0x18)
+            if kcoll:
+                out[61] = float(_safe_read_u8(kcoll + 0x3C))  # race_position
+
+    return out
+
+
 class Memory:
     class Addresses:
         def __init__(self, num_players):
@@ -593,9 +677,17 @@ class Memory:
             self.MegaTimer[i] = memory.read_u16(self.addresses.MegaTimer[i])
 
     def get_obs(self):
+        """Return a fixed-width observation vector of size 5 + 78 * NUM_KARTS = 941.
+
+        Slots within Memory(play_num=N) (i.e., n < num_players) carry the full 78-dim
+        per-kart slice from the heavyweight tracker. Slots num_players..NUM_KARTS-1
+        are populated on-the-fly via `_lite_per_kart_obs` (RaceCompletion, position,
+        velocity, race_position, currentLap; rest zero-padded). This keeps the obs
+        width aligned with the master's shared-memory shape regardless of MKW_PLAY_NUM.
+        """
         obs = []
-        
-        # 1. RACE_INFO 구성
+
+        # 1. RACE_INFO
         race_info = (
             self.stage,
             self.FrameCount,
@@ -605,8 +697,23 @@ class Memory:
         )
         obs.extend(race_info)
 
-        # 2. PLAYER_INFO 구성
-        for n in range(self.num_players):
+        # Pre-resolve KartObjectManager + RaceManagerPlayer once for lite enrichment.
+        try:
+            mgr = memory.read_u32(0x809C18F8)
+            karr = memory.read_u32(mgr + 0x20) if mgr else 0
+        except Exception:
+            karr = 0
+        try:
+            rmp = memory.read_u32(0x809BD730)
+            plr_arr = memory.read_u32(rmp + 0xC) if rmp else 0
+        except Exception:
+            plr_arr = 0
+
+        # 2. PER-KART INFO — iterate ALL 12 slots; tracked vs lite per slot.
+        for n in range(NUM_KARTS):
+            if n >= self.num_players:
+                obs.extend(_lite_per_kart_obs(n, karr, plr_arr))
+                continue
             p_info = (
                 n,                          # PlayerID
                 self.LocalPlayerNum[n],
@@ -724,7 +831,10 @@ class DolphinInstance:
         print("Connected to master!")
 
         self.play_num = play_num
-        self.obs_shape = 5 + 78 * play_num
+        # obs_shape is always 5 + 78 * NUM_KARTS so master/slave shared-memory
+        # strides match. Memory(play_num=N) only tracks N slots; get_obs() pads
+        # the rest via _lite_per_kart_obs(...) to keep the width fixed.
+        self.obs_shape = 5 + 78 * NUM_KARTS
 
         self.bestL1 = 999999
         self.bestL2 = 999999
@@ -1154,11 +1264,13 @@ for i in range(4):
     await event.frameadvance()
 log_diag("4 warm-up frames advanced; constructing DolphinInstance(play_num=NUM_KARTS)")
 
-# Allow narrowing for debugging via env var. 12 = full hijack, lower = bisect.
+# Allow narrowing the heavyweight Memory tracker for debugging via env var.
+# The obs vector is ALWAYS 941 wide regardless — slots beyond play_num are
+# populated by _lite_per_kart_obs in Memory.get_obs().
 play_num = int(os.environ.get("MKW_PLAY_NUM", str(NUM_KARTS)))
 play_num = max(1, min(NUM_KARTS, play_num))
-obs_shape = 5 + 78 * play_num
-log_diag(f"play_num={play_num} (MKW_PLAY_NUM env override applied if set)")
+obs_shape = 5 + 78 * NUM_KARTS  # always 941
+log_diag(f"play_num={play_num} (MKW_PLAY_NUM env override applied if set); obs_shape={obs_shape}")
 env = DolphinInstance(id, play_num)
 log_diag(f"DolphinInstance constructed; play_num={play_num} obs_shape={obs_shape}")
 

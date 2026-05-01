@@ -49,7 +49,7 @@ def main() -> None:
         head = [round(float(v), 3) for v in slice_[:8]]
         print(f"kart {k:2d}: nonzero={nonzero:2d}/78  range=[{s_min:.3f}, {s_max:.3f}]  head={head}")
 
-    env.close()
+    # DolphinEnv has no close(); the master process exits and tears down the slave.
 
 
 if __name__ == "__main__":
