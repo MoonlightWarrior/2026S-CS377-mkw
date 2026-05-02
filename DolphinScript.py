@@ -1131,6 +1131,21 @@ class DolphinInstance:
             self.input_writer.refresh_base()
         log_diag(f"reset: input_writer base=0x{self.input_writer.base:08x}")
 
+        # NOP-patch PlayerSub1c::updateFromInput (PAL/RMCP01 @ 0x8059487c) to a `blr`
+        # so it returns immediately. This stops MKW from rewriting PlayerSub1c each
+        # frame from InputData/AI sources, letting our direct PlayerSub1c writes
+        # persist into kart physics. After this patch, ALL 12 karts must be driven
+        # by our writes — including slot 0 (no more controller.set_gc_buttons fallback).
+        # Gated by env var so we can compare A/B without rebuilding.
+        if os.environ.get("MKW_NOP_UPDATEFROMINPUT", "1") == "1":
+            try:
+                UPDATEFROMINPUT_ADDR = 0x8059487C
+                BLR = 0x4E800020
+                memory.write_u32(UPDATEFROMINPUT_ADDR, BLR)
+                log_diag(f"reset: NOP-patched updateFromInput @ 0x{UPDATEFROMINPUT_ADDR:08x} → blr (0x{BLR:08x})")
+            except Exception as e:
+                log_exc(e)
+
         # Probe-mode CSV header (write once, on the first reset that creates the file).
         if PROBE_INPUT and self._probe_csv_path is not None:
             try:
@@ -1199,52 +1214,40 @@ class DolphinInstance:
                 log_exc(e)
             return
 
+        # With updateFromInput NOP-patched, the only path the game has for getting
+        # input into PlayerSub1c is OUR direct writes. Drive every kart uniformly
+        # via PlayerSub1c writes; no more set_gc_buttons fallback for slot 0.
         for i in range(NUM_KARTS):
             try:
                 stickX, R, Up, L = self._decode_action(actions[i])
             except Exception:
                 stickX, R, Up, L = 0.0, False, False, False
 
-            # Slot 0: local player. Drive via Dolphin's GC controller API too —
-            # this populates the realControllerHolders[0] path that PadProxy::calc
-            # cleanly reads from for the local player. Memory writes on top can't hurt.
-            if i == 0:
-                self.wii_dic = {
-                    "Left": False, "Right": False, "Down": False,
-                    "Up": Up, "Z": False, "R": R, "L": L,
-                    "A": True, "B": False, "X": False, "Y": False,
-                    "Start": False, "StickX": stickX, "StickY": 0, "CStickX": 0,
-                    "CStickY": 0, "TriggerLeft": 0, "TriggerRight": 0,
-                    "AnalogA": 0, "AnalogB": 0, "Connected": True,
-                }
-                controller.set_gc_buttons(0, self.wii_dic)
-
-            # ALL slots: write to InputData (kept for completeness — currently
-            # clobbered by PadProxy::calc each frame for slots 1..11) AND
-            # directly to PlayerSub1c (the downstream input target).
-            buttons_bf = 0x01  # bit0 = accelerate (always held)
+            # bitfield0 layout (from SeekyCt/mkw-structures · player.h L402-430):
+            #   bit0  accelerate       bit13 stick left
+            #   bit1  brake            bit24 stick right
+            #   bit2  drift input
+            buttons_bf = 0x01  # accelerate always held
             if R:
-                buttons_bf |= 0x04   # bit2 = drift input
-            # stick steering bits in bitfield0: bit13 stick-left, bit24 stick-right
+                buttons_bf |= (1 << 2)   # drift
             if stickX < -0.05:
-                buttons_bf |= (1 << 13)
+                buttons_bf |= (1 << 13)  # stick left
             elif stickX > 0.05:
-                buttons_bf |= (1 << 24)
-            motion_flick = 1 if Up else 0
+                buttons_bf |= (1 << 24)  # stick right
 
-            # InputData write (legacy path)
-            input_buttons = 0x01
-            if R: input_buttons |= 0x08
-            if L: input_buttons |= 0x04
-            self.input_writer.write(i, stickX, input_buttons, motion_flick)
-
-            # PlayerSub1c write (downstream — bypasses PadProxy::calc clobbering)
             try:
                 sub1c = resolve_playersub1c(i)
                 if sub1c >= 0x80000000 and sub1c < 0x81800000:
-                    memory.write_u32(sub1c + PLAYERSUB1C_BITFIELD0, buttons_bf)
-                    memory.write_f32(sub1c + PLAYERSUB1C_STICKX,    float(stickX))
-                    memory.write_f32(sub1c + PLAYERSUB1C_STICKY,    0.0)
+                    # Read-modify-write bitfield0 so we don't blow away the state-bits
+                    # the game writes there (collision flags, ground flags, etc).
+                    # Mask: bit0(accel)=0x1, bit1(brake)=0x2, bit2(drift)=0x4,
+                    #       bit13(stick-left)=0x2000, bit24(stick-right)=0x01000000
+                    INPUT_BITS_MASK = 0x01002007
+                    cur = memory.read_u32(sub1c + PLAYERSUB1C_BITFIELD0)
+                    new = (cur & ~INPUT_BITS_MASK) | (buttons_bf & INPUT_BITS_MASK)
+                    memory.write_u32(sub1c + PLAYERSUB1C_BITFIELD0, new)
+                    memory.write_f32(sub1c + PLAYERSUB1C_STICKX, float(stickX))
+                    memory.write_f32(sub1c + PLAYERSUB1C_STICKY, 0.0)
             except Exception as e:
                 if i == 0 and self._probe_frame == 0:
                     log_exc(e)
