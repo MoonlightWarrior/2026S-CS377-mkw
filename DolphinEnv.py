@@ -108,7 +108,9 @@ class DolphinEnv:
         self.play_num = self.num_karts
         self.obs_shape = 5 + 78 * self.play_num  # 941
 
-        self.n_actions_per_kart = 40
+        # Discrete(20) per kart: matches the trained PPO checkpoint.
+        # stickX(5) × R(2) × Up(1, always True) × L(2) = 20.
+        self.n_actions_per_kart = 20
         self.action_space = [
             gym.spaces.MultiDiscrete([self.n_actions_per_kart] * self.num_karts)
             for _ in range(num_envs)

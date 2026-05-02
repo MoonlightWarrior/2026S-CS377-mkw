@@ -1102,11 +1102,14 @@ class DolphinInstance:
         }
 
         # Define discrete action values
+        # Aligned with kinoko-env/Vlab-WiiRL: acceleration ALWAYS held (A=True),
+        # Up "trick" ALWAYS held too (up_values=[True] → n_actions = 20).
+        # This matches the trained PPO checkpoint's action_dim=20.
         self.stickX_values = [-1, -0.4, 0, 0.4, 1]
         self.r_values = [False, True]
-        self.up_values = [False, True]
+        self.up_values = [True]            # always trigger trick when airborne
         self.l_values = [False, True]
-        # Compute total number of discrete actions
+        # n_actions = 5 × 2 × 1 × 2 = 20
         self.n_actions = (len(self.stickX_values) *
                           len(self.r_values) *
                           len(self.up_values) *
