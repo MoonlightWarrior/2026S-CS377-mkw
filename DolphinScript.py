@@ -1159,14 +1159,55 @@ class DolphinInstance:
         # persist into kart physics. After this patch, ALL 12 karts must be driven
         # by our writes — including slot 0 (no more controller.set_gc_buttons fallback).
         # Gated by env var so we can compare A/B without rebuilding.
+        # NOP these per-frame functions to silence the game's input pipeline so
+        # our direct PlayerSub1c writes survive into kart physics. Both addresses
+        # are PAL/RMCP01 from the mkw-sp symbol map (https://github.com/mkw-sp/mkw-sp/blob/main/symbols.txt)
+        # and SeekyCt/mkw-structures · player.h.
+        BLR = 0x4E800020
         if os.environ.get("MKW_NOP_UPDATEFROMINPUT", "1") == "1":
             try:
-                UPDATEFROMINPUT_ADDR = 0x8059487C
-                BLR = 0x4E800020
+                UPDATEFROMINPUT_ADDR = 0x8059487C  # PlayerSub1c::updateFromInput
                 before = memory.read_u32(UPDATEFROMINPUT_ADDR)
                 memory.write_u32(UPDATEFROMINPUT_ADDR, BLR)
                 after  = memory.read_u32(UPDATEFROMINPUT_ADDR)
-                log_diag(f"reset: NOP-patched updateFromInput @ 0x{UPDATEFROMINPUT_ADDR:08x}: before=0x{before:08x} after=0x{after:08x} target=0x{BLR:08x}")
+                log_diag(f"reset: NOP updateFromInput @ 0x{UPDATEFROMINPUT_ADDR:08x}: before=0x{before:08x} after=0x{after:08x}")
+            except Exception as e:
+                log_exc(e)
+        if os.environ.get("MKW_NOP_AI_CALC", "1") == "1":
+            try:
+                # Enemy::EnemyManager::calc — per-frame AI for slots 4-11.
+                # Empirically only stops AI for those slots; slots 1-3 keep racing.
+                AI_CALC_ADDR = 0x8073942C
+                before = memory.read_u32(AI_CALC_ADDR)
+                memory.write_u32(AI_CALC_ADDR, BLR)
+                log_diag(f"reset: NOP EnemyManager::calc @ 0x{AI_CALC_ADDR:08x}: before=0x{before:08x}")
+            except Exception as e:
+                log_exc(e)
+        if os.environ.get("MKW_NOP_DRIVER_MANAGER", "0") == "1":  # off by default — didn't help
+            try:
+                DM_CALC_ADDR = 0x8078D824
+                memory.write_u32(DM_CALC_ADDR, BLR)
+                log_diag(f"reset: NOP DriverManager::calc @ 0x{DM_CALC_ADDR:08x}")
+            except Exception as e:
+                log_exc(e)
+        if os.environ.get("MKW_NOP_GHOSTPAD", "0") == "1":  # off — didn't isolate slots 1-3
+            try:
+                GHOSTPAD_ADDR = 0x80520B9C
+                memory.write_u32(GHOSTPAD_ADDR, BLR)
+                log_diag(f"reset: NOP GhostPad::process @ 0x{GHOSTPAD_ADDR:08x}")
+            except Exception as e:
+                log_exc(e)
+        if os.environ.get("MKW_NOP_INPUTMANAGER", "1") == "1":
+            try:
+                # System::InputManager::calc — top-level pad processing dispatch.
+                # Stops all pad I/O for all 16 holders. Slot 0's GC controller path
+                # is already irrelevant here (we drive slot 0 via PlayerSub1c writes
+                # and updateFromInput is NOPed). For slots 1-3 (which seem to use
+                # some Pad chain we haven't identified), this should also silence them.
+                IM_CALC_ADDR = 0x805238F0
+                before = memory.read_u32(IM_CALC_ADDR)
+                memory.write_u32(IM_CALC_ADDR, BLR)
+                log_diag(f"reset: NOP InputManager::calc @ 0x{IM_CALC_ADDR:08x}: before=0x{before:08x}")
             except Exception as e:
                 log_exc(e)
 
@@ -1315,12 +1356,29 @@ class DolphinInstance:
                     memory.write_f32(sub1c + PLAYERSUB1C_STICKY, 0.0)
 
                     # Force PlayerSub1c.bitfield4 to "real local" for slots 4-11 each
-                    # frame. mkw-structures says bf4 bit 0 = cpu-controlled, bit 1 =
-                    # real local. Empirical observation: kart 0 has bf4=0x2 (real),
-                    # CPU karts have bf4=0x1 (cpu) — so this is LSB convention. Force
-                    # 0x2 to make the game treat slots 4-11 as real-local players.
+                    # frame. (Doesn't actually disable AI — AI subsystem is wired at
+                    # race-init — but harmless. Keeping for consistency.)
                     if i >= 4:
                         memory.write_u32(sub1c + 0x14, 0x2)
+
+                    # Slots 1-3 in 1p+11cpu savestates seem to use a third mechanism
+                    # (neither updateFromInput nor EnemyManager nor InputManager nor
+                    # GhostPad nor DriverManager NOP affects them). As a brute-force
+                    # override, also write KartMove.speed = 0 each frame. KartMove
+                    # is at chain 0x809C18F8 → [0x20, 0x4*i, 0x0, 0x28]; speed @ +0x20.
+                    if 1 <= i <= 3 and os.environ.get("MKW_FORCE_KARTMOVE_SPEED", "1") == "1":
+                        try:
+                            mgr = memory.read_u32(0x809C18F8)
+                            karr = memory.read_u32(mgr + 0x20) if mgr else 0
+                            kp = memory.read_u32(karr + 0x4 * i) if karr else 0
+                            ko = memory.read_u32(kp) if kp else 0
+                            kmove = memory.read_u32(ko + 0x28) if ko else 0
+                            if kmove and 0x80000000 <= kmove < 0x94000000:
+                                memory.write_f32(kmove + 0x20, 0.0)  # speed
+                                memory.write_f32(kmove + 0x18, 0.0)  # softSpeedLimit
+                                memory.write_f32(kmove + 0x2C, 0.0)  # hardSpeedLimit
+                        except Exception:
+                            pass
             except Exception as e:
                 if i == 0 and self._probe_frame == 0:
                     log_exc(e)
