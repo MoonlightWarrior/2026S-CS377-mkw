@@ -167,6 +167,11 @@ NUM_REAL          = 4             # only first 4 slots have a realControllerHold
 # are dumped to instance_info/input_probe_*.csv for offline correlation analysis.
 PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
 
+# Hard kill-switch for episode resets. When MKW_DISABLE_RESET=1, get_reward_terminal_trun
+# swallows every terminal/trun event and the savestate reload never fires. Useful for
+# GUI inspection ("why does the env die after a few seconds?") and long override tests.
+DISABLE_RESET = os.environ.get("MKW_DISABLE_RESET", "0") == "1"
+
 
 # PlayerSub1c per-kart fields — see SeekyCt/mkw-structures · player.h
 #   PlayerSub1c is the DOWNSTREAM input target (PadProxy → updateFromInput →
@@ -1333,6 +1338,17 @@ class DolphinInstance:
             terminal = True
             log_diag(f"terminal: TIMEOUT ep_len={self.ep_length} rc={self.mem_race_com:.3f} frames_since_chkpt={self.frames_since_chkpt} timeout={episode_timeout_steps}")
 
+        # Hard kill-switch: when MKW_DISABLE_RESET=1, swallow ALL terminal events
+        # so no savestate reload ever fires. The env runs forever (until docker
+        # timeout / Ctrl-C). Useful for GUI inspection and long override tests.
+        if DISABLE_RESET and (terminal or trun):
+            if not getattr(self, "_logged_disable_reset", False):
+                log_diag(f"DISABLE_RESET active — swallowed terminal at ep_len={self.ep_length} rc={self.mem_race_com:.3f}")
+                self._logged_disable_reset = True
+            terminal = False
+            trun = False
+            reward = 0.0
+
         self.frames_since_chkpt += 1
 
         return reward, terminal, trun
@@ -1343,7 +1359,7 @@ class DolphinInstance:
         self.prev_wall_collide = current
         return changed
 
-log_diag(f"slave bootstrap: PROBE_INPUT={PROBE_INPUT} NUM_KARTS={NUM_KARTS}")
+log_diag(f"slave bootstrap: PROBE_INPUT={PROBE_INPUT} DISABLE_RESET={DISABLE_RESET} NUM_KARTS={NUM_KARTS}")
 log_diag(f"dolphin api: dir(memory) has write_u32? {'write_u32' in dir(memory)}; dir(event)={[x for x in dir(event) if 'frame' in x.lower() or 'memory' in x.lower()]}")
 
 for i in range(4):
