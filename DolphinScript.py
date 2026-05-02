@@ -175,8 +175,16 @@ PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
 #
 # Layout (size 0xC0):
 #   +0x00  vtable u32
-#   +0x04  bitfield0 u32   (bit0=accel, bit1=brake, bit2=drift_input,
-#                           bit13=stick_left, bit24=stick_right, ...)
+#   +0x04  bitfield0 u32  — bit numbering is PowerPC big-endian "MSB-first".
+#                           "bit N" in mkw-structures means (1 << (31 - N)).
+#                           Verified empirically: writing 0x80000000 (bit 0 MSB) to
+#                           bf0 makes kart accelerate; 0x00000001 (LSB) does nothing.
+#                           Bits we own:
+#                             bit  0 (=0x80000000)  accelerate
+#                             bit  1 (=0x40000000)  brake
+#                             bit  2 (=0x20000000)  drift input
+#                             bit 13 (=0x00040000)  stick left
+#                             bit 24 (=0x00000080)  stick right
 #   +0x14  bitfield4 u32   (bit0=cpu, bit1=real_local, ...)
 #   +0x88  stickX f32
 #   +0x8C  stickY f32
@@ -185,6 +193,15 @@ PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
 PLAYERSUB1C_BITFIELD0 = 0x04
 PLAYERSUB1C_STICKX    = 0x88
 PLAYERSUB1C_STICKY    = 0x8C
+
+# PowerPC MSB-from-0 bit values (1 << (31 - N))
+PSUB1C_ACCEL_BIT       = 0x80000000  # bit 0
+PSUB1C_BRAKE_BIT       = 0x40000000  # bit 1
+PSUB1C_DRIFT_BIT       = 0x20000000  # bit 2
+PSUB1C_STICKLEFT_BIT   = 0x00040000  # bit 13
+PSUB1C_STICKRIGHT_BIT  = 0x00000080  # bit 24
+PSUB1C_INPUT_BITS_MASK = (PSUB1C_ACCEL_BIT | PSUB1C_BRAKE_BIT | PSUB1C_DRIFT_BIT
+                          | PSUB1C_STICKLEFT_BIT | PSUB1C_STICKRIGHT_BIT)  # 0xE0040080
 
 
 def resolve_playersub1c(slot):
@@ -1141,8 +1158,10 @@ class DolphinInstance:
             try:
                 UPDATEFROMINPUT_ADDR = 0x8059487C
                 BLR = 0x4E800020
+                before = memory.read_u32(UPDATEFROMINPUT_ADDR)
                 memory.write_u32(UPDATEFROMINPUT_ADDR, BLR)
-                log_diag(f"reset: NOP-patched updateFromInput @ 0x{UPDATEFROMINPUT_ADDR:08x} → blr (0x{BLR:08x})")
+                after  = memory.read_u32(UPDATEFROMINPUT_ADDR)
+                log_diag(f"reset: NOP-patched updateFromInput @ 0x{UPDATEFROMINPUT_ADDR:08x}: before=0x{before:08x} after=0x{after:08x} target=0x{BLR:08x}")
             except Exception as e:
                 log_exc(e)
 
@@ -1214,6 +1233,21 @@ class DolphinInstance:
                 log_exc(e)
             return
 
+        # On the very first call where race_stage transitions out of countdown,
+        # dump every kart's PlayerSub1c state so we can verify our writes land.
+        if not getattr(self, "_dumped_active", False) and self.mem_race_stage == 2:
+            try:
+                for ki in range(NUM_KARTS):
+                    sub1c = resolve_playersub1c(ki)
+                    if sub1c >= 0x80000000 and sub1c < 0x81800000:
+                        bf0 = memory.read_u32(sub1c + 0x04)
+                        bf4 = memory.read_u32(sub1c + 0x14)
+                        sx = memory.read_f32(sub1c + 0x88)
+                        log_diag(f"  kart {ki}: sub1c=0x{sub1c:08x} bf0=0x{bf0:08x} bf4=0x{bf4:08x} stickX={sx:.3f}")
+                self._dumped_active = True
+            except Exception as e:
+                log_exc(e)
+
         # With updateFromInput NOP-patched, the only path the game has for getting
         # input into PlayerSub1c is OUR direct writes. Drive every kart uniformly
         # via PlayerSub1c writes; no more set_gc_buttons fallback for slot 0.
@@ -1223,28 +1257,22 @@ class DolphinInstance:
             except Exception:
                 stickX, R, Up, L = 0.0, False, False, False
 
-            # bitfield0 layout (from SeekyCt/mkw-structures · player.h L402-430):
-            #   bit0  accelerate       bit13 stick left
-            #   bit1  brake            bit24 stick right
-            #   bit2  drift input
-            buttons_bf = 0x01  # accelerate always held
+            # bitfield0 — PowerPC MSB-from-0 bit numbering (verified empirically).
+            buttons_bf = PSUB1C_ACCEL_BIT  # accelerate always held
             if R:
-                buttons_bf |= (1 << 2)   # drift
+                buttons_bf |= PSUB1C_DRIFT_BIT
             if stickX < -0.05:
-                buttons_bf |= (1 << 13)  # stick left
+                buttons_bf |= PSUB1C_STICKLEFT_BIT
             elif stickX > 0.05:
-                buttons_bf |= (1 << 24)  # stick right
+                buttons_bf |= PSUB1C_STICKRIGHT_BIT
 
             try:
                 sub1c = resolve_playersub1c(i)
                 if sub1c >= 0x80000000 and sub1c < 0x81800000:
-                    # Read-modify-write bitfield0 so we don't blow away the state-bits
-                    # the game writes there (collision flags, ground flags, etc).
-                    # Mask: bit0(accel)=0x1, bit1(brake)=0x2, bit2(drift)=0x4,
-                    #       bit13(stick-left)=0x2000, bit24(stick-right)=0x01000000
-                    INPUT_BITS_MASK = 0x01002007
+                    # R-M-W bitfield0: preserve game-state bits (collision/ground/etc.),
+                    # overwrite only our 5 input bits.
                     cur = memory.read_u32(sub1c + PLAYERSUB1C_BITFIELD0)
-                    new = (cur & ~INPUT_BITS_MASK) | (buttons_bf & INPUT_BITS_MASK)
+                    new = (cur & ~PSUB1C_INPUT_BITS_MASK) | (buttons_bf & PSUB1C_INPUT_BITS_MASK)
                     memory.write_u32(sub1c + PLAYERSUB1C_BITFIELD0, new)
                     memory.write_f32(sub1c + PLAYERSUB1C_STICKX, float(stickX))
                     memory.write_f32(sub1c + PLAYERSUB1C_STICKY, 0.0)
@@ -1288,13 +1316,14 @@ class DolphinInstance:
 
         # reward for finishing race and set terminal
         if self.mem_race_com >= 4.0:
-            # reward based on position
             reward = (13 - self.mem_race_pos) / 2
             terminal = True
+            log_diag(f"terminal: FINISH ep_len={self.ep_length} rc={self.mem_race_com:.3f} race_pos={self.mem_race_pos}")
         # race has ended, reset
         elif self.mem_race_stage == 4:
             reward = -1
             terminal = True
+            log_diag(f"terminal: race_stage=4 ep_len={self.ep_length} rc={self.mem_race_com:.3f} frames_since_chkpt={self.frames_since_chkpt}")
         # reset condition.
         elif (
             episode_timeout_steps is not None
@@ -1302,6 +1331,7 @@ class DolphinInstance:
         ):
             reward = -1.
             terminal = True
+            log_diag(f"terminal: TIMEOUT ep_len={self.ep_length} rc={self.mem_race_com:.3f} frames_since_chkpt={self.frames_since_chkpt} timeout={episode_timeout_steps}")
 
         self.frames_since_chkpt += 1
 
