@@ -1361,12 +1361,14 @@ class DolphinInstance:
                     if i >= 4:
                         memory.write_u32(sub1c + 0x14, 0x2)
 
-                    # Slots 1-3 in 1p+11cpu savestates seem to use a third mechanism
-                    # (neither updateFromInput nor EnemyManager nor InputManager nor
-                    # GhostPad nor DriverManager NOP affects them). As a brute-force
-                    # override, also write KartMove.speed = 0 each frame. KartMove
-                    # is at chain 0x809C18F8 → [0x20, 0x4*i, 0x0, 0x28]; speed @ +0x20.
-                    if 1 <= i <= 3 and os.environ.get("MKW_FORCE_KARTMOVE_SPEED", "1") == "1":
+                    # Slots 1-3 in 1p+11cpu savestates use a third mechanism that
+                    # none of our function NOPs affect — but the AI's per-frame
+                    # writes to KartMove.speed make them drive the AI line. We can
+                    # force-override KartMove.speed each frame with our intended
+                    # speed (proportional to accel intent). Combined with the
+                    # angular-velocity override below, slots 1-3 become drivable
+                    # by our input.
+                    if 1 <= i <= 3:
                         try:
                             mgr = memory.read_u32(0x809C18F8)
                             karr = memory.read_u32(mgr + 0x20) if mgr else 0
@@ -1374,9 +1376,41 @@ class DolphinInstance:
                             ko = memory.read_u32(kp) if kp else 0
                             kmove = memory.read_u32(ko + 0x28) if ko else 0
                             if kmove and 0x80000000 <= kmove < 0x94000000:
-                                memory.write_f32(kmove + 0x20, 0.0)  # speed
-                                memory.write_f32(kmove + 0x18, 0.0)  # softSpeedLimit
-                                memory.write_f32(kmove + 0x2C, 0.0)  # hardSpeedLimit
+                                # Speed mode: 0 = freeze (default OFF), forward speed
+                                # = drive forward at a constant rate when accel bit set.
+                                if os.environ.get("MKW_FORCE_KARTMOVE_SPEED", "0") == "1":
+                                    memory.write_f32(kmove + 0x20, 0.0)
+                                else:
+                                    # Accel always held in our input → push forward speed.
+                                    # Desired ~50 units/sec which is a moderate cruising speed
+                                    # for MKW karts on Luigi Circuit.
+                                    target_speed = 50.0
+                                    memory.write_f32(kmove + 0x20, target_speed)
+                                memory.write_f32(kmove + 0x18, 120.0)  # softSpeedLimit
+                                memory.write_f32(kmove + 0x2C, 120.0)  # hardSpeedLimit
+                        except Exception:
+                            pass
+
+                    # PlayerSub1c.stickX writes don't actually steer the kart — the
+                    # physics layer reads stick from somewhere else (likely KartMove
+                    # internal state). Brute-force fix: set the kart's angular
+                    # velocity Y (yaw rate) directly each frame to stickX*turn_rate.
+                    # AngularVelocity is at KartDynamics +0xA4 (Vec3 f32, 12 bytes).
+                    # Chain: 0x809C18F8 → [0x20, 0x4*i, 0x0, 0x8, 0x90, 0x4, 0xA4]
+                    # Y component = +0xA8.
+                    if os.environ.get("MKW_FORCE_ANGVEL", "1") == "1":
+                        try:
+                            mgr = memory.read_u32(0x809C18F8)
+                            karr = memory.read_u32(mgr + 0x20) if mgr else 0
+                            kp = memory.read_u32(karr + 0x4 * i) if karr else 0
+                            ko = memory.read_u32(kp) if kp else 0
+                            kdc = memory.read_u32(ko + 0x8) if ko else 0
+                            kdyn = memory.read_u32(kdc + 0x90) if kdc else 0
+                            inner = memory.read_u32(kdyn + 0x4) if kdyn else 0
+                            if inner and 0x80000000 <= inner < 0x94000000:
+                                # turn rate ~ 3 rad/s at full deflection (tunable)
+                                yaw = float(stickX) * 3.0
+                                memory.write_f32(inner + 0xA8, yaw)
                         except Exception:
                             pass
             except Exception as e:
