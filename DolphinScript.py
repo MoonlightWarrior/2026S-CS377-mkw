@@ -168,6 +168,35 @@ NUM_REAL          = 4             # only first 4 slots have a realControllerHold
 PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
 
 
+# PlayerSub1c per-kart fields — see SeekyCt/mkw-structures · player.h
+#   PlayerSub1c is the DOWNSTREAM input target (PadProxy → updateFromInput →
+#   PlayerSub1c → kart physics). Writing to PlayerSub1c[i] bypasses the
+#   InputData/PadProxy chain that PadProxy::calc() rewrites every frame.
+#
+# Layout (size 0xC0):
+#   +0x00  vtable u32
+#   +0x04  bitfield0 u32   (bit0=accel, bit1=brake, bit2=drift_input,
+#                           bit13=stick_left, bit24=stick_right, ...)
+#   +0x14  bitfield4 u32   (bit0=cpu, bit1=real_local, ...)
+#   +0x88  stickX f32
+#   +0x8C  stickY f32
+#
+# Reach via: 0x809C18F8 (PlayerHolder::sInstance) → [0x20, 0x4*i, 0x0, 0x4]
+PLAYERSUB1C_BITFIELD0 = 0x04
+PLAYERSUB1C_STICKX    = 0x88
+PLAYERSUB1C_STICKY    = 0x8C
+
+
+def resolve_playersub1c(slot):
+    """Return the PlayerSub1c* for kart `slot`, or 0 if not resolvable."""
+    holder = _safe_read_u32(0x809C18F8)
+    players = _safe_read_u32(holder + 0x20) if holder else 0
+    player_i = _safe_read_u32(players + 0x4 * slot) if players else 0
+    pointers = _safe_read_u32(player_i + 0x0) if player_i else 0
+    sub1c = _safe_read_u32(pointers + 0x4) if pointers else 0
+    return sub1c
+
+
 class KartInputWriter:
     """Writes per-kart input to MKW's InputData controller holders.
 
@@ -1175,8 +1204,11 @@ class DolphinInstance:
                 stickX, R, Up, L = self._decode_action(actions[i])
             except Exception:
                 stickX, R, Up, L = 0.0, False, False, False
+
+            # Slot 0: local player. Drive via Dolphin's GC controller API too —
+            # this populates the realControllerHolders[0] path that PadProxy::calc
+            # cleanly reads from for the local player. Memory writes on top can't hurt.
             if i == 0:
-                # Slot 0: local player. Drive via Dolphin's GC controller API (proven path).
                 self.wii_dic = {
                     "Left": False, "Right": False, "Down": False,
                     "Up": Up, "Z": False, "R": R, "L": L,
@@ -1186,15 +1218,36 @@ class DolphinInstance:
                     "AnalogA": 0, "AnalogB": 0, "Connected": True,
                 }
                 controller.set_gc_buttons(0, self.wii_dic)
-            else:
-                # Slots 1..11: memory hijack of MKW's input struct.
-                buttons = 0x01  # A (accel) always held
-                if R:
-                    buttons |= 0x08  # drift
-                if L:
-                    buttons |= 0x04  # item
-                motion_flick = 1 if Up else 0
-                self.input_writer.write(i, stickX, buttons, motion_flick)
+
+            # ALL slots: write to InputData (kept for completeness — currently
+            # clobbered by PadProxy::calc each frame for slots 1..11) AND
+            # directly to PlayerSub1c (the downstream input target).
+            buttons_bf = 0x01  # bit0 = accelerate (always held)
+            if R:
+                buttons_bf |= 0x04   # bit2 = drift input
+            # stick steering bits in bitfield0: bit13 stick-left, bit24 stick-right
+            if stickX < -0.05:
+                buttons_bf |= (1 << 13)
+            elif stickX > 0.05:
+                buttons_bf |= (1 << 24)
+            motion_flick = 1 if Up else 0
+
+            # InputData write (legacy path)
+            input_buttons = 0x01
+            if R: input_buttons |= 0x08
+            if L: input_buttons |= 0x04
+            self.input_writer.write(i, stickX, input_buttons, motion_flick)
+
+            # PlayerSub1c write (downstream — bypasses PadProxy::calc clobbering)
+            try:
+                sub1c = resolve_playersub1c(i)
+                if sub1c >= 0x80000000 and sub1c < 0x81800000:
+                    memory.write_u32(sub1c + PLAYERSUB1C_BITFIELD0, buttons_bf)
+                    memory.write_f32(sub1c + PLAYERSUB1C_STICKX,    float(stickX))
+                    memory.write_f32(sub1c + PLAYERSUB1C_STICKY,    0.0)
+            except Exception as e:
+                if i == 0 and self._probe_frame == 0:
+                    log_exc(e)
 
     def get_reward_terminal_trun(self):
         reward = 0.
