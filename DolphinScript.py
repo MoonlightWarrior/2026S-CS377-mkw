@@ -1294,8 +1294,18 @@ print(f"Sent init state | play_num={play_num} obs_shape={obs_shape} probe={PROBE
 def my_callback():
     env.apply_actions(env.applied_actions)
 
-event.on_frameadvance(my_callback)
-log_diag("on_frameadvance(my_callback) registered; entering main loop")
+# MKW_INPUT_HOOK: 'frameadvance' (default) or 'framedrawn' — try framedrawn to see
+# if it fires later in the frame (after PadProxy::calc has filled m_currentRaceInputState
+# but before next-frame's calc clobbers our writes).
+_input_hook = os.environ.get("MKW_INPUT_HOOK", "frameadvance")
+if _input_hook == "framedrawn":
+    def _drawn_cb(width, height, data):
+        env.apply_actions(env.applied_actions)
+    event.on_framedrawn(_drawn_cb)
+    log_diag("on_framedrawn registered (MKW_INPUT_HOOK=framedrawn); entering main loop")
+else:
+    event.on_frameadvance(my_callback)
+    log_diag("on_frameadvance(my_callback) registered; entering main loop")
 # make sure we apply the action every single frame. Otherwise this can lead to some weird stuttering
 # behaviour
 

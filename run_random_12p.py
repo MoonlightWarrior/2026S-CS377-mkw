@@ -51,7 +51,9 @@ ACTION_FORWARD_STRAIGHT = 16
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--phase", choices=["probe", "sentinel", "constant", "random"], default="random")
+    p.add_argument("--phase",
+                   choices=["probe", "sentinel", "constant", "random", "all_left", "all_right"],
+                   default="random")
     p.add_argument("--steps", type=int, default=600)
     p.add_argument("--num_envs", type=int, default=1)
     p.add_argument("--slot", type=int, default=4, help="Sentinel-write target slot (sentinel phase only)")
@@ -75,6 +77,12 @@ def actions_for_phase(phase: str, num_envs: int, args: argparse.Namespace, rng: 
         slot = max(0, min(NUM_KARTS - 1, int(args.slot)))
         a[:, slot] = int(args.sentinel_action)
         return a
+    if phase == "all_left":
+        # action=0: stickX=-1.0, R=False, Up=False, L=False (accel-only, full left)
+        return np.zeros((num_envs, NUM_KARTS), dtype=np.int64)
+    if phase == "all_right":
+        # action=32: stickX=+1.0, R=False, Up=False, L=False (accel-only, full right)
+        return np.full((num_envs, NUM_KARTS), 32, dtype=np.int64)
     # random
     return rng.integers(0, 40, size=(num_envs, NUM_KARTS), dtype=np.int64)
 
