@@ -321,50 +321,163 @@ def _safe_read_u16(addr):
         return 0
 
 
-def _lite_per_kart_obs(n, karr, plr_arr):
-    """Return the 78-element per-kart observation slice for slot n via direct
-    chain reads (no Memory.Addresses cache). Matches the field order in
-    Memory.get_obs for tracked karts so the obs width stays aligned. Most
-    fields fall back to 0 if the chain can't be resolved.
+def _safe_read_u32_any(addr):
+    """Like _safe_read_u32 but accepts MEM2 too (for race-manager pointers)."""
+    if not addr or not (
+        (0x80000000 <= addr < 0x81800000) or (0x90000000 <= addr < 0x94000000)
+    ):
+        return 0
+    try:
+        return memory.read_u32(addr)
+    except Exception:
+        return 0
 
-    karr     -- KartObjectManager kart pointer array base (read once per get_obs)
-    plr_arr  -- RaceManagerPlayer per-player array base (read once per get_obs)
+
+def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
+    """Return the 78-element per-kart observation slice for slot n via direct
+    chain reads (no Memory.Addresses cache).
+
+    Field layout matches Memory.get_obs for tracked slots so the 941-wide obs
+    stays aligned. Each field falls back to 0 if its chain can't be resolved.
+    Per-frame cost is ~30 chain reads; safe in practice because each frame
+    yields back to the emulator via `await event.frameadvance()` between calls.
+
+    Args:
+      karr     -- PlayerHolder players[] array base (read once per get_obs)
+      plr_arr  -- RaceManagerPlayer per-player array base (read once per get_obs)
+      race_mgr_for_player -- RaceManager (0x809BD728 → +0x28) per-player struct base
     """
     out = [0.0] * 78
     out[0] = float(n)  # PlayerID
 
-    # RaceCompletion (5), currentLap (10) — RaceManagerPlayer chain
+    # ----- RaceManager player slot (race-config: kart, character, lap counts) -----
+    # 0x809BD728 → +(0x28 + 0xF0*n) is start of RacedataPlayer (per Vlab-WiiRL chains).
+    if race_mgr_for_player:
+        slot_base = race_mgr_for_player + 0xF0 * n
+        out[1] = float(_safe_read_u8(slot_base + 0x05))   # LocalPlayerNum
+        out[2] = float(_safe_read_u8(slot_base + 0x06))   # RealControllerID
+        out[3] = float(_safe_read_u32_any(slot_base + 0x08))  # KartID
+        out[4] = float(_safe_read_u32_any(slot_base + 0x0C))  # CharacterID
+
+    # ----- RaceManagerPlayer per-player block (race-time progress) -----
     if plr_arr:
         plr = _safe_read_u32(plr_arr + 0x4 * n)
         if plr:
-            out[5]  = _safe_read_f32(plr + 0xC)             # RaceCompletion
-            out[6]  = _safe_read_f32(plr + 0x10)            # MaxRaceCompletion
-            out[10] = _safe_read_u16(plr + 0x24)            # currentLap
+            out[5]  = _safe_read_f32(plr + 0xC)            # RaceCompletion
+            out[6]  = _safe_read_f32(plr + 0x10)           # MaxRaceCompletion
+            out[7]  = _safe_read_f32(plr + 0x14)           # FirstKcpLapCompletion
+            out[8]  = _safe_read_f32(plr + 0x18)           # NextCheckpointLapCompletion
+            out[9]  = _safe_read_f32(plr + 0x1C)           # NextCheckpointLapCompletionMax
+            out[10] = float(_safe_read_u16(plr + 0x24))    # currentLap
+            out[11] = float(_safe_read_u8(plr + 0x26))     # MaxLap
+            out[12] = float(_safe_read_u8(plr + 0x27))     # currentKCP
+            out[13] = float(_safe_read_u8(plr + 0x28))     # maxKCP
+            out[75] = float(_safe_read_u8(plr + 0x3B))     # StateBit
 
-    # KartObject chain — position (16-18), velocity (19-21), speed (38), race_pos (61)
+    # ----- KartObject chain (physics) -----
     if karr:
         kp = _safe_read_u32(karr + 0x4 * n)
         ko = _safe_read_u32(kp) if kp else 0
         if ko:
+            # KartDynamics container @ +0x8 → +0x90 → +0x4 = inner KartDynamics
             kdc = _safe_read_u32(ko + 0x8)
             kdyn = _safe_read_u32(kdc + 0x90) if kdc else 0
             if kdyn:
-                # position f32 ×3 @ +0x18
+                inner = _safe_read_u32(kdyn + 0x4)
+                # position f32×3 @ kdyn+0x18 (NOT inner+0x18 — Vlab chains differ)
                 out[16] = _safe_read_f32(kdyn + 0x18 + 0)
                 out[17] = _safe_read_f32(kdyn + 0x18 + 4)
                 out[18] = _safe_read_f32(kdyn + 0x18 + 8)
-                # velocity f32 ×3 @ +0xD4
-                out[19] = _safe_read_f32(kdyn + 0xD4 + 0)
-                out[20] = _safe_read_f32(kdyn + 0xD4 + 4)
-                out[21] = _safe_read_f32(kdyn + 0xD4 + 8)
-            # KartMove chain @ ko + 0x28
-            kmove = _safe_read_u32(ko + 0x28)
-            if kmove:
-                out[38] = _safe_read_f32(kmove + 0x20)      # speed
-            # KartCollide chain @ ko + 0x18
+                if inner:
+                    # velocity, internalVelocity, externalVelocity, angularVelocity,
+                    # acceleration, mainRotation all live inside `inner`.
+                    out[19] = _safe_read_f32(inner + 0xD4 + 0)   # velocity x
+                    out[20] = _safe_read_f32(inner + 0xD4 + 4)
+                    out[21] = _safe_read_f32(inner + 0xD4 + 8)
+                    out[22] = _safe_read_f32(inner + 0x14C + 0)  # internalVelocity
+                    out[23] = _safe_read_f32(inner + 0x14C + 4)
+                    out[24] = _safe_read_f32(inner + 0x14C + 8)
+                    out[25] = _safe_read_f32(inner + 0x74 + 0)   # externalVelocity
+                    out[26] = _safe_read_f32(inner + 0x74 + 4)
+                    out[27] = _safe_read_f32(inner + 0x74 + 8)
+                    out[28] = _safe_read_f32(inner + 0xA4 + 0)   # angularVelocity
+                    out[29] = _safe_read_f32(inner + 0xA4 + 4)
+                    out[30] = _safe_read_f32(inner + 0xA4 + 8)
+                    out[31] = _safe_read_f32(inner + 0x80 + 0)   # acceleration
+                    out[32] = _safe_read_f32(inner + 0x80 + 4)
+                    out[33] = _safe_read_f32(inner + 0x80 + 8)
+                    out[34] = _safe_read_f32(inner + 0xF0 + 0)   # mainRotation x
+                    out[35] = _safe_read_f32(inner + 0xF0 + 4)
+                    out[36] = _safe_read_f32(inner + 0xF0 + 8)
+                    out[37] = _safe_read_f32(inner + 0xF0 + 12)
+            # KartState @ ko + 0x4 — bitfields, airtime, start-boost
+            kstate = _safe_read_u32(ko + 0x4)
+            if kstate:
+                out[47] = float(_safe_read_u32(kstate + 0x4))    # BitField0
+                out[48] = float(_safe_read_u32(kstate + 0x8))    # BitField1
+                out[49] = float(_safe_read_u32(kstate + 0xC))    # bitfield2
+                out[50] = float(_safe_read_u32(kstate + 0x10))   # BitField3
+                out[58] = float(_safe_read_u16(kstate + 0xA6))   # trickableTimer
+                out[60] = float(_safe_read_u32(kstate + 0x1C))   # airtime
+                out[76] = _safe_read_f32(kstate + 0x9C)          # startBoostCharge
+                out[77] = float(_safe_read_u32(kstate + 0xA0))   # startBoostIdx
+            # KartCollide @ ko + 0x18 — surface, collision, race_pos, respawn
             kcoll = _safe_read_u32(ko + 0x18)
             if kcoll:
-                out[61] = float(_safe_read_u8(kcoll + 0x3C))  # race_position
+                inner_coll = _safe_read_u32(kcoll + 0x18)
+                if inner_coll:
+                    out[51] = float(_safe_read_u32(inner_coll + 0x2C))   # surfaceFlags
+                    out[63] = float(_safe_read_u16(inner_coll + 0x48))   # respawn_timer
+                out[61] = float(_safe_read_u8(kcoll + 0x3C))     # race_position
+                out[62] = float(_safe_read_u16(kcoll + 0x40))    # floor_collision_count
+                out[64] = float(_safe_read_u32(kcoll + 0x18 + 0x8) if _safe_read_u32(kcoll + 0x18) else 0)  # wall_collide
+            # KartMove @ ko + 0x28 — speed, drift, wheelie, hop, status timers
+            kmove = _safe_read_u32(ko + 0x28)
+            if kmove:
+                out[14] = _safe_read_f32(kmove + 0x18)           # SoftSpeedLimit
+                out[15] = _safe_read_f32(kmove + 0x2C)           # HardSpeedLimit
+                out[38] = _safe_read_f32(kmove + 0x20)           # speed
+                out[39] = _safe_read_f32(kmove + 0x30)           # acceleration_KartMove
+                out[43] = float(_safe_read_u16(kmove + 0x148))   # offroadInvincibility
+                out[44] = float(_safe_read_u32(kmove + 0x2A8))   # wheelieFrames
+                out[45] = float(_safe_read_u16(kmove + 0x2B6))   # wheelieCooldown
+                out[46] = _safe_read_f32(kmove + 0x294)          # leanRot
+                out[52] = _safe_read_f32(kmove + 0x228 + 0)      # HopVector
+                out[53] = _safe_read_f32(kmove + 0x228 + 4)
+                out[54] = _safe_read_f32(kmove + 0x228 + 8)
+                out[55] = float(_safe_read_u16(kmove + 0x102))   # mt_boost_timer
+                out[56] = float(_safe_read_u16(kmove + 0x10C))   # allmt
+                out[57] = float(_safe_read_u16(kmove + 0x110))   # mush_and_boost
+                out[69] = float(_safe_read_u16(kmove + 0x18A))   # StarTimer
+                out[70] = float(_safe_read_u16(kmove + 0x18C))   # ShockTimer
+                out[71] = float(_safe_read_u16(kmove + 0x18E))   # BlooperInkTimer
+                out[72] = float(_safe_read_u8 (kmove + 0x190))   # BlooperStateFlag
+                out[73] = float(_safe_read_u16(kmove + 0x192))   # CrushTimer
+                out[74] = float(_safe_read_u16(kmove + 0x194))   # MegaTimer
+                # trick_cooldown via KartJump @ kmove+0x258
+                kjump = _safe_read_u32(kmove + 0x258)
+                if kjump:
+                    out[59] = float(_safe_read_u16(kjump + 0x38))  # trick_cooldown
+            # Misc @ ko + 0x44 — drift state, miniturbo
+            kmisc = _safe_read_u32(ko + 0x44)
+            if kmisc:
+                out[40] = float(_safe_read_u16(kmisc + 0xFC))    # DriftState
+                out[41] = float(_safe_read_u16(kmisc + 0xFE))    # miniturboCharge
+                out[42] = float(_safe_read_u16(kmisc + 0x100))   # SMiniturboCharge
+
+    # ----- ItemManager per-player slot @ 0x809C3618 → +0x14 + 0x4*n (heap pointer) -----
+    try:
+        item_mgr = memory.read_u32(0x809C3618)
+        item_arr = _safe_read_u32_any(item_mgr + 0x14) if item_mgr else 0
+        if item_arr:
+            islot = _safe_read_u32_any(item_arr + 0x4 * n)
+            if islot:
+                out[65] = float(_safe_read_u32(islot + 0x8C))    # Item
+                out[66] = float(_safe_read_u32(islot + 0x90))    # ItemNum
+                out[67] = float(_safe_read_u32(islot + 0xCC))    # PassiveItem
+                out[68] = float(_safe_read_u32(islot + 0x104))   # PassiveItemNum
+    except Exception:
+        pass
 
     return out
 
@@ -526,10 +639,21 @@ class Memory:
                 self.PassiveItemNum.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x104]))
 
         def resolve_address(self, base_address, offsets):
+            # Defensive: bounds-check every dereference. PowerPC valid memory is
+            # MEM1 [0x80000000, 0x81800000) or MEM2 [0x90000000, 0x94000000).
+            # Without the check, dereferencing an invalid intermediate pointer can
+            # hang Dolphin's emulator (observed at slot 4 with play_num=12).
             current_address = memory.read_u32(base_address)
             for offset in offsets:
-                value_address = current_address + offset
-                current_address = memory.read_u32(current_address + offset)
+                addr = current_address + offset
+                value_address = addr
+                in_mem = (0x80000000 <= addr < 0x81800000) or (0x90000000 <= addr < 0x94000000)
+                if not in_mem:
+                    return 0
+                try:
+                    current_address = memory.read_u32(addr)
+                except Exception:
+                    return 0
             return value_address
 
     def __init__(self, num_players=1):
@@ -748,7 +872,7 @@ class Memory:
         )
         obs.extend(race_info)
 
-        # Pre-resolve KartObjectManager + RaceManagerPlayer once for lite enrichment.
+        # Pre-resolve once per get_obs() so the lite reader doesn't redo them per slot.
         try:
             mgr = memory.read_u32(0x809C18F8)
             karr = memory.read_u32(mgr + 0x20) if mgr else 0
@@ -759,11 +883,17 @@ class Memory:
             plr_arr = memory.read_u32(rmp + 0xC) if rmp else 0
         except Exception:
             plr_arr = 0
+        try:
+            # RaceManager → +0x28 = per-player block start (matches Vlab-WiiRL chains).
+            race_data = memory.read_u32(0x809BD728)
+            race_mgr_player = race_data + 0x28 if race_data else 0
+        except Exception:
+            race_mgr_player = 0
 
         # 2. PER-KART INFO — iterate ALL 12 slots; tracked vs lite per slot.
         for n in range(NUM_KARTS):
             if n >= self.num_players:
-                obs.extend(_lite_per_kart_obs(n, karr, plr_arr))
+                obs.extend(_lite_per_kart_obs(n, karr, plr_arr, race_mgr_player))
                 continue
             p_info = (
                 n,                          # PlayerID
