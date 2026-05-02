@@ -1170,6 +1170,38 @@ class DolphinInstance:
             except Exception as e:
                 log_exc(e)
 
+        # Change PlayerType for slots 4-11 from PLAYER_CPU (=1) to PLAYER_REAL_LOCAL (=0)
+        # so MKW's AI subsystem stops driving them. Reach via:
+        #   0x809BD728 → read_u32 → + (0x38 + 0xF0*i)
+        # (per SeekyCt/mkw-structures · racedata.h: RacedataPlayer is 0xF0 bytes,
+        #  playerType is at struct +0x10 = chain +0x38, where 0x28 is the array
+        #  offset within the RaceData struct that 0x809BD728 → resolves to.)
+        if os.environ.get("MKW_FORCE_REAL_LOCAL", "1") == "1":
+            try:
+                race_data = memory.read_u32(0x809BD728)
+                # accept both MEM1 (0x80000000..0x817FFFFF) and MEM2 (0x90000000..0x93FFFFFF)
+                rd_ok = (race_data and (
+                    (0x80000000 <= race_data < 0x81800000) or
+                    (0x90000000 <= race_data < 0x94000000)
+                ))
+                if rd_ok:
+                    PLAYER_REAL_LOCAL = 0
+                    converted = []
+                    for slot in range(NUM_KARTS):
+                        addr = race_data + 0x38 + 0xF0 * slot
+                        try:
+                            cur = memory.read_u32(addr)
+                            if slot >= 4:
+                                memory.write_u32(addr, PLAYER_REAL_LOCAL)
+                            converted.append(f"slot{slot}:{cur}{'→0' if slot>=4 else ''}")
+                        except Exception:
+                            pass
+                    log_diag(f"reset: PlayerType (race_data=0x{race_data:08x}): {' '.join(converted)}")
+                else:
+                    log_diag(f"reset: PlayerType conversion SKIPPED — race_data=0x{race_data:08x} out of MEM1/MEM2")
+            except Exception as e:
+                log_exc(e)
+
         # Probe-mode CSV header (write once, on the first reset that creates the file).
         if PROBE_INPUT and self._probe_csv_path is not None:
             try:
@@ -1281,6 +1313,14 @@ class DolphinInstance:
                     memory.write_u32(sub1c + PLAYERSUB1C_BITFIELD0, new)
                     memory.write_f32(sub1c + PLAYERSUB1C_STICKX, float(stickX))
                     memory.write_f32(sub1c + PLAYERSUB1C_STICKY, 0.0)
+
+                    # Force PlayerSub1c.bitfield4 to "real local" for slots 4-11 each
+                    # frame. mkw-structures says bf4 bit 0 = cpu-controlled, bit 1 =
+                    # real local. Empirical observation: kart 0 has bf4=0x2 (real),
+                    # CPU karts have bf4=0x1 (cpu) — so this is LSB convention. Force
+                    # 0x2 to make the game treat slots 4-11 as real-local players.
+                    if i >= 4:
+                        memory.write_u32(sub1c + 0x14, 0x2)
             except Exception as e:
                 if i == 0 and self._probe_frame == 0:
                     log_exc(e)
