@@ -346,6 +346,10 @@ class DolphinEnv:
             "cpu_stickX_all":  np.zeros((self.num_envs, nk), dtype=np.float32),
             "cpu_stickY_all":  np.zeros((self.num_envs, nk), dtype=np.float32),
             "cpu_buttons_all": np.zeros((self.num_envs, nk), dtype=np.int32),
+            # 1 if the slave perturbed this slot's physics this step (MKW_STOCH=1
+            # macro != NEUTRAL). Distill collector drops these rows so labels stay
+            # clean while the kart still wanders into varied states.
+            "cpu_perturb_all": np.zeros((self.num_envs, nk), dtype=np.int8),
             "race_stage": np.zeros(self.num_envs, dtype=np.int32),
         }
 
@@ -381,7 +385,8 @@ class DolphinEnv:
                 infos["RaceCompletion"][i] = float(info.get("RaceCompletion", 0.0))
                 # forward per-kart arrays if the slave provided them; pad/truncate to nk.
                 for key in ("RaceCompletion_all", "kart_x_all", "kart_z_all", "race_pos_all",
-                            "cpu_stickX_all", "cpu_stickY_all", "cpu_buttons_all"):
+                            "cpu_stickX_all", "cpu_stickY_all", "cpu_buttons_all",
+                            "cpu_perturb_all"):
                     src = info.get(key)
                     if src is None:
                         continue

@@ -1386,6 +1386,17 @@ class DolphinInstance:
                             ll.append("        " + "  ".join(row))
                 log_diag("\n".join(ll))
 
+        # Per-slot perturbation flag — 1 if MKW_STOCH=1 and the slot's current
+        # macro is non-NEUTRAL during this master step. The collector drops
+        # rows where this is set, so labels are clean (= AI's intent at the
+        # deviated state, not what we forced).
+        cpu_perturb_all = [0] * NUM_KARTS
+        if hasattr(self, "_stoch_macros"):
+            for i in range(NUM_KARTS):
+                macro, _ = self._stoch_macros[i]
+                if macro and macro != "NEUTRAL":
+                    cpu_perturb_all[i] = 1
+
         info = {
             "RaceCompletion": float(self.mem_race_com),
             "RaceCompletion_all": rc_all,
@@ -1395,6 +1406,7 @@ class DolphinInstance:
             "cpu_stickX_all": cpu_sx_all,
             "cpu_stickY_all": cpu_sy_all,
             "cpu_buttons_all": cpu_btn_all,
+            "cpu_perturb_all": cpu_perturb_all,
             "race_stage": int(self.mem_race_stage) if hasattr(self, "mem_race_stage") else int(self.memory_tracker.stage),
         }
         self.conn.send((reward, terminal, trun, info))
@@ -1604,6 +1616,89 @@ class DolphinInstance:
             bool(self.l_values[l_idx]),
         )
 
+    def _step_stochastic_perturbation(self):
+        """When MKW_STOCH=1, push selected CPU karts off the AI line by overriding
+        physics state once per master step. Doesn't touch KPad — AI continues to
+        publish its (corrective) intent, so the BC label captures "what AI does at
+        a deviated state". `cpu_perturb_all` in the info dict marks frames the
+        collector must drop from the dataset.
+
+        Macro-action chunks: pick once per `MKW_STOCH_CHUNK` master steps (default
+        10 ≈ 0.66 sec at frameskip=4), hold the perturbation through the chunk.
+        """
+        if os.environ.get("MKW_STOCH") != "1":
+            return
+        chunk_size = max(1, int(os.environ.get("MKW_STOCH_CHUNK", "10")))
+        slots_str = os.environ.get("MKW_STOCH_SLOTS", "4,5,6,7,8,9,10,11")
+        try:
+            eligible = [int(x) for x in slots_str.split(",") if x.strip()]
+        except ValueError:
+            eligible = list(range(4, 12))
+
+        # (macro_name, weight). NEUTRAL = no override (this slot's row will be
+        # kept in the BC dataset). The other macros mark the row as perturbed.
+        MACRO_TABLE = (
+            ("NEUTRAL",    30),
+            ("LEFT",       20),
+            ("RIGHT",      20),
+            ("BRAKE",      10),
+            ("BOOST",      10),
+            ("HARD_LEFT",   5),
+            ("HARD_RIGHT",  5),
+        )
+        total_w = sum(w for _, w in MACRO_TABLE)
+
+        if not hasattr(self, "_stoch_macros"):
+            self._stoch_macros = [("NEUTRAL", 0)] * NUM_KARTS
+
+        try:
+            mgr = memory.read_u32(0x809C18F8)
+            karr = memory.read_u32(mgr + 0x20) if mgr else 0
+        except Exception:
+            karr = 0
+        if not karr:
+            return
+
+        for i in eligible:
+            macro, remaining = self._stoch_macros[i]
+            if remaining == 0:
+                r = random.randint(0, total_w - 1)
+                cum = 0
+                for name, w in MACRO_TABLE:
+                    cum += w
+                    if r < cum:
+                        macro = name
+                        break
+                remaining = chunk_size
+            self._stoch_macros[i] = (macro, remaining - 1)
+
+            if macro == "NEUTRAL":
+                continue
+
+            # Resolve this kart's KartObject + sub-objects.
+            try:
+                kp = memory.read_u32(karr + 0x4 * i)
+                ko = memory.read_u32(kp) if kp else 0
+                if not ko or ko < 0x80000000 or ko >= 0x81800000:
+                    continue
+                if macro in ("LEFT", "RIGHT", "HARD_LEFT", "HARD_RIGHT"):
+                    kdc = memory.read_u32(ko + 0x8)
+                    kdyn = memory.read_u32(kdc + 0x90) if kdc else 0
+                    inner = memory.read_u32(kdyn + 0x4) if kdyn else 0
+                    if inner and 0x80000000 <= inner < 0x94000000:
+                        yaw_target = {
+                            "LEFT": -2.0, "RIGHT": 2.0,
+                            "HARD_LEFT": -4.5, "HARD_RIGHT": 4.5,
+                        }[macro]
+                        memory.write_f32(inner + 0xA8, yaw_target)
+                elif macro in ("BRAKE", "BOOST"):
+                    kmove = memory.read_u32(ko + 0x28)
+                    if kmove and 0x80000000 <= kmove < 0x94000000:
+                        speed_target = 25.0 if macro == "BRAKE" else 110.0
+                        memory.write_f32(kmove + 0x20, speed_target)
+            except Exception:
+                pass
+
     def apply_actions(self, actions):
         """Write per-kart input for all 12 karts.
 
@@ -1617,6 +1712,10 @@ class DolphinInstance:
         kart's InputState + yaw and dump a CSV row.
         """
         self.get_mem_values()
+        # Stochastic perturbation runs in both modes — it touches physics state
+        # (KartDynamics.angVel.y, KartMove.speed), not the input layer, so it
+        # doesn't fight the probe-mode no-write contract.
+        self._step_stochastic_perturbation()
 
         if PROBE_INPUT:
             try:

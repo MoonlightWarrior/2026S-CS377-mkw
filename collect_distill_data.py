@@ -109,6 +109,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--no_stop_on_race_end", dest="stop_on_race_end", action="store_false")
     p.add_argument("--warmup_steps", type=int, default=8,
                    help="Skip recording for the first N steps (countdown / mem chains settling).")
+    p.add_argument("--stoch", action="store_true",
+                   help="Enable stochastic AI perturbation (MKW_STOCH=1). Slave injects "
+                        "macro-action chunks (LEFT/RIGHT/BRAKE/BOOST) on KartDynamics.angVel.y "
+                        "and KartMove.speed for chunk_size master steps; perturbed rows are "
+                        "dropped from the dataset so labels remain clean AI-at-deviated-state.")
+    p.add_argument("--stoch_chunk", type=int, default=10,
+                   help="Master steps per stochastic macro chunk (default 10 ≈ 0.66s at frameskip=4).")
+    p.add_argument("--target_rows", type=int, default=0,
+                   help="If >0, run until this many CLEAN rows are recorded (perturbed rows "
+                        "don't count). --steps becomes a hard upper bound on the loop.")
     return p.parse_args()
 
 
@@ -118,8 +128,13 @@ def main() -> None:
     project_root = Path(__file__).resolve().parent
     out_path = (project_root / args.out).resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    print(f"[collect] env vars set: {sorted(_DISTILL_ENV.keys())}")
-    print(f"[collect] steps={args.steps} slots={args.slots} → {out_path}")
+    if args.stoch:
+        os.environ["MKW_STOCH"] = "1"
+        os.environ["MKW_STOCH_CHUNK"] = str(args.stoch_chunk)
+        os.environ["MKW_STOCH_SLOTS"] = ",".join(str(s) for s in args.slots)
+        print(f"[collect] stochastic ON: chunk={args.stoch_chunk} slots={args.slots}")
+    print(f"[collect] env vars set: {sorted(list(_DISTILL_ENV.keys()) + ['MKW_STOCH'] if args.stoch else _DISTILL_ENV.keys())}")
+    print(f"[collect] steps={args.steps} target_rows={args.target_rows or 'unlimited'} slots={args.slots} → {out_path}")
 
     env = DolphinEnv(
         num_envs=1,
@@ -129,6 +144,15 @@ def main() -> None:
     )
     obs, _ = env.reset()
     print(f"[collect] env up. obs.shape={obs.shape}  (expected (1, 4, {RACE_INFO_DIMS + PER_KART_OBS_DIMS * NUM_KARTS}))")
+
+    # If --target_rows is set, auto-extend --steps so we have headroom: with
+    # stochastic on, ~30% of slot-steps are clean (NEUTRAL macro) and the rest
+    # are dropped. Multiply by ~4x as a safety margin.
+    if args.target_rows > 0:
+        needed_steps = max(args.steps, int(args.target_rows * 4 / max(len(args.slots), 1)))
+        if needed_steps > args.steps:
+            print(f"[collect] auto-extending --steps {args.steps} → {needed_steps} for target_rows={args.target_rows}")
+            args.steps = needed_steps
 
     # Pre-allocate generously; trim at the end. Worst-case rows per env step =
     # len(slots), so steps * len(slots) is a tight upper bound.
@@ -180,12 +204,21 @@ def main() -> None:
                                 np.zeros((1, NUM_KARTS), dtype=np.int32))[0]
             rc_all  = infos.get("RaceCompletion_all",
                                 np.zeros((1, NUM_KARTS), dtype=np.float32))[0]
+            perturb_all = infos.get("cpu_perturb_all",
+                                np.zeros((1, NUM_KARTS), dtype=np.int8))[0]
 
             # obs shape: (num_envs, framestack, 5 + 78*12). Use the latest frame.
             latest = obs[0, -1, :]
             race_info = latest[:RACE_INFO_DIMS]
 
             for slot in args.slots:
+                # Drop perturbed rows: the kart's physics is being externally
+                # forced this step, so the trajectory diverges from where the
+                # AI would naturally be. We still want the AI's *intent* but
+                # not while it's being yanked around.
+                if perturb_all[slot]:
+                    continue
+
                 start = RACE_INFO_DIMS + PER_KART_OBS_DIMS * slot
                 end   = start + PER_KART_OBS_DIMS
                 kart_slice = latest[start:end]
@@ -206,6 +239,10 @@ def main() -> None:
                 env_buf[write_idx]      = 0
                 rc_buf[write_idx]       = float(rc_all[slot])
                 write_idx += 1
+
+            if args.target_rows > 0 and write_idx >= args.target_rows:
+                print(f"[collect] target_rows={args.target_rows} reached at step {step}; breaking.")
+                break
 
             if args.stop_on_race_end and stage >= 4:
                 print(f"[collect] race ended at step {step} (stage={stage}); breaking.")
