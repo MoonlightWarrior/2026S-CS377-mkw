@@ -1151,48 +1151,142 @@ class DolphinInstance:
         kx_all = [0.0] * NUM_KARTS
         kz_all = [0.0] * NUM_KARTS
         rp_all = [0]   * NUM_KARTS
+        # CPU-distillation labels: per-kart KPad::mRaceInputState read.
+        # Chain (riidefi/mkw KartObjectProxy::getInput + RaceManager.hpp):
+        #   *(0x809BD730) = RaceManager*
+        #   RaceManager + 0x0C = RaceManagerPlayer**
+        #   *(players + 4*i) = RaceManagerPlayer*
+        #   RaceManagerPlayer + 0x48 = KPad* (kpadPlayer)
+        #   KPad + 0x28 = KPadRaceInputState
+        #     +0x04 u16 mButtons (bit0 = accel)
+        #     +0x08 f32 mStick.x  ← what KPadAIController publishes from mCpuStick each frame
+        #     +0x0C f32 mStick.y
+        # Same address for real and CPU karts; KPadAIController::calcInner copies
+        # mCpuStick → mRaceInputState before KartMove::calc reads. Reading post-frame
+        # (we're inside send_transition, after frameadvance) gives the AI's actual
+        # stick output as a clean BC label.
+        cpu_sx_all = [0.0] * NUM_KARTS
+        cpu_sy_all = [0.0] * NUM_KARTS
+        cpu_btn_all = [0]  * NUM_KARTS
         try:
             mgr = memory.read_u32(0x809C18F8)
             kart_array = memory.read_u32(mgr + 0x20) if mgr else 0
         except Exception:
             kart_array = 0
+        try:
+            rmp_root = memory.read_u32(0x809BD730)
+            players_arr = memory.read_u32(rmp_root + 0xC) if rmp_root else 0
+        except Exception:
+            players_arr = 0
         for i in range(NUM_KARTS):
             if i < self.memory_tracker.num_players:
                 rc_all[i] = float(self.memory_tracker.RaceCompletion[i])
                 kx_all[i] = float(self.memory_tracker.position[i][0])
                 kz_all[i] = float(self.memory_tracker.position[i][2])
                 rp_all[i] = int(self.memory_tracker.race_position[i])
-                continue
+            else:
+                try:
+                    # RaceCompletion via 0x809BD730 → [0xC, 0x4*i, 0xC]
+                    pl = memory.read_u32(players_arr + 0x4 * i) if players_arr else 0
+                    if pl >= 0x80000000 and pl < 0x81800000:
+                        rc_all[i] = memory.read_f32(pl + 0xC)
+                    # position via kart_array → kart_ptr → kart_obj → +0x8 → +0x90 → +0x18
+                    if kart_array:
+                        kp = memory.read_u32(kart_array + 0x4 * i)
+                        if kp >= 0x80000000 and kp < 0x81800000:
+                            ko = memory.read_u32(kp)
+                            if ko and ko < 0x81800000:
+                                kdc = memory.read_u32(ko + 0x8)
+                                if kdc and kdc < 0x81800000:
+                                    kdyn = memory.read_u32(kdc + 0x90)
+                                    if kdyn and kdyn < 0x81800000:
+                                        pos_addr = kdyn + 0x18
+                                        kx_all[i] = memory.read_f32(pos_addr + 0)
+                                        # +0x4 = y, +0x8 = z
+                                        kz_all[i] = memory.read_f32(pos_addr + 8)
+                    # race_position via kart_obj+0x18 → +0x3C
+                    if kart_array:
+                        kp = memory.read_u32(kart_array + 0x4 * i)
+                        if kp >= 0x80000000 and kp < 0x81800000:
+                            ko = memory.read_u32(kp)
+                            if ko and ko < 0x81800000:
+                                kc = memory.read_u32(ko + 0x18)
+                                if kc and kc < 0x81800000:
+                                    rp_all[i] = memory.read_u8(kc + 0x3C)
+                except Exception:
+                    pass
+            # KPad mRaceInputState read — same chain regardless of play_num. Slots
+            # without a kpadPlayer (TYPE_NONE) leave the defaults at 0.
             try:
-                # RaceCompletion via 0x809BD730 → [0xC, 0x4*i, 0xC]
-                rmp = memory.read_u32(0x809BD730)
-                arr = memory.read_u32(rmp + 0xC) if rmp else 0
-                pl  = memory.read_u32(arr + 0x4 * i) if arr else 0
+                pl = memory.read_u32(players_arr + 0x4 * i) if players_arr else 0
+                _kpad_dbg = 0
                 if pl >= 0x80000000 and pl < 0x81800000:
-                    rc_all[i] = memory.read_f32(pl + 0xC)
-                # position via kart_array → kart_ptr → kart_obj → +0x8 → +0x90 → +0x18
-                if kart_array:
-                    kp = memory.read_u32(kart_array + 0x4 * i)
-                    if kp >= 0x80000000 and kp < 0x81800000:
-                        ko = memory.read_u32(kp)
-                        if ko and ko < 0x81800000:
-                            kdc = memory.read_u32(ko + 0x8)
-                            if kdc and kdc < 0x81800000:
-                                kdyn = memory.read_u32(kdc + 0x90)
-                                if kdyn and kdyn < 0x81800000:
-                                    pos_addr = kdyn + 0x18
-                                    kx_all[i] = memory.read_f32(pos_addr + 0)
-                                    # +0x4 = y, +0x8 = z
-                                    kz_all[i] = memory.read_f32(pos_addr + 8)
-                # race_position via kart_obj+0x18 → +0x3C
-                if kart_array:
-                    kp = memory.read_u32(kart_array + 0x4 * i)
-                    if kp >= 0x80000000 and kp < 0x81800000:
-                        ko = memory.read_u32(kp)
-                        if ko and ko < 0x81800000:
-                            kc = memory.read_u32(ko + 0x18)
-                            if kc and kc < 0x81800000:
-                                rp_all[i] = memory.read_u8(kc + 0x3C)
+                    kpad = memory.read_u32(pl + 0x48)
+                    _kpad_dbg = kpad
+                    # Allow MEM2 too — kpadPlayer may live in either heap.
+                    if (0x80000000 <= kpad < 0x81800000) or (0x90000000 <= kpad < 0x94000000):
+                        cpu_btn_all[i] = int(memory.read_u16(kpad + 0x28 + 0x04))
+                        cpu_sx_all[i]  = float(memory.read_f32(kpad + 0x28 + 0x08))
+                        cpu_sy_all[i]  = float(memory.read_f32(kpad + 0x28 + 0x0C))
+                # Diagnostic dump (only when MKW_KPAD_DIAG=1): probe kpad layout +
+                # the +0x04 sub-pointer at race-start to verify mRaceInputState offset.
+                if i == NUM_KARTS - 1 and os.environ.get("MKW_KPAD_DIAG") == "1":
+                    _diag_step_count = getattr(self, "_kpad_diag_step", 0) + 1
+                    self._kpad_diag_step = _diag_step_count
+                    _stage_now = int(self.mem_race_stage) if hasattr(self, "mem_race_stage") else 0
+                    _race_seen = getattr(self, "_kpad_race_first_step", None)
+                    if _race_seen is None and _stage_now >= 2:
+                        self._kpad_race_first_step = _diag_step_count
+                        _race_seen = _diag_step_count
+                    fire = (
+                        _diag_step_count == 1 or
+                        (_race_seen is not None and (_diag_step_count - _race_seen) in (0, 5, 30))
+                    )
+                    if fire:
+                        diag_lines = [f"KPad probe @ step {_diag_step_count} stage={_stage_now}:"]
+                        for j in (0, 4, 5, 8):
+                            try:
+                                pj = memory.read_u32(players_arr + 0x4 * j) if players_arr else 0
+                            except Exception:
+                                pj = 0
+                            kj = 0
+                            if (0x80000000 <= pj < 0x81800000) or (0x90000000 <= pj < 0x94000000):
+                                try:
+                                    kj = memory.read_u32(pj + 0x48)
+                                except Exception:
+                                    kj = 0
+                            diag_lines.append(f"  --- slot {j}  pl=0x{pj:08x}  kpad=0x{kj:08x} ---")
+                            valid_kj = (0x80000000 <= kj < 0x81800000) or (0x90000000 <= kj < 0x94000000)
+                            if valid_kj:
+                                # Dump 0x80 bytes (32 u32s) from kpad.
+                                row = []
+                                for k in range(32):
+                                    try:
+                                        v = memory.read_u32(kj + 0x4 * k)
+                                    except Exception:
+                                        v = 0xDEADBEEF
+                                    row.append(f"+0x{0x4*k:02x}={v:08x}")
+                                    if (k + 1) % 4 == 0:
+                                        diag_lines.append("    " + "  ".join(row))
+                                        row = []
+                                # Also dump 0x40 bytes from the kpad+0x04 sub-pointer.
+                                try:
+                                    sub = memory.read_u32(kj + 0x04)
+                                except Exception:
+                                    sub = 0
+                                if (0x80000000 <= sub < 0x81800000) or (0x90000000 <= sub < 0x94000000):
+                                    diag_lines.append(f"    [sub @ 0x{sub:08x} (=*(kpad+0x04)):]")
+                                    row = []
+                                    for k in range(16):
+                                        try:
+                                            v = memory.read_u32(sub + 0x4 * k)
+                                        except Exception:
+                                            v = 0xDEADBEEF
+                                        row.append(f"+0x{0x4*k:02x}={v:08x}")
+                                        if (k + 1) % 4 == 0:
+                                            diag_lines.append("    " + "  ".join(row))
+                                            row = []
+                        log_diag("\n".join(diag_lines))
             except Exception:
                 pass
 
@@ -1202,6 +1296,9 @@ class DolphinInstance:
             "kart_x_all": kx_all,
             "kart_z_all": kz_all,
             "race_pos_all": rp_all,
+            "cpu_stickX_all": cpu_sx_all,
+            "cpu_stickY_all": cpu_sy_all,
+            "cpu_buttons_all": cpu_btn_all,
             "race_stage": int(self.mem_race_stage) if hasattr(self, "mem_race_stage") else int(self.memory_tracker.stage),
         }
         self.conn.send((reward, terminal, trun, info))
@@ -1494,14 +1591,13 @@ class DolphinInstance:
                     if i >= 4:
                         memory.write_u32(sub1c + 0x14, 0x2)
 
-                    # Slots 1-3 in 1p+11cpu savestates use a third mechanism that
-                    # none of our function NOPs affect — but the AI's per-frame
-                    # writes to KartMove.speed make them drive the AI line. We can
-                    # force-override KartMove.speed each frame with our intended
-                    # speed (proportional to accel intent). Combined with the
-                    # angular-velocity override below, slots 1-3 become drivable
-                    # by our input.
-                    if 1 <= i <= 3:
+                    # Slots 1-3 always need their KartMove.speed forced (mystery
+                    # drive mechanism). Other slots optionally — set
+                    # MKW_FORCE_KARTMOVE_SPEED_ALL=1 to force ALL slots' speed
+                    # too, useful in mid-race savestates where pre-existing
+                    # momentum keeps the karts moving forward despite our NOPs.
+                    force_speed_all = os.environ.get("MKW_FORCE_KARTMOVE_SPEED_ALL", "0") == "1"
+                    if (1 <= i <= 3) or force_speed_all:
                         try:
                             mgr = memory.read_u32(0x809C18F8)
                             karr = memory.read_u32(mgr + 0x20) if mgr else 0
@@ -1541,8 +1637,12 @@ class DolphinInstance:
                             kdyn = memory.read_u32(kdc + 0x90) if kdc else 0
                             inner = memory.read_u32(kdyn + 0x4) if kdyn else 0
                             if inner and 0x80000000 <= inner < 0x94000000:
-                                # turn rate ~ 3 rad/s at full deflection (tunable)
-                                yaw = float(stickX) * 3.0
+                                # Turn rate at full stick deflection. Default 3.0 rad/s
+                                # works for low-speed savestates (s01); for high-momentum
+                                # mid-race savestates (s08) the physics integrator can
+                                # absorb a 3.0 yaw — bump MKW_YAW_RATE to overcome.
+                                yaw_rate = float(os.environ.get("MKW_YAW_RATE", "3.0"))
+                                yaw = float(stickX) * yaw_rate
                                 memory.write_f32(inner + 0xA8, yaw)
                         except Exception:
                             pass

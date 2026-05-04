@@ -342,6 +342,10 @@ class DolphinEnv:
             "kart_x_all": np.zeros((self.num_envs, nk), dtype=np.float32),
             "kart_z_all": np.zeros((self.num_envs, nk), dtype=np.float32),
             "race_pos_all": np.zeros((self.num_envs, nk), dtype=np.int32),
+            # CPU-distillation labels: per-kart KPad::mRaceInputState read on the slave.
+            "cpu_stickX_all":  np.zeros((self.num_envs, nk), dtype=np.float32),
+            "cpu_stickY_all":  np.zeros((self.num_envs, nk), dtype=np.float32),
+            "cpu_buttons_all": np.zeros((self.num_envs, nk), dtype=np.int32),
             "race_stage": np.zeros(self.num_envs, dtype=np.int32),
         }
 
@@ -376,7 +380,8 @@ class DolphinEnv:
                 infos["final_observation"].append(None)
                 infos["RaceCompletion"][i] = float(info.get("RaceCompletion", 0.0))
                 # forward per-kart arrays if the slave provided them; pad/truncate to nk.
-                for key in ("RaceCompletion_all", "kart_x_all", "kart_z_all", "race_pos_all"):
+                for key in ("RaceCompletion_all", "kart_x_all", "kart_z_all", "race_pos_all",
+                            "cpu_stickX_all", "cpu_stickY_all", "cpu_buttons_all"):
                     src = info.get(key)
                     if src is None:
                         continue
