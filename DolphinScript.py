@@ -469,17 +469,22 @@ def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
                 out[41] = float(_safe_read_u16(kmisc + 0xFE))    # miniturboCharge
                 out[42] = float(_safe_read_u16(kmisc + 0x100))   # SMiniturboCharge
 
-    # ----- ItemManager per-player slot @ 0x809C3618 → +0x14 + 0x4*n (heap pointer) -----
+    # ----- ItemManager per-kart KartItem @ 0x809C3618 -----
+    # Authoritative layout (mkw-sp symbols.txt + KartItem.hh + ItemInventory.hh):
+    #   *(0x809C3618) = Item::ItemManager::s_instance (size 0x430)
+    #   ItemManager + 0x14 = KartItem* (CONTIGUOUS struct array, stride 0x248)
+    #   KartItem[i] is at base + 0x248 * i  (NOT base + 0x4*i — that bug made
+    #   slots 1..11 read garbage from inside KartItem[0])
+    #   KartItem[i] + 0x88 = ItemInventory; +0x04 m_currentItemID, +0x08 m_currentItemCount
+    #   ⇒ Item ID at KartItem[i] + 0x8C (s32, -1=None, 0..18=items, 19/20=Unused/NoItem)
+    #   ⇒ Item count at KartItem[i] + 0x90 (s32)
     try:
-        item_mgr = memory.read_u32(0x809C3618)
-        item_arr = _safe_read_u32_any(item_mgr + 0x14) if item_mgr else 0
-        if item_arr:
-            islot = _safe_read_u32_any(item_arr + 0x4 * n)
-            if islot:
-                out[65] = float(_safe_read_u32(islot + 0x8C))    # Item
-                out[66] = float(_safe_read_u32(islot + 0x90))    # ItemNum
-                out[67] = float(_safe_read_u32(islot + 0xCC))    # PassiveItem
-                out[68] = float(_safe_read_u32(islot + 0x104))   # PassiveItemNum
+        item_mgr = _safe_read_u32(0x809C3618)
+        kitem_base = _safe_read_u32(item_mgr + 0x14) if item_mgr else 0
+        if kitem_base:
+            kitem = kitem_base + 0x248 * n
+            out[65] = float(_safe_read_u32(kitem + 0x8C))   # Item ID (-1..20)
+            out[66] = float(_safe_read_u32(kitem + 0x90))   # Item count
     except Exception:
         pass
 
@@ -636,11 +641,18 @@ class Memory:
                 self.SMiniturboCharge.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0x100]))
                 self.DriftState.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0xFC]))
                 self.hopPos.append(self.resolve_address(0x809C18F8, [0x20, 0x4 * i, 0x44, 0x22C]))
-                self.mushroomCount.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x90]))
-                self.Item.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x8C]))
-                self.ItemNum.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x90]))
-                self.PassiveItem.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0xCC]))
-                self.PassiveItemNum.append(self.resolve_address(0x809C3618, [0x14, 0x4 * i, 0x104]))
+                # Item chain: ItemManager.kartItems is a CONTIGUOUS KartItem array
+                # (stride 0x248), not a pointer array. resolve_address can't express
+                # "no inner deref", so hand-resolve. PassiveItem* fields at +0xCC/+0x104
+                # were unverified (inside KartItem opaque tail) — dropped.
+                _item_mgr = memory.read_u32(0x809C3618)
+                _kitem_base = memory.read_u32(_item_mgr + 0x14) if _item_mgr else 0
+                _kitem_i = (_kitem_base + 0x248 * i) if _kitem_base else 0
+                self.mushroomCount.append(_kitem_i + 0x90 if _kitem_i else 0)  # alias for ItemNum
+                self.Item.append(_kitem_i + 0x8C if _kitem_i else 0)
+                self.ItemNum.append(_kitem_i + 0x90 if _kitem_i else 0)
+                self.PassiveItem.append(0)
+                self.PassiveItemNum.append(0)
 
         def resolve_address(self, base_address, offsets):
             # Defensive: bounds-check every dereference. PowerPC valid memory is
@@ -842,11 +854,14 @@ class Memory:
             self.DriftState[i] = memory.read_u16(self.addresses.DriftState[i])
             self.hopPos[i] = memory.read_f32(self.addresses.hopPos[i])
             
-            self.mushroomCount[i] = memory.read_u32(self.addresses.mushroomCount[i])
-            self.Item[i] = memory.read_u32(self.addresses.Item[i])
-            self.ItemNum[i] = memory.read_u32(self.addresses.ItemNum[i])
-            self.PassiveItem[i] = memory.read_u32(self.addresses.PassiveItem[i])
-            self.PassiveItemNum[i] = memory.read_u32(self.addresses.PassiveItemNum[i])
+            # Item-related addresses may be 0 if ItemManager isn't fully constructed
+            # yet (e.g., during early countdown frames). _safe_read_u32 returns 0 for
+            # null/out-of-range — safer than a raw memory.read_u32 which can throw.
+            self.mushroomCount[i] = _safe_read_u32(self.addresses.mushroomCount[i])
+            self.Item[i] = _safe_read_u32(self.addresses.Item[i])
+            self.ItemNum[i] = _safe_read_u32(self.addresses.ItemNum[i])
+            self.PassiveItem[i] = _safe_read_u32(self.addresses.PassiveItem[i])
+            self.PassiveItemNum[i] = _safe_read_u32(self.addresses.PassiveItemNum[i])
 
             self.StarTimer[i] = memory.read_u16(self.addresses.StarTimer[i])
             self.ShockTimer[i] = memory.read_u16(self.addresses.ShockTimer[i])
