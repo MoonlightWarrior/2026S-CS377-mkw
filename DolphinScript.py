@@ -458,8 +458,12 @@ def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
                 kjump = _safe_read_u32(kmove + 0x258)
                 if kjump:
                     out[59] = float(_safe_read_u16(kjump + 0x38))  # trick_cooldown
-            # Misc @ ko + 0x44 — drift state, miniturbo
-            kmisc = _safe_read_u32(ko + 0x44)
+            # Misc @ kp + 0x44 — drift state, miniturbo. Heavy chain
+            # `[0x20, 0x4*i, 0x44, 0xFC]` skips the `0x0` step (kart_obj deref)
+            # because KartMisc is hung off `kart_ptr`, not `kart_obj`.
+            # Reading `ko + 0x44` (the previous code) lands at a sibling field
+            # inside KartObject — DriftState came back as ~17000-18000 garbage.
+            kmisc = _safe_read_u32(kp + 0x44) if kp else 0
             if kmisc:
                 out[40] = float(_safe_read_u16(kmisc + 0xFC))    # DriftState
                 out[41] = float(_safe_read_u16(kmisc + 0xFE))    # miniturboCharge
@@ -1289,6 +1293,83 @@ class DolphinInstance:
                         log_diag("\n".join(diag_lines))
             except Exception:
                 pass
+
+        # Kart-layout diagnostic (MKW_KART_LAYOUT_DIAG=1): one-shot dump of
+        # KartMisc (DriftState) + ItemSlot (Item ID) chain pointers and bytes
+        # for slots 0, 4, 5. Use this to find the correct offset within
+        # ItemSlot for current Item ID — the +0x8C offset returns garbage for
+        # CPU slots in PAL/RMCP01.
+        if os.environ.get("MKW_KART_LAYOUT_DIAG") == "1" and not getattr(self, "_layout_diag_done", False):
+            _stage_now = int(self.mem_race_stage) if hasattr(self, "mem_race_stage") else 0
+            if _stage_now >= 2:
+                self._layout_diag_done = True
+                try:
+                    karr_dbg = kart_array
+                    item_mgr_dbg = memory.read_u32(0x809C3618)
+                    item_arr_dbg = memory.read_u32(item_mgr_dbg + 0x14) if item_mgr_dbg else 0
+                except Exception:
+                    karr_dbg = item_mgr_dbg = item_arr_dbg = 0
+                ll = [f"Kart-layout probe stage={_stage_now}:",
+                      f"  karr=0x{karr_dbg:08x}  item_mgr=0x{item_mgr_dbg:08x}  item_arr=0x{item_arr_dbg:08x}"]
+                for j in (0, 4, 5):
+                    try:
+                        kp_j = memory.read_u32(karr_dbg + 0x4 * j) if karr_dbg else 0
+                    except Exception:
+                        kp_j = 0
+                    ko_j = 0
+                    if 0x80000000 <= kp_j < 0x81800000:
+                        try:
+                            ko_j = memory.read_u32(kp_j)
+                        except Exception:
+                            ko_j = 0
+                    # DriftState chain comparison: kp+0x44 (heavy) vs ko+0x44 (lite-old)
+                    kmisc_kp = kmisc_ko = 0
+                    drift_via_kp = drift_via_ko = "n/a"
+                    if 0x80000000 <= kp_j < 0x81800000:
+                        try:
+                            kmisc_kp = memory.read_u32(kp_j + 0x44)
+                            if 0x80000000 <= kmisc_kp < 0x81800000:
+                                drift_via_kp = f"{memory.read_u16(kmisc_kp + 0xFC)}"
+                        except Exception:
+                            pass
+                    if 0x80000000 <= ko_j < 0x81800000:
+                        try:
+                            kmisc_ko = memory.read_u32(ko_j + 0x44)
+                            if 0x80000000 <= kmisc_ko < 0x81800000:
+                                drift_via_ko = f"{memory.read_u16(kmisc_ko + 0xFC)}"
+                        except Exception:
+                            pass
+                    # ItemSlot + bytes
+                    islot_j = 0
+                    if item_arr_dbg:
+                        try:
+                            islot_j = memory.read_u32(item_arr_dbg + 0x4 * j)
+                        except Exception:
+                            islot_j = 0
+                    ll.append(
+                        f"  --- slot {j}  kp=0x{kp_j:08x}  ko=0x{ko_j:08x} ---"
+                    )
+                    ll.append(
+                        f"      kmisc(kp+0x44)=0x{kmisc_kp:08x}  drift={drift_via_kp}    "
+                        f"kmisc(ko+0x44)=0x{kmisc_ko:08x}  drift={drift_via_ko}"
+                    )
+                    ll.append(f"      islot=0x{islot_j:08x}")
+                    if 0x80000000 <= islot_j < 0x81800000:
+                        # Dump u32s from islot+0x80 to islot+0x110, looking for item ID 0..18.
+                        row = []
+                        for k in range(0x80 // 4, 0x114 // 4):
+                            off = 0x4 * k
+                            try:
+                                v = memory.read_u32(islot_j + off)
+                            except Exception:
+                                v = 0xDEADBEEF
+                            row.append(f"+0x{off:03x}={v:08x}")
+                            if len(row) == 4:
+                                ll.append("        " + "  ".join(row))
+                                row = []
+                        if row:
+                            ll.append("        " + "  ".join(row))
+                log_diag("\n".join(ll))
 
         info = {
             "RaceCompletion": float(self.mem_race_com),
