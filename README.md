@@ -25,6 +25,81 @@ The algorithm can still be run on lighter hardware, but may take slightly longer
 
 ---
 
+## How to run — `feature/cpu-distill` (CPU AI behaviour cloning)
+
+This fork hijacks MKW's input pipeline at the `KPad::mRaceInputState` layer
+to capture the CPU AI's per-frame stick/buttons as supervised labels for
+behaviour cloning. Three primary scripts:
+
+| Script | Purpose |
+|---|---|
+| `collect_distill_data.py` | Runs Dolphin in probe mode; dumps (obs, action) pairs from CPU karts to an NPZ. |
+| `viz_cpu_movement.py` | Top-down matplotlib plot of all CPU trajectories on Luigi Circuit + optional per-slot action panel + optional MP4 animation. |
+| `inspect_cpu_tui.py` | Curses TUI for scrubbing through an NPZ frame-by-frame, inspecting all 78 obs fields per slot. Yellow highlight = changed since previous frame. |
+
+### Collect a BC dataset
+
+Tier-0 recommended recipe (8000 clean rows on Luigi Circuit mid-race
+savestate `RMCP01.s08`, with DAgger-style noisy-teacher perturbation):
+
+```bash
+NUM_ENVS=1 docker compose run --rm --no-deps -T \
+    -e HEADLESS=1 -e PYTHONUNBUFFERED=1 \
+    wii-rl bash -c '
+      cd /src/Vlab-WiiRL
+      rm -f instance_info/slave_*.log alive.txt
+      uv sync --quiet
+      timeout 900 uv run python -u collect_distill_data.py \
+          --stoch --target_rows 8000 \
+          --out instance_info/distill_lc_s08_v1.npz
+    '
+```
+
+Constraints baked in (don't override): `MKW_PLAY_NUM=1`,
+`MKW_PROBE_INPUT=1`, default savestate `RMCP01.s08`. Records slots 4–11
+(CPU); the 78-dim per-kart obs is fetched via the verified lite path.
+
+### Visualise + debug
+
+```bash
+# Top-down trajectory plot of all CPU karts on Luigi Circuit
+.venv/bin/python viz_cpu_movement.py --npz instance_info/distill_lc_s08_v1.npz
+
+# Add action-stream side panel for one slot
+.venv/bin/python viz_cpu_movement.py --npz instance_info/distill_lc_s08_v1.npz --slot 4
+
+# MP4 animation with fading trails
+.venv/bin/python viz_cpu_movement.py --npz instance_info/distill_lc_s08_v1.npz --animate
+
+# Interactive obs scrubber (needs real terminal — don't pipe stdin)
+.venv/bin/python inspect_cpu_tui.py --npz instance_info/distill_lc_s08_v1.npz
+```
+
+TUI keys: `←/→` frame, `Shift+←/→` jump 10, `↑/↓` slot, `TAB` toggle
+single-slot ↔ all-slots view, `g` goto frame, `q` quit.
+
+### See also
+
+- **`../cmd.txt`** — every Docker recipe, including PPO 12-player runs,
+  random-policy demos, and BC collection variants.
+- **`../notes_new/`** — dated session logs (latest:
+  `2026-05-14-obs-verification-and-bug-fixes.md`).
+- **`../analysis/12phack/`** — design docs for both branches
+  (`feature/12phack` input override, `feature/cpu-distill` BC pipeline).
+
+Verified key invariants (worth knowing before extending):
+- Per-kart 78-dim obs is fully covered by the lite path
+  (`_lite_per_kart_obs` in `DolphinScript.py`); same-slot byte-equal
+  vs. heavy. See note 2026-05-14.
+- `play_num` ≥ 5 hangs Dolphin at slot 4 (RMCP01.s08 1p+11CPU savestate).
+  Cap at `MKW_PLAY_NUM=1` for normal runs; can bump to 4 for
+  cross-verification only.
+- KPad chain `*(0x809BD730) → +0xC → 4*i → +0x48 → +0x28` is a uniform
+  read interface for real-player AND CPU input — same address regardless
+  of who wrote it.
+
+---
+
 ## Installation Instructions
 
 ### 1. Prerequisites
