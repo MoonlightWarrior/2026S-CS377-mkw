@@ -16,6 +16,7 @@ services:
       - UV_CACHE_DIR=/root/.cache/uv
     volumes:
       - .:/src/Vlab-WiiRL
+      - /opt/MarioKartWii.iso:/src/Vlab-WiiRL/game/mkw.iso
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ~/.Xauthority:/root/.Xauthority:ro
       - ${UV_CACHE_DIR:-.uv-cache}:/root/.cache/uv

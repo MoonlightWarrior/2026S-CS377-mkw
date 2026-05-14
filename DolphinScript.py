@@ -172,6 +172,12 @@ PROBE_INPUT = os.environ.get("MKW_PROBE_INPUT", "0") == "1"
 # GUI inspection ("why does the env die after a few seconds?") and long override tests.
 DISABLE_RESET = os.environ.get("MKW_DISABLE_RESET", "0") == "1"
 
+# Benchmark switch: when MKW_SKIP_OBS=1, all per-frame per-kart obs reads are
+# skipped — Memory.update() short-circuits after race-info, Memory.get_obs()
+# returns zeros, and send_transition skips the 12-slot KPad/position loop.
+# Used to measure the obs-read share of step latency (lite-vs-heavy debate).
+SKIP_OBS = os.environ.get("MKW_SKIP_OBS", "0") == "1"
+
 
 # PlayerSub1c per-kart fields — see SeekyCt/mkw-structures · player.h
 #   PlayerSub1c is the DOWNSTREAM input target (PadProxy → updateFromInput →
@@ -333,6 +339,28 @@ def _safe_read_u32_any(addr):
         return 0
 
 
+def _safe_read_u8_any(addr):
+    if not addr or not (
+        (0x80000000 <= addr < 0x81800000) or (0x90000000 <= addr < 0x94000000)
+    ):
+        return 0
+    try:
+        return int(memory.read_u8(addr))
+    except Exception:
+        return 0
+
+
+def _safe_read_u16_any(addr):
+    if not addr or not (
+        (0x80000000 <= addr < 0x81800000) or (0x90000000 <= addr < 0x94000000)
+    ):
+        return 0
+    try:
+        return int(memory.read_u16(addr))
+    except Exception:
+        return 0
+
+
 def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
     """Return the 78-element per-kart observation slice for slot n via direct
     chain reads (no Memory.Addresses cache).
@@ -352,10 +380,11 @@ def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
 
     # ----- RaceManager player slot (race-config: kart, character, lap counts) -----
     # 0x809BD728 → +(0x28 + 0xF0*n) is start of RacedataPlayer (per Vlab-WiiRL chains).
+    # race_data lives in MEM2 in this savestate — use *_any helpers.
     if race_mgr_for_player:
         slot_base = race_mgr_for_player + 0xF0 * n
-        out[1] = float(_safe_read_u8(slot_base + 0x05))   # LocalPlayerNum
-        out[2] = float(_safe_read_u8(slot_base + 0x06))   # RealControllerID
+        out[1] = float(_safe_read_u8_any(slot_base + 0x05))   # LocalPlayerNum
+        out[2] = float(_safe_read_u8_any(slot_base + 0x06))   # RealControllerID
         out[3] = float(_safe_read_u32_any(slot_base + 0x08))  # KartID
         out[4] = float(_safe_read_u32_any(slot_base + 0x0C))  # CharacterID
 
@@ -430,7 +459,16 @@ def _lite_per_kart_obs(n, karr, plr_arr, race_mgr_for_player):
                     out[63] = float(_safe_read_u16(inner_coll + 0x48))   # respawn_timer
                 out[61] = float(_safe_read_u8(kcoll + 0x3C))     # race_position
                 out[62] = float(_safe_read_u16(kcoll + 0x40))    # floor_collision_count
-                out[64] = float(_safe_read_u32(kcoll + 0x18 + 0x8) if _safe_read_u32(kcoll + 0x18) else 0)  # wall_collide
+                # wall_collide: match heavy's chain
+                #   *(ko+0x8) → +0x90 → +0x8 → +0x8
+                # = *(*(*(*(ko+0x8)+0x90)+0x8))+0x8 read as u32.
+                # The previous lite chain (kcoll+0x18+0x8) was reading garbage
+                # — it interpreted KartCollide's _1c/_20 region as a pointer.
+                # Heavy reads small-int counters (0/1/2) that increment during
+                # wall hits, confirmed via play_num=4 verify diff.
+                _wc_inner = _safe_read_u32(kdyn + 0x8) if kdyn else 0
+                if _wc_inner:
+                    out[64] = float(_safe_read_u32(_wc_inner + 0x8))
             # KartMove @ ko + 0x28 — speed, drift, wheelie, hop, status timers
             kmove = _safe_read_u32(ko + 0x28)
             if kmove:
@@ -779,7 +817,10 @@ class Memory:
         self.PlayerCount = memory.read_u8(self.addresses.PlayerCount_addr)
         self.CourseID = memory.read_u32(self.addresses.CourseID)
         self.EngineClass = memory.read_u32(self.addresses.EngineClass)
-        
+
+        if SKIP_OBS:
+            return
+
         # PLAYER INFO
         for i in range(self.num_players):
             self.RaceCompletion[i] = memory.read_f32(self.addresses.RaceCompletion[i])
@@ -879,6 +920,9 @@ class Memory:
         velocity, race_position, currentLap; rest zero-padded). This keeps the obs
         width aligned with the master's shared-memory shape regardless of MKW_PLAY_NUM.
         """
+        if SKIP_OBS:
+            return np.zeros(5 + 78 * NUM_KARTS, dtype=np.float32)
+
         obs = []
 
         # 1. RACE_INFO
@@ -998,7 +1042,28 @@ class Memory:
                 self.startBoostIdx[n]
             )
             obs.extend(p_info)
-            
+
+            # Verification path: when MKW_VERIFY_HEAVY_LITE=1 + slot 1 heavy-tracked,
+            # also compute lite slice for slot 1 and dump heavy vs lite side-by-side.
+            # Used to confirm the two paths read the same memory.
+            if n == 1 and os.environ.get("MKW_VERIFY_HEAVY_LITE") == "1":
+                if not hasattr(self, "_verify_csv"):
+                    self._verify_csv = open(
+                        "/src/Vlab-WiiRL/instance_info/verify_heavy_lite.csv",
+                        "w", buffering=1,
+                    )
+                    self._verify_csv.write("step,field_idx,heavy,lite\n")
+                    self._verify_step = 0
+                if self._verify_step < 80:
+                    _lite = _lite_per_kart_obs(n, karr, plr_arr, race_mgr_player)
+                    for idx, (h, l) in enumerate(zip(p_info, _lite)):
+                        try:
+                            hv = float(h); lv = float(l)
+                        except Exception:
+                            hv = 0.0; lv = 0.0
+                        self._verify_csv.write(f"{self._verify_step},{idx},{hv},{lv}\n")
+                self._verify_step += 1
+
         return obs
 
     @staticmethod
@@ -1187,17 +1252,25 @@ class DolphinInstance:
         cpu_sx_all = [0.0] * NUM_KARTS
         cpu_sy_all = [0.0] * NUM_KARTS
         cpu_btn_all = [0]  * NUM_KARTS
-        try:
-            mgr = memory.read_u32(0x809C18F8)
-            kart_array = memory.read_u32(mgr + 0x20) if mgr else 0
-        except Exception:
+        if SKIP_OBS:
+            mgr = 0
             kart_array = 0
-        try:
-            rmp_root = memory.read_u32(0x809BD730)
-            players_arr = memory.read_u32(rmp_root + 0xC) if rmp_root else 0
-        except Exception:
+            rmp_root = 0
             players_arr = 0
+        else:
+            try:
+                mgr = memory.read_u32(0x809C18F8)
+                kart_array = memory.read_u32(mgr + 0x20) if mgr else 0
+            except Exception:
+                kart_array = 0
+            try:
+                rmp_root = memory.read_u32(0x809BD730)
+                players_arr = memory.read_u32(rmp_root + 0xC) if rmp_root else 0
+            except Exception:
+                players_arr = 0
         for i in range(NUM_KARTS):
+            if SKIP_OBS:
+                continue
             if i < self.memory_tracker.num_players:
                 rc_all[i] = float(self.memory_tracker.RaceCompletion[i])
                 kx_all[i] = float(self.memory_tracker.position[i][0])
