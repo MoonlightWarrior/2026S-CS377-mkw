@@ -1,29 +1,3 @@
-# AI-Tango's Official Wii Reinforcement Learning Repository
-
-[https://www.youtube.com/@aitango](https://www.youtube.com/@aitango)
-
----
-
-**Please watch the video which explains how to use this repository in detail!**  
-[(Video)](https://www.youtube.com/watch?v=zPQTg1L1M8U)
-
----
-
-## Overview
-
-This repository contains code to allow Reinforcement Learning agents to play Wii games.  
-In this repo, we provide an example of:
-
-- A Mario Kart Wii environment, using Luigi Circuit against Hard CPUs on 150cc.
-- A Reinforcement Learning algorithm (Beyond The Rainbow), which is setup and ready to interact with the environment.
-
-This algorithm is able to get first place in approximately one day of training using an RTX4090.  
-The algorithm can still be run on lighter hardware, but may take slightly longer.
-
-**Beyond The Rainbow (BTR) algorithm, accepted at ICML 2025 (Poster):**  
-[Paper!](https://openreview.net/pdf?id=V3KXsUFw8D)
-
----
 
 ## How to run — `feature/cpu-distill` (CPU AI behaviour cloning)
 
@@ -77,26 +51,6 @@ Constraints baked in (don't override): `MKW_PLAY_NUM=1`,
 
 TUI keys: `←/→` frame, `Shift+←/→` jump 10, `↑/↓` slot, `TAB` toggle
 single-slot ↔ all-slots view, `g` goto frame, `q` quit.
-
-### See also
-
-- **`../cmd.txt`** — every Docker recipe, including PPO 12-player runs,
-  random-policy demos, and BC collection variants.
-- **`../notes_new/`** — dated session logs (latest:
-  `2026-05-14-obs-verification-and-bug-fixes.md`).
-- **`../analysis/12phack/`** — design docs for both branches
-  (`feature/12phack` input override, `feature/cpu-distill` BC pipeline).
-
-Verified key invariants (worth knowing before extending):
-- Per-kart 78-dim obs is fully covered by the lite path
-  (`_lite_per_kart_obs` in `DolphinScript.py`); same-slot byte-equal
-  vs. heavy. See note 2026-05-14.
-- `play_num` ≥ 5 hangs Dolphin at slot 4 (RMCP01.s08 1p+11CPU savestate).
-  Cap at `MKW_PLAY_NUM=1` for normal runs; can bump to 4 for
-  cross-verification only.
-- KPad chain `*(0x809BD730) → +0xC → 4*i → +0x48 → +0x28` is a uniform
-  read interface for real-player AND CPU input — same address regardless
-  of who wrote it.
 
 ---
 
