@@ -5,14 +5,14 @@ single shared policy, **MAPPO** (centralized critic / CTDE), memory-state
 observations, and rank-based team rewards — studying rank-differentiated item
 behavior and team cooperation under MKW's rubber-banding.
 
-## ⚠️ Requirements — this package is NOT standalone
+## Requirements
 
-`marl/` is the team's **contribution layer**; it does **not** run on its own. At
-runtime it `import kart_env` (the 4-player Dolphin environment from the separate
-**Vlab-Kart-env** repo) and executes **inside that repo's Docker container** with
-this repo mounted at `/cs377`. You also need the Mario Kart Wii ISO and the built
-Dolphin. Even the unit tests `import kart_env`. To run anything here you must
-first have Vlab-Kart-env set up and its container running (see its README).
+`marl/` imports `kart_env` (the 4-player Dolphin environment). That engine is now
+**vendored into this repo** at [`../kart_env/`](../kart_env), so the project is
+self-contained — see [`../STANDALONE.md`](../STANDALONE.md) for the clone-and-go
+Docker build (`compose.marl.yml`). You still need a Mario Kart Wii ISO and a GPU.
+The unit tests under `tests/` import `kart_env`, so run them inside the built
+container (or any env where the repo is `pip install -e .`'d).
 
 ## Architecture
 

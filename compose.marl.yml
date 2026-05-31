@@ -1,0 +1,36 @@
+# Standalone MARL (2v2 MAPPO self-play) — clone-and-go.
+#   docker compose -f compose.marl.yml up -d --build      # first build ~20-30 min
+#   docker compose -f compose.marl.yml exec marl bash -lc \
+#     'cd /workspace && python -m marl.train_marl --config marl/configs/mkw_2v2_mappo.yaml'
+# Place your Mario Kart Wii ISO at ./game/MarioKartWii.iso first (see STANDALONE.md).
+name: cs377-mkw-marl
+
+services:
+  marl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cs377-mkw-marl
+    working_dir: /workspace
+    environment:
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+    volumes:
+      - ./game/MarioKartWii.iso:/workspace/MarioKartWii.iso:ro
+      - ./marl:/workspace/marl          # live-editable contributions
+      - ./kart_env:/workspace/kart_env  # live-editable env engine
+    ipc: host
+    shm_size: 6g
+    cap_add:
+      - SYS_PTRACE                       # DolphinMem reads /proc/<pid>/mem
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - "6080-6083:6080-6083"            # noVNC (watch the emulator in a browser)
+    stdin_open: true
+    tty: true

@@ -18,7 +18,7 @@ game/MarioKartWii.iso
 
 # Project-related files
 MarioKartSaveStates
-dolphin*
+/dolphin*          # root-level Dolphin install dirs (dolphin0/, dolphin1/, ...) — NOT kart_env/utils/dolphin.py
 BTR_MarioKart*
 instance_info
 shared_site.txt

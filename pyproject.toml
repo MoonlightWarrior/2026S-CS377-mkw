@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs377-mkw-marl"
+version = "0.1.0"
+description = "CS377 Team 3 — MARL (2v2 MAPPO self-play) for Mario Kart Wii, with the vendored kart_env environment."
+requires-python = ">=3.12"
+dependencies = [
+    "pettingzoo==1.25.0",
+    "pillow",
+    "numpy",
+    "omegaconf",
+    "wandb",
+    "torch",        # provided by the pytorch base image; listed for non-Docker installs
+    "matplotlib",   # analysis/eval plots
+]
+
+# Two importable packages live at the repo root:
+#   kart_env/  — the environment engine, vendored from Vlab-Kart-env (see THIRD_PARTY_NOTICES.md)
+#   marl/      — Team 3's contributions (obs, MAPPO, reward, self-play, analysis)
+[tool.setuptools.packages.find]
+include = ["kart_env*", "marl*"]
+
+[tool.setuptools.package-data]
+kart_env = ["dolphin_settings/Config/*.ini", "dolphin_settings/GameSettings/*.ini"]
