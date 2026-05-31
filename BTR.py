@@ -17,6 +17,12 @@ import math
 import matplotlib.pyplot as plt
 from DolphinEnv import DolphinEnv
 
+try:
+    import wandb
+    WANDB_AVAILABLE = True
+except ImportError:
+    WANDB_AVAILABLE = False
+
 """
 This is the Beyond The Rainbow algorithm from ICML 2025 (https://arxiv.org/abs/2411.03820)
 This is setup to play Mario Kart Wii.
@@ -974,14 +980,20 @@ class Agent:
         self.tgt_net.load_checkpoint(name)
 
     def learn(self):
+        losses = []
         if self.replay_period != 1:
             if self.replay_period_cnt == 0:
                 for i in range(self.spi):
-                    self.learn_call()
+                    loss = self.learn_call()
+                    if loss is not None:
+                        losses.append(loss)
             self.replay_period_cnt = (self.replay_period_cnt + 1) % self.replay_period
         else:
             for i in range(self.spi):
-                self.learn_call()
+                loss = self.learn_call()
+                if loss is not None:
+                    losses.append(loss)
+        return float(np.mean(losses)) if losses else None
 
     def learn_call(self):
         if self.env_steps < self.min_sampling_size:
@@ -1091,6 +1103,7 @@ class Agent:
         self.grad_steps += 1
         if self.grad_steps % 10000 == 0:
             print("Completed " + str(self.grad_steps) + " gradient steps")
+        return loss.item()
 
 
 def calculate_huber_loss(td_errors, k=1.0, taus=8):
@@ -1169,6 +1182,10 @@ def main():
     parser.add_argument('--eps_steps', type=int, default=2000000)
     parser.add_argument('--eps_disable', type=int, default=1)
 
+    parser.add_argument('--wandb', type=int, default=0)
+    parser.add_argument('--wandb_project', type=str, default='mkw-rl')
+    parser.add_argument('--wandb_run_name', type=str, default=None)
+
     args = parser.parse_args()
 
     arg_string = non_default_args(args, parser)
@@ -1211,6 +1228,7 @@ def main():
 
     print("Agent Name:" + str(agent_name))
     testing = args.testing
+    use_wandb = bool(args.wandb) and WANDB_AVAILABLE
 
     # creates new directory for results and models
     if not testing:
@@ -1226,6 +1244,33 @@ def main():
         os.mkdir(new_dir_name)
         print(f"Created directory: {new_dir_name}")
         os.chdir(new_dir_name)
+
+    if use_wandb:
+        wandb.init(
+            project=args.wandb_project,
+            name=args.wandb_run_name or agent_name,
+            config={
+                'algorithm': 'BTR',
+                'game': game,
+                'num_envs': envs,
+                'total_frames': args.frames,
+                'batch_size': bs,
+                'lr': lr,
+                'discount': discount,
+                'n_step': nstep,
+                'per_alpha': per_alpha,
+                'taus': taus,
+                'model_size': model_size,
+                'linear_size': linear_size,
+                'spectral_norm': spectral,
+                'layer_norm': layer_norm,
+                'eps_steps': eps_steps,
+                'framestack': framestack,
+                'munch_alpha': munch_alpha,
+                'grad_clip': grad_clip,
+                'target_replace': c,
+            }
+        )
 
     if testing:
         # goes easy on the PC when debugging
@@ -1271,6 +1316,7 @@ def main():
     current_eval = 0
     scores_count = [0 for _ in range(num_envs)]
     scores = []
+    recent_losses = []
     observation, info = env.reset()
     processes = []
 
@@ -1288,7 +1334,9 @@ def main():
             raise Exception("Stop! Error Occurred")
 
         env.step_async(action)
-        agent.learn()
+        loss_val = agent.learn()
+        if loss_val is not None:
+            recent_losses.append(loss_val)
         observation_, reward, done_, trun_, info = env.step_wait()
 
         for i in range(num_envs):
@@ -1297,6 +1345,8 @@ def main():
                 episodes += 1
                 scores.append([scores_count[i], steps])
                 scores_temp.append(scores_count[i])
+                if use_wandb:
+                    wandb.log({'episode_reward': scores_count[i], 'episodes': episodes}, step=steps)
                 scores_count[i] = 0
 
         # no clipping, be careful with using large rewards!
@@ -1318,10 +1368,21 @@ def main():
 
         if steps % 600 == 0 and len(scores) > 0:
             avg_score = np.mean(scores_temp[-50:])
+            current_fps = (steps - last_steps) / (time.time() - last_time)
             if episodes % 1 == 0:
                 print('{} avg score {:.2f} total_timesteps {:.0f} fps {:.2f} games {}'
-                      .format(agent_name, avg_score, steps,
-                              (steps - last_steps) / (time.time() - last_time), episodes), flush=True)
+                      .format(agent_name, avg_score, steps, current_fps, episodes), flush=True)
+                if use_wandb:
+                    log_dict = {
+                        'avg_reward_50ep': avg_score,
+                        'fps': current_fps,
+                        'epsilon': agent.epsilon.eps,
+                        'grad_steps': agent.grad_steps,
+                    }
+                    if recent_losses:
+                        log_dict['loss'] = float(np.mean(recent_losses))
+                        recent_losses.clear()
+                    wandb.log(log_dict, step=steps)
                 last_steps = steps
                 last_time = time.time()
 
@@ -1367,6 +1428,12 @@ def main():
             plt.savefig('scores_over_time_smoothed.png')
             plt.close()
 
+            if use_wandb:
+                wandb.log({
+                    'eval/avg_reward_200ep': float(np.mean(episode_scores[-200:])) if len(episode_scores) >= 200 else float(np.mean(episode_scores)),
+                    'eval/reward_curve': wandb.Image('scores_over_time_smoothed.png'),
+                }, step=steps)
+
             current_eval += 1
 
             next_eval += eval_every
@@ -1374,6 +1441,9 @@ def main():
     # wait for our evaluations to finish before we quit the program
     for process in processes:
         process.join()
+
+    if use_wandb:
+        wandb.finish()
 
     print("Evaluations finished, job completed successfully!")
 

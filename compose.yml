@@ -1,0 +1,24 @@
+name: cs377-mkw
+services:
+  train:
+    image: wii-rl:latest
+    container_name: cs377-mkw-train
+    shm_size: 6g
+    environment:
+      - NUM_ENVS=${NUM_ENVS:-4}
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+    volumes:
+      - .:/src/Vlab-WiiRL
+      - /opt/MarioKartWii.iso:/src/Vlab-WiiRL/game/mkw.iso:ro
+      - /opt/MarioKartSaveStates:/src/Vlab-WiiRL/MarioKartSaveStates:ro
+    entrypoint: ["/bin/bash", "/src/Vlab-WiiRL/docker/entrypoint.sh"]
+    command: ["python3", "BTR.py"]
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

@@ -1,0 +1,69 @@
+# CS377 Team#3 — 2v2 MAPPO self-play config (forward-looking spec).
+# Consumed by marl/train_marl.py (Phase 2+). Env settings mirror Vlab config_2v2.
+
+env_setting:
+  num_agents: 4                 # 2v2
+  env_id: 0
+  character: ["Mario", "Luigi", "Yoshi", "Peach"]
+  vehicle: ["Standard Kart M", "Standard Kart M", "Standard Kart M", "Standard Kart M"]
+  drift_modes: ["Manual", "Manual", "Manual", "Manual"]
+  cup: "Mushroom Cup"
+  course: "Luigi Circuit"       # fixed track
+  cc: "100cc"
+  action_repeats: 6
+  items_enabled: true           # verified ✓ (marl/diagnostics/check_items.py)
+  cpus_off_4kart: false         # TODO: needs a CPUs-off save state for clean ranks 1-4
+                                # (currently a 12-kart field: 4 agents + 8 CPUs)
+
+model:
+  actor_obs: "AsymmetricTeamObs"      # restricted: full self+teammate, coarse opponents
+  critic_state: "CentralizedTeamState" # full global state (CTDE)
+  action_parser: "MKWTeamAction"   # marl/action.py — item on L (NOT the Vlab X mapping)
+  policy_kwargs:
+    layer_sizes: [512, 512, 256]
+  critic_kwargs:
+    layer_sizes: [512, 512, 256]
+
+# Phase 3 — rank-based individual + team-success reward (potential-based)
+reward:
+  concatenate_function: "CombinedReward"
+  reward_functions:
+    - RankReward: 1.0           # individual potential-based rank shaping
+    - TeamRankReward: 0.5       # shared team rank potential (cooperation)
+    - FinishReward:             # sparse, scaled by finishing rank
+        weight: 1.0
+        params: {bonus: 10.0}
+    - LapReward:
+        weight: 1.0
+        params: {bonus: 1.0}
+    - SpeedReward: 0.01         # light shaping for learnability
+    - MTBoostReward: 0.2        # encourage mini-turbo technique
+
+# Phase 4 — self-play against frozen past snapshots
+selfplay:
+  learner_team: [0, 1]
+  opponent_team: [2, 3]
+  snapshot_every_ts: 1_000_000  # push current actor into the pool every N ts
+  pool_size: 10                 # keep newest N snapshots
+  opponent_sample: "uniform"    # uniform | latest | prioritized
+
+# MAPPO hyperparameters
+hyperparameter:
+  policy_lr: 0.0003
+  critic_lr: 0.0003
+  ppo_epochs: 4
+  ppo_minibatch_size: 4096
+  ts_per_iteration: 50_000
+  gae_gamma: 0.99
+  gae_lambda: 0.95
+  ppo_ent_coef: 0.01
+  clip_eps: 0.2
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  save_every_ts: 1_000_000
+  timestep_limit: 200_000_000
+
+wandb:
+  wandb_run_name: "cs377-2v2-mappo-01"
+  wandb_project: "mario-kart-rl"
+  wandb_entity: null

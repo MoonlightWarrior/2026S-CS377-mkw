@@ -1,0 +1,5 @@
+# large training artifacts — do not commit
+results/checkpoints/
+__pycache__/
+*.pyc
+*.pt

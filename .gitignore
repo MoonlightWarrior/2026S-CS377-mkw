@@ -12,6 +12,10 @@ venv/
 # Visual Studio Code
 .vscode/
 
+# Game ROM — never commit (large, copyrighted)
+*.iso
+game/MarioKartWii.iso
+
 # Project-related files
 MarioKartSaveStates
 dolphin*
