@@ -86,7 +86,26 @@ def _launch_game_4p(env: KartEnvironment, options: OptionType):
 
     env.click({0: {"A": 1}}, num_frame=100)  # select VS Race in ["VS Race", "Battle"]
 
-    # TODO: setting rules (CC, CPU, etc.) in the future
+    # Set race rules. We support disabling CPUs to get a clean 4-kart field
+    # (ranks 1-4). On the Solo/Team-Race screen the "Rules" button is top-right;
+    # Up focuses it, A opens the Rules screen. There, Down moves between rows and
+    # Left/Right moves a cursor within a row; A selects the highlighted option
+    # (and advances to the next row). CPU row options: Easy/Normal/Hard/Off.
+    if options.disable_cpu:
+        env.click({0: {"Up": 1}}, num_frame=60)     # focus "Rules"
+        env.click({0: {"A": 1}}, num_frame=90)      # open Rules screen (cursor on Class)
+        env.click({0: {"Down": 1}}, num_frame=45)   # Class -> CPU row
+        env.click({0: {"Right": 1}}, num_frame=30)  # cursor Normal -> Hard
+        env.click({0: {"Right": 1}}, num_frame=30)  # cursor Hard -> Off
+        env.click({0: {"A": 1}}, num_frame=45)      # select Off (advances to Vehicles)
+        env.click({0: {"Down": 1}}, num_frame=30)   # Vehicles -> Course
+        env.click({0: {"Down": 1}}, num_frame=30)   # Course -> Items
+        env.click({0: {"Down": 1}}, num_frame=30)   # Items -> Races
+        env.click({0: {"Down": 1}}, num_frame=45)   # Races -> OK
+        env.click({0: {"A": 1}}, num_frame=90)      # confirm OK -> back to Solo/Team screen
+        # OK returns with the cursor on the "Rules" button, not the race list;
+        # move it back down onto "Solo Race" so the selection below works.
+        env.click({0: {"Down": 1}}, num_frame=45)
 
     if options.race == RaceChoice.SOLO_RACE:
         env.click({0: {"A": 1}})

@@ -4,16 +4,25 @@
 env_setting:
   num_agents: 4                 # 2v2
   env_id: 0
-  character: ["Mario", "Luigi", "Yoshi", "Peach"]
-  vehicle: ["Standard Kart M", "Standard Kart M", "Standard Kart M", "Standard Kart M"]
+  character: ["Funky Kong", "Funky Kong", "Funky Kong", "Funky Kong"]   # all identical -> clean RQ1 (behavior differences attributable to RANK, not kart stats)
+  vehicle: ["Standard Kart L", "Standard Kart L", "Standard Kart L", "Standard Kart L"]  # large kart matches Funky's large weight class (env enforces size==character size)
   drift_modes: ["Manual", "Manual", "Manual", "Manual"]
   cup: "Mushroom Cup"
   course: "Luigi Circuit"       # fixed track
   cc: "100cc"
   action_repeats: 6
-  items_enabled: true           # verified ✓ (marl/diagnostics/check_items.py)
-  cpus_off_4kart: false         # TODO: needs a CPUs-off save state for clean ranks 1-4
-                                # (currently a 12-kart field: 4 agents + 8 CPUs)
+  items_enabled: true           # NOTE: not actually wired to the env (menu nav walks past
+                                # the Items screen); item field stays at VS default (on).
+  disable_item_use: true        # PHASE A (race-first pretrain): force the L/item button OFF
+                                # for all agents -> policy learns pure racing-line/bike control,
+                                # no item management. Same Discrete(21) action space, so the
+                                # weights warm-start straight into Phase B (set this false).
+                                # (8 CPUs can still throw items; removing those needs an
+                                # items-off savestate -- a later refinement if needed.)
+  disable_cpu: false            # CPU->Off menu nav works but (a) does NOT shrink MKW's 12-kart
+                                # field and (b) the extra menu steps destabilize the boot
+                                # (repeated "race did not load"). Feature kept in code; off here
+                                # for reliable boots. Flip to true only if you want weaker CPUs.
 
 model:
   actor_obs: "AsymmetricTeamObs"      # restricted: full self+teammate, coarse opponents
@@ -28,16 +37,33 @@ model:
 reward:
   concatenate_function: "CombinedReward"
   reward_functions:
-    - RankReward: 1.0           # individual potential-based rank shaping
-    - TeamRankReward: 0.5       # shared team rank potential (cooperation)
+    # Primary dense signal: actual forward track progress (drives finishing).
+    # Replaces raw SpeedReward, which over-rewarded fast-but-not-progressing motion
+    # and caused completion to plateau ~1.2 laps while reward/speed kept rising.
+    - RaceProgressReward: 5.0
+    # OffroadPenalty removed: at 0.05 it swamped progress and regressed the policy
+    # (completion 1.28->1.11, win 58%->14%). Code kept in marl/rewards for future use.
+    - RankReward: 0.3           # cut from 1.0: its potential-drift variance was swamping progress
+    - TeamRankReward: 0.15      # cut from 0.5 (shared team rank potential / cooperation)
     - FinishReward:             # sparse, scaled by finishing rank
         weight: 1.0
         params: {bonus: 10.0}
     - LapReward:
         weight: 1.0
         params: {bonus: 1.0}
-    - SpeedReward: 0.01         # light shaping for learnability
-    - MTBoostReward: 0.2        # encourage mini-turbo technique
+    - MTBoostReward: 0.1        # encourage mini-turbo technique (down-weighted)
+
+# Start baseline = a VERIFIED 4xFunky savestate, loaded every episode. The MKW
+# character-select menu macro is unreliable (only 1 of 4 karts landed on Funky;
+# the rest were Rosalina/King Boo/DK), so instead of relying on it we load a
+# guaranteed-identical 4xFunky state. This file was re-saved under OUR Dolphin
+# build from the uploaded /opt/MarioKartSaveStates/RMCP01_4p_funky.sav.
+# n_start_line: 0 -> never fall back to the wrong-character menu-nav slot 0.
+start_states:
+  files:
+    - /cs377/marl/results/startstates/funky_4p_ourbuild.sav
+  n_start_line: 0
+# (Later: capture mid-track Funky states from this baseline to re-add a curriculum.)
 
 # Phase 4 — self-play against frozen past snapshots
 selfplay:
@@ -64,6 +90,6 @@ hyperparameter:
   timestep_limit: 200_000_000
 
 wandb:
-  wandb_run_name: "cs377-2v2-mappo-01"
+  wandb_run_name: "cs377-2v2-mappo-10-racepretrain"
   wandb_project: "mario-kart-rl"
   wandb_entity: null

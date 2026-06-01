@@ -28,6 +28,10 @@ class PlayerState:
     mt_boost_timer: int
     mushroom_boost_timer: int
     start_boost_charge: float
+    # speed caps: hard = kart's max; soft drops below it when off-road (grass).
+    # Defaulted so existing direct constructions (tests) keep working.
+    soft_speed_limit: float = 0.0
+    hard_speed_limit: float = 0.0
 
     @classmethod
     def from_obs(cls, obs: RawObs) -> PlayerState:
@@ -52,6 +56,8 @@ class PlayerState:
             mt_boost_timer=int(p["MTBoostTimer"]),
             mushroom_boost_timer=int(p["MushroomBoostTimer"]),
             start_boost_charge=float(p["startBoostCharge"]),
+            soft_speed_limit=float(p["SoftSpeedLimit"]),
+            hard_speed_limit=float(p["HardSpeedLimit"]),
         )
 
     @property

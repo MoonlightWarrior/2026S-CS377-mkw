@@ -54,7 +54,17 @@ ITEM_USE_ACTIONS = frozenset({2, 7, 12})
 
 
 class MKWTeamAction(ActionParser):
-    """Discrete(21) MKW controller mapping with item-use on the L button."""
+    """Discrete(21) MKW controller mapping with item-use on the L button.
+
+    `disable_item_use=True` forces the L (item) button OFF for every action, so
+    the policy can never fire an item. Used for the race-first PRETRAINING phase
+    (learn pure racing-line / bike control without item management). The action
+    space is unchanged (Discrete 21) so the resulting weights warm-start directly
+    into the items-ON 2v2 phase — just construct the parser with the flag False.
+    """
+
+    def __init__(self, disable_item_use: bool = False):
+        self.disable_item_use = bool(disable_item_use)
 
     def get_action_space(self) -> spaces.Space:
         return spaces.Discrete(N_ACTIONS)
@@ -65,6 +75,8 @@ class MKWTeamAction(ActionParser):
     def parse_action(self, action: np.ndarray | int) -> Dict[str, Any]:
         idx = int(action) % N_ACTIONS
         sx, a, b, r, item, up, down = LOOKUP_TABLE[idx].tolist()
+        if self.disable_item_use:
+            item = 0
         return {
             "StickX": sx,
             "A":    int(a),

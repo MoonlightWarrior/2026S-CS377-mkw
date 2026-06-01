@@ -151,8 +151,34 @@ class LapReward(RewardFunction):
         return out
 
 
+class RaceProgressReward(RewardFunction):
+    """
+    Dense forward-progress: reward the increase in max_race_completion (which goes
+    0 -> 3 over a 3-lap race). This is a *directional* progress signal — unlike raw
+    speed it only pays for actually advancing along the track — so it drives the
+    agent toward finishing rather than just moving fast. Telescopes to
+    `scale * final_completion` over an episode.
+    """
+
+    def __init__(self, scale: float = 1.0):
+        self.scale = scale
+
+    def reset(self, agents, state) -> None:
+        self.prev = {a: state.players[a].max_race_completion for a in agents}
+
+    def get_rewards(self, agents, state) -> Dict[int, float]:
+        out = {}
+        for a in agents:
+            c = state.players[a].max_race_completion
+            out[a] = self.scale * max(0.0, c - self.prev[a])  # max_completion is monotone
+            self.prev[a] = c
+        return out
+
+
 class SpeedReward(RewardFunction):
-    """Tiny dense keep-moving signal (normalized speed)."""
+    """Tiny dense keep-moving signal (normalized speed). NOTE: prefer
+    RaceProgressReward — raw speed is direction-agnostic and over-rewards moving
+    fast without making track progress."""
 
     def __init__(self, speed_norm: float = 120.0):
         self.speed_norm = speed_norm
@@ -182,14 +208,42 @@ class MTBoostReward(RewardFunction):
         return out
 
 
+class OffroadPenalty(RewardFunction):
+    """
+    Penalize being off-road (grass), the agents' main failure mode. MKW lowers the
+    SOFT speed limit below the HARD (kart-max) limit on rough terrain, so
+        frac = max(0, hard - soft) / hard
+    is ~0 on the track and grows toward 1 the more off-road the kart is. The
+    per-step reward is -scale * frac. Threshold-free: exactly 0 on the road, so it
+    can only ever discourage leaving it (never penalizes slow on-track driving).
+    """
+
+    def __init__(self, scale: float = 1.0):
+        self.scale = scale
+
+    def reset(self, agents, state) -> None:
+        pass
+
+    def get_rewards(self, agents, state) -> Dict[int, float]:
+        out = {}
+        for a in agents:
+            p = state.players[a]
+            hard = p.hard_speed_limit
+            frac = max(0.0, hard - p.soft_speed_limit) / hard if hard > 1e-3 else 0.0
+            out[a] = -self.scale * min(frac, 1.0)
+        return out
+
+
 # ── registry + builder ───────────────────────────────────────────────────────
 _REGISTRY = {
     "RankReward": RankReward,
     "TeamRankReward": TeamRankReward,
+    "RaceProgressReward": RaceProgressReward,
     "FinishReward": FinishReward,
     "LapReward": LapReward,
     "SpeedReward": SpeedReward,
     "MTBoostReward": MTBoostReward,
+    "OffroadPenalty": OffroadPenalty,
 }
 
 

@@ -57,8 +57,10 @@ opponents), a potential-based rank reward balancing individual rank with
 team success, a centralized-critic MAPPO learner, and a frozen-snapshot
 self-play loop. We report environment-verification findings (notably a corrected
 item-button mapping without which items can never be used), unit and integration
-test results, and the planned experimental protocol for the two research
-questions.
+test results, two methodological refinements developed during training---an
+identical-kart control that isolates rank from vehicle-stat confounds, and a
+race-first curriculum that learns driving before item dynamics---and the planned
+experimental protocol for the two research questions.
 \end{abstract}
 
 
@@ -211,6 +213,35 @@ policy against sampled snapshots is logged as the proposal's training-health
 signal: a rising win-rate-vs-older-snapshots indicates genuine improvement rather
 than cycling.
 
+\subsection{Kart symmetry and training curriculum}
+\label{sec:controls}
+
+\paragraph{Identical karts (RQ1 control).} For RQ1 to attribute behavioral
+differences to \emph{rank} rather than to vehicle statistics, all four karts must
+be identical. Mario Kart Wii assigns small per-character stat bonuses, so even
+same-weight characters differ slightly; we therefore fix every agent to the
+\emph{same} character and vehicle (Funky Kong on the Flame Runner bike). The
+in-game character select is performed by a scripted menu macro, which we found
+does not reliably place all four player cursors on the same cell---reading the
+selected characters back from game memory showed only one of four matching the
+target. We therefore initialize every episode by loading a verified save state in
+which all four karts are confirmed identical (Funky Kong, character id $22$),
+guaranteeing symmetry independently of menu navigation.
+
+\paragraph{Race-first curriculum.} Learning to race, to use items, and to
+cooperate simultaneously is difficult, and self-play under the full task is
+observed to plateau at partial track completion. We therefore split training into
+two phases that share an action space (and hence transfer by warm-starting). In
+the \emph{racing} phase the item button is disabled for the learning agents, so
+the policy concentrates on the racing line and vehicle control without
+item-management noise; the learned weights then warm-start the \emph{full} phase,
+in which items are re-enabled for the rank-conditioned study. We additionally vary
+the episode start state across points further along the track (a diverse-start
+curriculum), giving the agent concentrated practice on later sections it would
+otherwise rarely reach. Both curricula are implemented as configuration switches
+over the same network, so a policy trained under one transfers directly to the
+other.
+
 
 \section{Implementation and Verification}
 \label{sec:verify}
@@ -227,9 +258,12 @@ while racing. (2)~\textbf{Item firing requires the \texttt{L} button}: with
 \texttt{L}, held items discharge (confirmed on multiple karts); with the
 previously used \texttt{X} button, zero items ever fired. We corrected the action
 mapping accordingly. (3)~The default race is a \textbf{12-kart field} (four
-agents plus eight CPUs, ranks 8--12), whereas the proposal's ``rank~1 vs.\
-rank~4'' analysis assumes a clean four-kart race; we therefore target a CPUs-off
-save state. (4)~The memory reader is occasionally not ready immediately after a
+agents plus eight CPUs); Mario Kart Wii's VS mode always spawns twelve karts, so
+a literal ``four-kart'' race is not attainable. Rather than removing opponents, we
+remove the \emph{confound} they would introduce into the rank analysis by giving
+all four agents an identical kart (Section~\ref{sec:controls}), so any
+rank-conditioned behavioral difference is attributable to rank rather than to
+vehicle statistics. (4)~The memory reader is occasionally not ready immediately after a
 race loads; our rollout wraps environment resets in a retry-with-warmup loop.
 
 \paragraph{Unit and integration tests.} Table~\ref{tab:status} lists the verified
@@ -267,12 +301,22 @@ MAPPO, and checkpoints are written. A graceful-shutdown handler saves a final
 checkpoint and closes the experiment cleanly on \texttt{SIGTERM}, so interrupted
 runs are recorded as finished rather than crashed.
 
+\paragraph{Preliminary training observations.} End-to-end self-play produces
+visibly competent driving and a win rate against frozen snapshots in the
+neighborhood of $70\%$, evidence of genuine policy improvement rather than
+strategy cycling. Track completion, however, plateaus short of finishing the full
+race under the unrestricted task; this is what motivates the race-first and
+diverse-start curricula of Section~\ref{sec:controls}. Quantitative learning
+curves and the RQ1/RQ2 analyses are in progress at the time of writing and are
+logged to a tracking dashboard for inclusion in the final version.
+
 
 \section{Planned Experiments and Analysis}
 \label{sec:plan}
 
 With the verified system, the remaining work is the empirical study, on a fixed
-track in a clean 2v2 (CPUs off) with items enabled.
+track in the 2v2 setting with four identical karts (Section~\ref{sec:controls})
+and items enabled.
 
 \paragraph{RQ1: rank-differentiated behavior.} We will measure the divergence of
 rank-conditioned action distributions, principally the mean number of frames an
@@ -301,9 +345,11 @@ strategies.
 Two practical constraints shape the experimental plan. First, the environment
 runs a single emulator instance and is stepped frame-by-frame, so wall-clock
 throughput is modest; parallel instances would multiply it roughly linearly.
-Second, a clean ``rank~1 vs.\ rank~4'' analysis requires a four-kart (CPUs-off)
-save state, which we are preparing. The hit/teamkill metric for RQ2 is the most
-uncertain instrumentation and may rely on the speed-drop proxy. None of these
+Second, because VS mode always fields twelve karts, the clean ``rank~1 vs.\
+rank~4'' contrast is obtained not by removing opponents but by making the four
+agents' karts identical (Section~\ref{sec:controls}), isolating rank from
+vehicle-stat confounds. The hit/teamkill metric for RQ2 is the most uncertain
+instrumentation and may rely on the speed-drop proxy. None of these
 affect the implemented learning system, which is complete and verified.
 
 

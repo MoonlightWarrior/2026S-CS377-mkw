@@ -1,5 +1,6 @@
-# large training artifacts — do not commit
+# large training artifacts / debug captures — do not commit
 results/checkpoints/
+results/menu_capture/
 __pycache__/
 *.pyc
 *.pt

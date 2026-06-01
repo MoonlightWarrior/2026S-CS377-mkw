@@ -861,6 +861,7 @@ class OptionType:
     course: CourseChoice = CourseChoice.LUIGI_CIRCUIT
     cc: CCChoice = CCChoice.CC_100
     verbose: bool = False
+    disable_cpu: bool = False  # 4p: set CPU -> Off in the VS Rules screen (clean 4-kart field)
 
     def __post_init__(self):
         pass  # TODO: Add validation to ensure character and vehicle choices are compatible with num_agents and cc.

@@ -1,0 +1,670 @@
+obs_size=59  state_size=102  n_actions=21
+[checkpoint] resumed from /cs377/marl/results/checkpoints/cs377-2v2-mappo-06-revert/checkpoint_2587104_final.pt
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: moonlight_ (checkcheckcheck) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/wandb/run-20260601_085221-2k9chfzm
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run cs377-2v2-mappo-07-diverse
+wandb: ⭐️ View project at https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: 🚀 View run at https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/2k9chfzm
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+01/06/2026 08:52:23 passing arg to libvncserver: -rfbport
+01/06/2026 08:52:23 passing arg to libvncserver: 5900
+01/06/2026 08:52:23 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 480
+01/06/2026 08:52:23 Using X display :0
+01/06/2026 08:52:23 rootwin: 0x3a7 reswin: 0x200001 dpy: 0x641fa5c0
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 ------------------ USEFUL INFORMATION ------------------
+01/06/2026 08:52:23 X DAMAGE available on display, using it for polling hints.
+01/06/2026 08:52:23   To disable this behavior use: '-noxdamage'
+01/06/2026 08:52:23 
+01/06/2026 08:52:23   Most compositing window managers like 'compiz' or 'beryl'
+01/06/2026 08:52:23   cause X DAMAGE to fail, and so you may not see any screen
+01/06/2026 08:52:23   updates via VNC.  Either disable 'compiz' (recommended) or
+01/06/2026 08:52:23   supply the x11vnc '-noxdamage' command line option.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 Wireframing: -wireframe mode is in effect for window moves.
+01/06/2026 08:52:23   If this yields undesired behavior (poor response, painting
+01/06/2026 08:52:23   errors, etc) it may be disabled:
+01/06/2026 08:52:23    - use '-nowf' to disable wireframing completely.
+01/06/2026 08:52:23    - use '-nowcr' to disable the Copy Rectangle after the
+01/06/2026 08:52:23      moved window is released in the new position.
+01/06/2026 08:52:23   Also see the -help entry for tuning parameters.
+01/06/2026 08:52:23   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 08:52:23   repaint the screen, also see the -fixscreen option for
+01/06/2026 08:52:23   periodic repaints.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 XFIXES available on display, resetting cursor mode
+01/06/2026 08:52:23   to: '-cursor most'.
+01/06/2026 08:52:23   to disable this behavior use: '-cursor arrow'
+01/06/2026 08:52:23   or '-noxfixes'.
+01/06/2026 08:52:23 using XFIXES for cursor drawing.
+01/06/2026 08:52:23 GrabServer control via XTEST.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 Scroll Detection: -scrollcopyrect mode is in effect to
+01/06/2026 08:52:23   use RECORD extension to try to detect scrolling windows
+01/06/2026 08:52:23   (induced by either user keystroke or mouse input).
+01/06/2026 08:52:23   If this yields undesired behavior (poor response, painting
+01/06/2026 08:52:23   errors, etc) it may be disabled via: '-noscr'
+01/06/2026 08:52:23   Also see the -help entry for tuning parameters.
+01/06/2026 08:52:23   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 08:52:23   repaint the screen, also see the -fixscreen option for
+01/06/2026 08:52:23   periodic repaints.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 XKEYBOARD: number of keysyms per keycode 7 is greater
+01/06/2026 08:52:23   than 4 and 51 keysyms are mapped above 4.
+01/06/2026 08:52:23   Automatically switching to -xkb mode.
+01/06/2026 08:52:23   If this makes the key mapping worse you can
+01/06/2026 08:52:23   disable it with the "-noxkb" option.
+01/06/2026 08:52:23   Also, remember "-remap DEAD" for accenting characters.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+01/06/2026 08:52:23 X display is not capable of DPMS.
+01/06/2026 08:52:23 --------------------------------------------------------
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 Default visual ID: 0x21
+01/06/2026 08:52:23 Read initial data from X display into framebuffer.
+01/06/2026 08:52:23 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 X display :0 is 32bpp depth=24 true color
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 Listening for VNC connections on TCP port 5900
+01/06/2026 08:52:23 Listening for VNC connections on TCP6 port 5900
+01/06/2026 08:52:23 listen6: bind: Address already in use
+01/06/2026 08:52:23 Not listening on IPv6 interface.
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 Xinerama is present and active (e.g. multi-head).
+01/06/2026 08:52:23 Xinerama: number of sub-screens: 1
+01/06/2026 08:52:23 Xinerama: no blackouts needed (only one sub-screen)
+01/06/2026 08:52:23 
+01/06/2026 08:52:23 fb read rate: 1277 MB/sec
+01/06/2026 08:52:23 fast read: reset -wait  ms to: 10
+01/06/2026 08:52:23 fast read: reset -defer ms to: 10
+01/06/2026 08:52:23 The X server says there are 10 mouse buttons.
+01/06/2026 08:52:23 screen setup finished.
+01/06/2026 08:52:23 
+
+The VNC desktop is:      1c49e4efd1c2:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+sh: 1: xdg-mime: not found
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to localhost:5900
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+diverse starts: 5 options (2 at start line, 3 mid-track)
+[iter     1] ts=     2,568  eplen= 2568T  rew=-0.230  start=1.22 completion=1.390 prog=+0.17  win=0  pool=1  speed=19.7
+[iter     2] ts=     5,442  eplen= 2874T  rew=+2.370  start=0.98 completion=1.368 prog=+0.39  win=1  pool=1  speed=24.7
+[iter     3] ts=     6,876  eplen= 1434T  rew=+0.569  start=1.12 completion=1.342 prog=+0.22  win=1  pool=1  speed=32.4
+[iter     4] ts=     8,154  eplen= 1278T  rew=+0.069  start=1.22 completion=1.361 prog=+0.14  win=1  pool=1  speed=26.5
+[iter     5] ts=     9,492  eplen= 1338T  rew=-0.049  start=1.22 completion=1.356 prog=+0.14  win=1  pool=1  speed=25.3
+[iter     6] ts=    11,676  eplen= 2184T  rew=+2.190  start=0.98 completion=1.331 prog=+0.35  win=0  pool=1  speed=27.0
+[iter     7] ts=    15,774  eplen= 4098T  rew=-1.143  start=1.22 completion=1.372 prog=+0.15  win=0  pool=1  speed=9.9
+[iter     8] ts=    18,588  eplen= 2814T  rew=+0.096  start=1.12 completion=1.383 prog=+0.26  win=1  pool=1  speed=21.8
+[iter     9] ts=    23,826  eplen= 5238T  rew=-0.590  start=1.12 completion=1.391 prog=+0.27  win=0  pool=1  speed=22.5
+[iter    10] ts=    25,704  eplen= 1878T  rew=+2.285  start=0.98 completion=1.360 prog=+0.38  win=1  pool=1  speed=36.1
+[iter    11] ts=    27,828  eplen= 2124T  rew=+2.234  start=0.98 completion=1.374 prog=+0.40  win=1  pool=1  speed=32.4
+[iter    12] ts=    29,106  eplen= 1278T  rew=+0.034  start=1.22 completion=1.353 prog=+0.14  win=1  pool=1  speed=26.3
+[iter    13] ts=    30,558  eplen= 1452T  rew=-0.638  start=1.32 completion=1.371 prog=+0.05  win=0  pool=1  speed=11.9
+[iter    14] ts=    33,258  eplen= 2700T  rew=+2.063  start=0.98 completion=1.384 prog=+0.41  win=1  pool=1  speed=27.4
+[iter    15] ts=    38,616  eplen= 5358T  rew=-1.465  start=1.12 completion=1.380 prog=+0.26  win=1  pool=1  speed=11.3
+[iter    16] ts=    40,764  eplen= 2148T  rew=-0.982  start=1.32 completion=1.371 prog=+0.05  win=0  pool=1  speed=11.2
+[iter    17] ts=    43,416  eplen= 2652T  rew=+0.136  start=1.12 completion=1.381 prog=+0.26  win=0  pool=1  speed=26.1
+[iter    18] ts=    44,742  eplen= 1326T  rew=-0.501  start=1.32 completion=1.373 prog=+0.05  win=1  pool=1  speed=11.9
+[iter    19] ts=    46,482  eplen= 1740T  rew=-0.740  start=1.32 completion=1.388 prog=+0.06  win=0  pool=1  speed=16.4
+[iter    20] ts=    48,018  eplen= 1536T  rew=-0.662  start=1.32 completion=1.379 prog=+0.06  win=0  pool=1  speed=11.0
+[iter    21] ts=    50,886  eplen= 2868T  rew=+1.916  start=0.98 completion=1.390 prog=+0.41  win=0  pool=1  speed=31.1
+[iter    22] ts=    52,842  eplen= 1956T  rew=+0.360  start=1.12 completion=1.295 prog=+0.18  win=0  pool=1  speed=29.1
+[iter    23] ts=    55,446  eplen= 2604T  rew=+0.069  start=1.12 completion=1.377 prog=+0.26  win=0  pool=1  speed=24.4
+[iter    24] ts=    57,126  eplen= 1680T  rew=+0.542  start=1.12 completion=1.348 prog=+0.23  win=1  pool=1  speed=34.7
+[iter    25] ts=    60,756  eplen= 3630T  rew=+2.176  start=0.98 completion=1.467 prog=+0.49  win=1  pool=1  speed=33.2
+[iter    26] ts=    62,946  eplen= 2190T  rew=-0.371  start=1.22 completion=1.385 prog=+0.17  win=0  pool=1  speed=21.4
+143.248.233.24 - - [01/Jun/2026 09:01:20] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 09:01:21] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 09:01:21] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 09:01:21] connecting to: localhost:5900
+01/06/2026 09:01:21 Got connection from client 127.0.0.1
+01/06/2026 09:01:21   0 other clients
+01/06/2026 09:01:22 Normal socket connection
+01/06/2026 09:01:22 Disabled X server key autorepeat.
+01/06/2026 09:01:22   to force back on run: 'xset r on' (3 times)
+01/06/2026 09:01:22 incr accepted_client=1 for 127.0.0.1:43304  sock=10
+01/06/2026 09:01:22 Client Protocol Version 3.8
+01/06/2026 09:01:22 Protocol version sent 3.8, using 3.8
+01/06/2026 09:01:22 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 09:01:22 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 09:01:22 Pixel format for client 127.0.0.1:
+01/06/2026 09:01:22   32 bpp, depth 24, little endian
+01/06/2026 09:01:22   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 09:01:22 Using image quality level 6 for client 127.0.0.1
+01/06/2026 09:01:22 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 09:01:22 Using compression level 2 for client 127.0.0.1
+01/06/2026 09:01:22 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 09:01:22 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 09:01:22 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 09:01:22 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 09:01:22 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 09:01:22 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 09:01:22 Using tight encoding for client 127.0.0.1
+01/06/2026 09:01:23 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 09:01:23 client_set_net: 127.0.0.1  0.0002
+01/06/2026 09:01:23 created   xdamage object: 0x200018
+01/06/2026 09:01:23 copy_tiles: allocating first_line at size 21
+01/06/2026 09:01:23 client 1 network rate 7917.6 KB/sec (99004.9 eff KB/sec)
+01/06/2026 09:01:23 client 1 latency:  1.8 ms
+01/06/2026 09:01:23 dt1: 0.0012, dt2: 0.0088 dt3: 0.0018 bytes: 71660
+01/06/2026 09:01:23 link_rate: LR_LAN - 1 ms, 7917 KB/s
+01/06/2026 09:01:31 created selwin: 0x200019
+01/06/2026 09:01:31 called initialize_xfixes()
+[iter    27] ts=    66,036  eplen= 3090T  rew=+1.843  start=0.98 completion=1.380 prog=+0.40  win=0  pool=1  speed=26.5
+[iter    28] ts=    68,478  eplen= 2442T  rew=-0.404  start=1.22 completion=1.354 prog=+0.14  win=0  pool=1  speed=25.3
+[iter    29] ts=    73,548  eplen= 5070T  rew=+2.000  start=0.98 completion=1.354 prog=+0.38  win=0  pool=1  speed=21.5
+01/06/2026 09:03:01 client_count: 0
+01/06/2026 09:03:01 Restored X server key autorepeat to: 1
+01/06/2026 09:03:01 Client 127.0.0.1 gone
+01/06/2026 09:03:01 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 09:03:01  ServerCutText       :      2 |        24/       24 (  0.0%)
+01/06/2026 09:03:01  FramebufferUpdate   :   2866 |         0/        0 (  0.0%)
+01/06/2026 09:03:01  LastRect            :   2860 |     34320/    34320 (  0.0%)
+01/06/2026 09:03:01  tight               :  14706 | 201931987/-1709592612 (  0.0%)
+01/06/2026 09:03:01  RichCursor          :      3 |      3150/     3150 (  0.0%)
+01/06/2026 09:03:01  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 09:03:01  TOTALS              :  20438 | 201969513/-1709555086 (  0.0%)
+01/06/2026 09:03:01 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 09:03:01  PointerEvent        :     26 |       156/      156 (  0.0%)
+01/06/2026 09:03:01  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 09:03:01  FramebufferUpdate   :   2867 |     28670/    28670 (  0.0%)
+01/06/2026 09:03:01  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 09:03:01  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 09:03:01  TOTALS              :   2896 |     28942/    28942 (  0.0%)
+01/06/2026 09:03:01 destroyed xdamage object: 0x200018
+[iter    30] ts=    77,616  eplen= 4068T  rew=+1.621  start=0.98 completion=1.370 prog=+0.39  win=1  pool=1  speed=20.0
+[iter    31] ts=    79,998  eplen= 2382T  rew=+1.949  start=0.98 completion=1.274 prog=+0.30  win=0  pool=1  speed=30.0
+[iter    32] ts=    83,892  eplen= 3894T  rew=+1.890  start=0.98 completion=1.372 prog=+0.39  win=0  pool=1  speed=28.0
+[iter    33] ts=    85,464  eplen= 1572T  rew=-0.103  start=1.22 completion=1.355 prog=+0.14  win=1  pool=1  speed=24.5
+[iter    34] ts=    90,384  eplen= 4920T  rew=-1.022  start=1.22 completion=1.373 prog=+0.16  win=0  pool=1  speed=8.8
+[iter    35] ts=    93,498  eplen= 3114T  rew=+2.255  start=0.98 completion=1.385 prog=+0.41  win=1  pool=1  speed=31.2
+[iter    36] ts=    94,656  eplen= 1158T  rew=-0.449  start=1.32 completion=1.375 prog=+0.05  win=0  pool=1  speed=18.9
+[iter    37] ts=   110,820  eplen=16164T  rew=-5.113  start=1.22 completion=1.759 prog=+0.54  win=0  pool=1  speed=20.6
+[iter    38] ts=   113,964  eplen= 3144T  rew=+2.001  start=0.98 completion=1.361 prog=+0.38  win=1  pool=1  speed=26.8
+[iter    39] ts=   115,086  eplen= 1122T  rew=-0.374  start=1.32 completion=1.364 prog=+0.04  win=1  pool=1  speed=16.1
+[iter    40] ts=   117,018  eplen= 1932T  rew=+2.200  start=0.98 completion=1.330 prog=+0.35  win=0  pool=1  speed=30.9
+[iter    41] ts=   119,796  eplen= 2778T  rew=-0.561  start=1.22 completion=1.366 prog=+0.15  win=1  pool=1  speed=21.6
+[iter    42] ts=   121,260  eplen= 1464T  rew=-0.734  start=1.32 completion=1.358 prog=+0.03  win=0  pool=1  speed=22.4
+[iter    43] ts=   123,138  eplen= 1878T  rew=+2.279  start=0.98 completion=1.340 prog=+0.36  win=1  pool=1  speed=40.1
+[iter    44] ts=   129,084  eplen= 5946T  rew=+1.546  start=0.98 completion=1.385 prog=+0.41  win=1  pool=1  speed=17.8
+[iter    45] ts=   131,580  eplen= 2496T  rew=-0.681  start=1.32 completion=1.367 prog=+0.04  win=1  pool=1  speed=11.0
+[iter    46] ts=   133,656  eplen= 2076T  rew=-0.919  start=1.32 completion=1.376 prog=+0.05  win=0  pool=1  speed=19.7
+[iter    47] ts=   134,772  eplen= 1116T  rew=-0.284  start=1.32 completion=1.368 prog=+0.05  win=1  pool=1  speed=18.4
+[iter    48] ts=   137,562  eplen= 2790T  rew=+0.334  start=1.12 completion=1.372 prog=+0.25  win=0  pool=1  speed=24.1
+[iter    49] ts=   139,770  eplen= 2208T  rew=-0.890  start=1.32 completion=1.359 prog=+0.04  win=0  pool=1  speed=9.0
+[iter    50] ts=   142,128  eplen= 2358T  rew=+0.327  start=1.12 completion=1.340 prog=+0.22  win=0  pool=1  speed=29.2
+[iter    51] ts=   144,984  eplen= 2856T  rew=+2.066  start=0.98 completion=1.303 prog=+0.33  win=0  pool=1  speed=29.4
+[iter    52] ts=   146,976  eplen= 1992T  rew=+2.125  start=0.98 completion=1.359 prog=+0.38  win=0  pool=1  speed=38.0
+143.248.233.24 - - [01/Jun/2026 09:12:37] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 09:12:40] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 09:12:40] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 09:12:40] connecting to: localhost:5900
+01/06/2026 09:12:40 Got connection from client 127.0.0.1
+01/06/2026 09:12:40   0 other clients
+01/06/2026 09:12:41 Normal socket connection
+01/06/2026 09:12:41 Disabled X server key autorepeat.
+01/06/2026 09:12:41   to force back on run: 'xset r on' (3 times)
+01/06/2026 09:12:41 incr accepted_client=2 for 127.0.0.1:43768  sock=10
+01/06/2026 09:12:41 Client Protocol Version 3.8
+01/06/2026 09:12:41 Protocol version sent 3.8, using 3.8
+01/06/2026 09:12:41 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 09:12:41 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 09:12:41 Pixel format for client 127.0.0.1:
+01/06/2026 09:12:41   32 bpp, depth 24, little endian
+01/06/2026 09:12:41   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 09:12:41 Using image quality level 6 for client 127.0.0.1
+01/06/2026 09:12:41 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 09:12:41 Using compression level 2 for client 127.0.0.1
+01/06/2026 09:12:41 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 09:12:41 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 09:12:41 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 09:12:41 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 09:12:41 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 09:12:41 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 09:12:41 Using tight encoding for client 127.0.0.1
+01/06/2026 09:12:42 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 09:12:42 client_set_net: 127.0.0.1  0.0000
+01/06/2026 09:12:42 created   xdamage object: 0x20001a
+01/06/2026 09:12:42 client 2 network rate 5144.5 KB/sec (93302.4 eff KB/sec)
+01/06/2026 09:12:42 client 2 latency:  1.7 ms
+01/06/2026 09:12:42 dt1: 0.0114, dt2: 0.0018 dt3: 0.0017 bytes: 67799
+01/06/2026 09:12:42 link_rate: LR_LAN - 1 ms, 5144 KB/s
+[iter    53] ts=   159,546  eplen=12570T  rew=-4.529  start=1.12 completion=1.585 prog=+0.47  win=1  pool=1  speed=20.0
+[iter    54] ts=   162,840  eplen= 3294T  rew=+1.613  start=0.98 completion=1.383 prog=+0.41  win=0  pool=1  speed=25.5
+[iter    55] ts=   167,046  eplen= 4206T  rew=+1.931  start=0.98 completion=1.280 prog=+0.30  win=0  pool=1  speed=22.6
+[iter    56] ts=   170,142  eplen= 3096T  rew=+1.866  start=0.98 completion=1.388 prog=+0.41  win=1  pool=1  speed=26.5
+[iter    57] ts=   173,844  eplen= 3702T  rew=-0.214  start=1.12 completion=1.383 prog=+0.26  win=0  pool=1  speed=17.7
+[iter    58] ts=   176,664  eplen= 2820T  rew=+1.840  start=0.98 completion=1.373 prog=+0.40  win=1  pool=1  speed=26.8
+[iter    59] ts=   179,280  eplen= 2616T  rew=+2.184  start=0.98 completion=1.379 prog=+0.40  win=0  pool=1  speed=30.3
+[iter    60] ts=   180,786  eplen= 1506T  rew=-0.182  start=1.22 completion=1.356 prog=+0.14  win=0  pool=1  speed=22.5
+[iter    61] ts=   184,308  eplen= 3522T  rew=-0.648  start=1.22 completion=1.364 prog=+0.15  win=0  pool=1  speed=18.0
+01/06/2026 09:17:02 client_count: 0
+01/06/2026 09:17:02 Restored X server key autorepeat to: 1
+01/06/2026 09:17:02 Client 127.0.0.1 gone
+01/06/2026 09:17:02 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 09:17:02  ServerCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 09:17:02  FramebufferUpdate   :   7594 |         0/        0 (  0.0%)
+01/06/2026 09:17:02  LastRect            :   7579 |     90948/    90948 (  0.0%)
+01/06/2026 09:17:02  tight               :  37903 | 540107094/-1709464384 (  0.0%)
+01/06/2026 09:17:02  RichCursor          :      4 |      3552/     3552 (  0.0%)
+01/06/2026 09:17:02  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 09:17:02  TOTALS              :  53082 | 540201642/-1709369836 (  0.0%)
+01/06/2026 09:17:02 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 09:17:02  KeyEvent            :      4 |        32/       32 (  0.0%)
+01/06/2026 09:17:02  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 09:17:02  PointerEvent        :     92 |       552/      552 (  0.0%)
+01/06/2026 09:17:02  FramebufferUpdate   :   7596 |     75960/    75960 (  0.0%)
+01/06/2026 09:17:02  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 09:17:02  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 09:17:02  TOTALS              :   7695 |     76660/    76660 (  0.0%)
+01/06/2026 09:17:02 destroyed xdamage object: 0x20001a
+[iter    62] ts=   186,318  eplen= 2010T  rew=-0.160  start=1.22 completion=1.380 prog=+0.16  win=0  pool=1  speed=22.6
+[iter    63] ts=   188,352  eplen= 2034T  rew=-0.631  start=1.32 completion=1.397 prog=+0.07  win=1  pool=1  speed=23.4
+[iter    64] ts=   189,876  eplen= 1524T  rew=+0.682  start=1.12 completion=1.365 prog=+0.25  win=1  pool=1  speed=32.4
+[iter    65] ts=   193,338  eplen= 3462T  rew=-1.048  start=1.22 completion=1.367 prog=+0.15  win=0  pool=1  speed=15.9
+[iter    66] ts=   195,384  eplen= 2046T  rew=+2.042  start=0.98 completion=1.255 prog=+0.28  win=0  pool=1  speed=27.2
+[iter    67] ts=   197,328  eplen= 1944T  rew=+2.165  start=0.98 completion=1.339 prog=+0.36  win=1  pool=1  speed=35.1
+[iter    68] ts=   199,158  eplen= 1830T  rew=-0.182  start=1.22 completion=1.379 prog=+0.16  win=1  pool=1  speed=29.6
+[iter    69] ts=   200,562  eplen= 1404T  rew=+0.019  start=1.22 completion=1.366 prog=+0.15  win=1  pool=1  speed=27.3
+[iter    70] ts=   202,560  eplen= 1998T  rew=+0.394  start=1.12 completion=1.377 prog=+0.26  win=1  pool=1  speed=30.1
+[iter    71] ts=   204,342  eplen= 1782T  rew=+2.284  start=0.98 completion=1.358 prog=+0.38  win=1  pool=1  speed=36.2
+[iter    72] ts=   206,376  eplen= 2034T  rew=-0.864  start=1.32 completion=1.389 prog=+0.07  win=1  pool=1  speed=11.3
+[iter    73] ts=   208,212  eplen= 1836T  rew=+2.362  start=0.98 completion=1.337 prog=+0.36  win=0  pool=1  speed=32.3
+[iter    74] ts=   209,532  eplen= 1320T  rew=-0.386  start=1.32 completion=1.395 prog=+0.07  win=1  pool=1  speed=27.1
+[iter    75] ts=   210,984  eplen= 1452T  rew=+0.100  start=1.22 completion=1.389 prog=+0.17  win=1  pool=1  speed=33.5
+[iter    76] ts=   213,030  eplen= 2046T  rew=-0.260  start=1.22 completion=1.391 prog=+0.17  win=1  pool=1  speed=25.8
+[iter    77] ts=   214,884  eplen= 1854T  rew=-0.145  start=1.22 completion=1.371 prog=+0.15  win=0  pool=1  speed=31.1
+[iter    78] ts=   216,276  eplen= 1392T  rew=-0.541  start=1.32 completion=1.380 prog=+0.06  win=1  pool=1  speed=19.7
+[iter    79] ts=   218,076  eplen= 1800T  rew=+2.377  start=0.98 completion=1.336 prog=+0.36  win=0  pool=1  speed=34.7
+[iter    80] ts=   219,948  eplen= 1872T  rew=+2.195  start=0.98 completion=1.273 prog=+0.30  win=0  pool=1  speed=24.7
+[iter    81] ts=   227,226  eplen= 7278T  rew=-2.700  start=1.22 completion=1.557 prog=+0.34  win=1  pool=1  speed=25.3
+[iter    82] ts=   230,346  eplen= 3120T  rew=-1.093  start=1.32 completion=1.390 prog=+0.07  win=0  pool=1  speed=18.4
+[iter    83] ts=   235,824  eplen= 5478T  rew=-1.875  start=1.22 completion=1.418 prog=+0.20  win=0  pool=1  speed=22.1
+[iter    84] ts=   238,194  eplen= 2370T  rew=+0.155  start=1.12 completion=1.367 prog=+0.25  win=1  pool=1  speed=31.3
+[iter    85] ts=   241,782  eplen= 3588T  rew=+1.333  start=0.98 completion=1.390 prog=+0.41  win=1  pool=1  speed=34.3
+[iter    86] ts=   244,206  eplen= 2424T  rew=+0.327  start=1.12 completion=1.371 prog=+0.25  win=1  pool=1  speed=23.2
+[iter    87] ts=   245,748  eplen= 1542T  rew=-0.645  start=1.32 completion=1.387 prog=+0.06  win=1  pool=1  speed=20.0
+[iter    88] ts=   246,978  eplen= 1230T  rew=-0.363  start=1.32 completion=1.391 prog=+0.07  win=1  pool=1  speed=23.8
+[iter    89] ts=   249,384  eplen= 2406T  rew=-0.372  start=1.22 completion=1.376 prog=+0.16  win=0  pool=1  speed=17.8
+[iter    90] ts=   252,948  eplen= 3564T  rew=+1.898  start=0.98 completion=1.385 prog=+0.41  win=0  pool=1  speed=25.3
+[iter    91] ts=   254,778  eplen= 1830T  rew=+2.512  start=0.98 completion=1.371 prog=+0.39  win=1  pool=1  speed=38.8
+[iter    92] ts=   262,722  eplen= 7944T  rew=+0.243  start=0.98 completion=1.512 prog=+0.53  win=0  pool=1  speed=29.2
+[iter    93] ts=   264,636  eplen= 1914T  rew=-0.204  start=1.22 completion=1.375 prog=+0.16  win=1  pool=1  speed=26.4
+143.248.233.24 - - [01/Jun/2026 09:27:55] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 09:27:56] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 09:27:56] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 09:27:56] connecting to: localhost:5900
+01/06/2026 09:27:56 Got connection from client 127.0.0.1
+01/06/2026 09:27:56   0 other clients
+01/06/2026 09:27:56 Normal socket connection
+01/06/2026 09:27:56 Disabled X server key autorepeat.
+01/06/2026 09:27:56   to force back on run: 'xset r on' (3 times)
+01/06/2026 09:27:56 incr accepted_client=3 for 127.0.0.1:59834  sock=10
+01/06/2026 09:27:56 Client Protocol Version 3.8
+01/06/2026 09:27:56 Protocol version sent 3.8, using 3.8
+01/06/2026 09:27:56 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 09:27:56 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 09:27:56 Pixel format for client 127.0.0.1:
+01/06/2026 09:27:56   32 bpp, depth 24, little endian
+01/06/2026 09:27:56   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 09:27:57 Using image quality level 6 for client 127.0.0.1
+01/06/2026 09:27:57 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 09:27:57 Using compression level 2 for client 127.0.0.1
+01/06/2026 09:27:57 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 09:27:57 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 09:27:57 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 09:27:57 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 09:27:57 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 09:27:57 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 09:27:57 Using tight encoding for client 127.0.0.1
+01/06/2026 09:27:57 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 09:27:57 client_set_net: 127.0.0.1  0.0000
+01/06/2026 09:27:57 created   xdamage object: 0x20001b
+01/06/2026 09:28:02 client 3 network rate 7378.5 KB/sec (125257.3 eff KB/sec)
+01/06/2026 09:28:02 client 3 latency:  1.5 ms
+01/06/2026 09:28:02 dt1: 0.0012, dt2: 0.0094 dt3: 0.0015 bytes: 72392
+01/06/2026 09:28:02 link_rate: LR_LAN - 1 ms, 7378 KB/s
+[iter    94] ts=   275,652  eplen=11016T  rew=-1.511  start=0.98 completion=1.637 prog=+0.66  win=1  pool=1  speed=23.0
+[iter    95] ts=   279,474  eplen= 3822T  rew=-0.915  start=1.22 completion=1.388 prog=+0.17  win=0  pool=1  speed=24.8
+01/06/2026 09:29:29 client_count: 0
+01/06/2026 09:29:29 Restored X server key autorepeat to: 1
+01/06/2026 09:29:29 Client 127.0.0.1 gone
+01/06/2026 09:29:29 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 09:29:29  ServerCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 09:29:29  FramebufferUpdate   :   2659 |         0/        0 (  0.0%)
+01/06/2026 09:29:29  LastRect            :   2654 |     31848/    31848 (  0.0%)
+01/06/2026 09:29:29  tight               :  12976 | 186317967/-1891346876 (  0.0%)
+01/06/2026 09:29:29  RichCursor          :      3 |      2472/     2472 (  0.0%)
+01/06/2026 09:29:29  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 09:29:29  TOTALS              :  18294 | 186352335/-1891312508 (  0.0%)
+01/06/2026 09:29:29 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 09:29:29  PointerEvent        :     50 |       300/      300 (  0.0%)
+01/06/2026 09:29:29  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 09:29:29  FramebufferUpdate   :   2661 |     26610/    26610 (  0.0%)
+01/06/2026 09:29:29  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 09:29:29  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 09:29:29  TOTALS              :   2714 |     27026/    27026 (  0.0%)
+01/06/2026 09:29:29 destroyed xdamage object: 0x20001b
+[iter    96] ts=   281,394  eplen= 1920T  rew=+0.440  start=1.12 completion=1.374 prog=+0.26  win=0  pool=1  speed=34.8
+[iter    97] ts=   284,178  eplen= 2784T  rew=-0.628  start=1.22 completion=1.399 prog=+0.18  win=1  pool=1  speed=32.1
+[iter    98] ts=   291,552  eplen= 7374T  rew=-2.911  start=1.32 completion=1.503 prog=+0.18  win=0  pool=1  speed=27.7
+[iter    99] ts=   297,114  eplen= 5562T  rew=-1.157  start=1.12 completion=1.512 prog=+0.39  win=1  pool=1  speed=27.4
+[iter   100] ts=   299,706  eplen= 2592T  rew=+2.222  start=0.98 completion=1.371 prog=+0.39  win=0  pool=1  speed=26.0
+[iter   101] ts=   301,776  eplen= 2070T  rew=+2.293  start=0.98 completion=1.342 prog=+0.36  win=0  pool=1  speed=30.9
+[iter   102] ts=   310,458  eplen= 8682T  rew=-0.890  start=0.98 completion=1.585 prog=+0.61  win=1  pool=1  speed=24.4
+[iter   103] ts=   312,276  eplen= 1818T  rew=-0.267  start=1.22 completion=1.361 prog=+0.14  win=1  pool=1  speed=19.7
+[iter   104] ts=   314,994  eplen= 2718T  rew=+1.974  start=0.98 completion=1.403 prog=+0.43  win=1  pool=1  speed=39.8
+[iter   105] ts=   326,334  eplen=11340T  rew=-3.956  start=1.12 completion=1.675 prog=+0.56  win=1  pool=1  speed=23.7
+[iter   106] ts=   327,864  eplen= 1530T  rew=+0.020  start=1.22 completion=1.382 prog=+0.16  win=1  pool=1  speed=37.1
+[iter   107] ts=   329,910  eplen= 2046T  rew=+2.530  start=0.98 completion=1.372 prog=+0.40  win=1  pool=1  speed=32.9
+[iter   108] ts=   332,292  eplen= 2382T  rew=-0.606  start=1.32 completion=1.400 prog=+0.08  win=0  pool=1  speed=22.1
+[iter   109] ts=   339,018  eplen= 6726T  rew=-3.063  start=1.32 completion=1.488 prog=+0.16  win=1  pool=1  speed=28.8
+[iter   110] ts=   343,416  eplen= 4398T  rew=-1.671  start=1.22 completion=1.403 prog=+0.19  win=1  pool=1  speed=29.3
+[iter   111] ts=   347,214  eplen= 3798T  rew=-1.098  start=1.22 completion=1.442 prog=+0.22  win=1  pool=1  speed=35.1
+[iter   112] ts=   349,134  eplen= 1920T  rew=-0.657  start=1.32 completion=1.379 prog=+0.06  win=1  pool=1  speed=19.0
+[iter   113] ts=   350,982  eplen= 1848T  rew=+2.477  start=0.98 completion=1.355 prog=+0.38  win=0  pool=1  speed=34.1
+[iter   114] ts=   353,904  eplen= 2922T  rew=-0.031  start=1.12 completion=1.390 prog=+0.27  win=1  pool=1  speed=33.6
+[iter   115] ts=   358,878  eplen= 4974T  rew=-1.222  start=1.12 completion=1.428 prog=+0.31  win=1  pool=1  speed=32.2
+[iter   116] ts=   360,012  eplen= 1134T  rew=-0.415  start=1.32 completion=1.370 prog=+0.05  win=0  pool=1  speed=13.3
+[iter   117] ts=   376,800  eplen=16788T  rew=-5.607  start=1.22 completion=1.908 prog=+0.69  win=1  pool=1  speed=14.9
+[iter   118] ts=   388,464  eplen=11664T  rew=-4.190  start=1.22 completion=1.615 prog=+0.40  win=1  pool=1  speed=20.9
+[iter   119] ts=   390,444  eplen= 1980T  rew=-0.751  start=1.32 completion=1.378 prog=+0.05  win=0  pool=1  speed=11.3
+[iter   120] ts=   409,146  eplen=18702T  rew=-3.123  start=0.98 completion=1.820 prog=+0.84  win=0  pool=1  speed=18.1
+[iter   121] ts=   413,070  eplen= 3924T  rew=+1.661  start=0.98 completion=1.442 prog=+0.46  win=1  pool=1  speed=36.5
+[iter   122] ts=   420,264  eplen= 7194T  rew=-2.146  start=1.12 completion=1.521 prog=+0.40  win=1  pool=1  speed=25.0
+[iter   123] ts=   422,202  eplen= 1938T  rew=+2.287  start=0.98 completion=1.342 prog=+0.36  win=1  pool=1  speed=30.8
+[iter   124] ts=   426,702  eplen= 4500T  rew=-1.282  start=1.22 completion=1.493 prog=+0.28  win=1  pool=1  speed=22.2
+[iter   125] ts=   428,628  eplen= 1926T  rew=+2.400  start=0.98 completion=1.369 prog=+0.39  win=1  pool=1  speed=37.2
+[iter   126] ts=   431,508  eplen= 2880T  rew=+1.881  start=0.98 completion=1.390 prog=+0.41  win=0  pool=1  speed=34.6
+[iter   127] ts=   433,704  eplen= 2196T  rew=-0.869  start=1.32 completion=1.380 prog=+0.06  win=0  pool=1  speed=9.3
+[iter   128] ts=   436,092  eplen= 2388T  rew=+2.274  start=0.98 completion=1.375 prog=+0.40  win=1  pool=1  speed=33.8
+[iter   129] ts=   437,262  eplen= 1170T  rew=-0.374  start=1.32 completion=1.378 prog=+0.05  win=1  pool=1  speed=17.2
+[iter   130] ts=   439,314  eplen= 2052T  rew=+2.226  start=0.98 completion=1.365 prog=+0.39  win=1  pool=1  speed=33.2
+[iter   131] ts=   441,942  eplen= 2628T  rew=+2.084  start=0.98 completion=1.377 prog=+0.40  win=0  pool=1  speed=28.9
+[iter   132] ts=   444,228  eplen= 2286T  rew=-0.208  start=1.22 completion=1.385 prog=+0.17  win=0  pool=1  speed=21.7
+[iter   133] ts=   446,670  eplen= 2442T  rew=+2.026  start=0.98 completion=1.378 prog=+0.40  win=0  pool=1  speed=31.2
+[iter   134] ts=   458,010  eplen=11340T  rew=-2.199  start=0.98 completion=1.649 prog=+0.67  win=1  pool=1  speed=21.1
+[iter   135] ts=   459,924  eplen= 1914T  rew=+2.221  start=0.98 completion=1.374 prog=+0.40  win=0  pool=1  speed=45.1
+[iter   136] ts=   461,988  eplen= 2064T  rew=-0.919  start=1.32 completion=1.391 prog=+0.07  win=0  pool=1  speed=34.2
+[iter   137] ts=   463,338  eplen= 1350T  rew=-0.376  start=1.32 completion=1.396 prog=+0.07  win=1  pool=1  speed=27.0
+[iter   138] ts=   464,712  eplen= 1374T  rew=-0.441  start=1.32 completion=1.391 prog=+0.07  win=0  pool=1  speed=23.7
+[iter   139] ts=   478,050  eplen=13338T  rew=+0.766  start=0.98 completion=1.611 prog=+0.63  win=0  pool=1  speed=29.3
+[iter   140] ts=   480,402  eplen= 2352T  rew=-0.834  start=1.32 completion=1.386 prog=+0.06  win=0  pool=1  speed=23.3
+[iter   141] ts=   482,280  eplen= 1878T  rew=+2.228  start=0.98 completion=1.369 prog=+0.39  win=0  pool=1  speed=40.1
+[iter   142] ts=   489,300  eplen= 7020T  rew=-2.942  start=1.32 completion=1.602 prog=+0.28  win=1  pool=1  speed=22.5
+[iter   143] ts=   491,322  eplen= 2022T  rew=+0.268  start=1.12 completion=1.379 prog=+0.26  win=0  pool=1  speed=32.3
+[iter   144] ts=   500,472  eplen= 9150T  rew=-1.120  start=0.98 completion=1.588 prog=+0.61  win=1  pool=1  speed=26.5
+[iter   145] ts=   501,888  eplen= 1416T  rew=-0.288  start=1.32 completion=1.408 prog=+0.09  win=1  pool=1  speed=27.9
+[iter   146] ts=   511,308  eplen= 9420T  rew=-1.021  start=0.98 completion=1.647 prog=+0.67  win=1  pool=1  speed=22.7
+[iter   147] ts=   513,384  eplen= 2076T  rew=-0.197  start=1.22 completion=1.385 prog=+0.17  win=0  pool=1  speed=22.3
+[iter   148] ts=   515,034  eplen= 1650T  rew=-0.051  start=1.22 completion=1.383 prog=+0.17  win=1  pool=1  speed=26.3
+[iter   149] ts=   523,668  eplen= 8634T  rew=+0.235  start=0.98 completion=1.437 prog=+0.46  win=0  pool=1  speed=35.4
+[iter   150] ts=   536,262  eplen=12594T  rew=-2.014  start=0.98 completion=1.575 prog=+0.60  win=0  pool=1  speed=32.6
+[iter   151] ts=   538,158  eplen= 1896T  rew=+0.189  start=1.12 completion=1.307 prog=+0.19  win=0  pool=1  speed=32.0
+[iter   152] ts=   545,742  eplen= 7584T  rew=-2.324  start=1.22 completion=1.589 prog=+0.37  win=1  pool=1  speed=18.9
+[iter   153] ts=   547,584  eplen= 1842T  rew=+0.450  start=1.12 completion=1.349 prog=+0.23  win=1  pool=1  speed=31.9
+[iter   154] ts=   550,914  eplen= 3330T  rew=+2.004  start=0.98 completion=1.313 prog=+0.34  win=0  pool=1  speed=29.2
+[iter   155] ts=   552,348  eplen= 1434T  rew=-0.119  start=1.22 completion=1.342 prog=+0.12  win=0  pool=1  speed=29.8
+143.248.233.24 - - [01/Jun/2026 10:04:35] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 10:04:36] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 10:04:36] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 10:04:36] connecting to: localhost:5900
+01/06/2026 10:04:36 Got connection from client 127.0.0.1
+01/06/2026 10:04:36   0 other clients
+01/06/2026 10:04:36 Normal socket connection
+01/06/2026 10:04:36 Disabled X server key autorepeat.
+01/06/2026 10:04:36   to force back on run: 'xset r on' (3 times)
+01/06/2026 10:04:36 incr accepted_client=4 for 127.0.0.1:45250  sock=10
+01/06/2026 10:04:36 Client Protocol Version 3.8
+01/06/2026 10:04:36 Protocol version sent 3.8, using 3.8
+01/06/2026 10:04:36 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 10:04:36 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 10:04:37 Pixel format for client 127.0.0.1:
+01/06/2026 10:04:37   32 bpp, depth 24, little endian
+01/06/2026 10:04:37   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 10:04:37 Using image quality level 6 for client 127.0.0.1
+01/06/2026 10:04:37 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 10:04:37 Using compression level 2 for client 127.0.0.1
+01/06/2026 10:04:37 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 10:04:37 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 10:04:37 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 10:04:37 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 10:04:37 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 10:04:37 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 10:04:37 Using tight encoding for client 127.0.0.1
+01/06/2026 10:04:37 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 10:04:37 client_set_net: 127.0.0.1  0.0000
+01/06/2026 10:04:37 created   xdamage object: 0x20001c
+01/06/2026 10:04:39 client 4 network rate 8132.8 KB/sec (104559.8 eff KB/sec)
+01/06/2026 10:04:39 client 4 latency:  1.8 ms
+01/06/2026 10:04:39 dt1: 0.0011, dt2: 0.0084 dt3: 0.0018 bytes: 69697
+01/06/2026 10:04:39 link_rate: LR_LAN - 1 ms, 8132 KB/s
+[iter   156] ts=   557,742  eplen= 5394T  rew=+1.692  start=0.98 completion=1.685 prog=+0.71  win=1  pool=1  speed=33.4
+[iter   157] ts=   563,910  eplen= 6168T  rew=-0.397  start=1.12 completion=1.483 prog=+0.36  win=0  pool=1  speed=32.0
+[iter   158] ts=   565,140  eplen= 1230T  rew=-0.250  start=1.32 completion=1.407 prog=+0.08  win=1  pool=1  speed=32.9
+[iter   159] ts=   569,976  eplen= 4836T  rew=-0.897  start=1.12 completion=1.474 prog=+0.36  win=1  pool=1  speed=22.8
+[iter   160] ts=   573,216  eplen= 3240T  rew=-0.599  start=1.22 completion=1.375 prog=+0.16  win=0  pool=1  speed=15.6
+[iter   161] ts=   576,144  eplen= 2928T  rew=+2.368  start=0.98 completion=1.364 prog=+0.39  win=0  pool=1  speed=27.3
+[iter   162] ts=   577,296  eplen= 1152T  rew=-0.351  start=1.32 completion=1.383 prog=+0.06  win=0  pool=1  speed=23.8
+[iter   163] ts=   578,958  eplen= 1662T  rew=-0.209  start=1.22 completion=1.361 prog=+0.14  win=0  pool=1  speed=36.2
+[iter   164] ts=   589,116  eplen=10158T  rew=-0.664  start=0.98 completion=1.647 prog=+0.67  win=0  pool=1  speed=30.5
+[iter   165] ts=   593,196  eplen= 4080T  rew=+1.424  start=0.98 completion=1.473 prog=+0.50  win=1  pool=1  speed=26.9
+01/06/2026 10:09:37 idle keyboard:   turning X autorepeat back on.
+[iter   166] ts=   596,532  eplen= 3336T  rew=-0.736  start=1.22 completion=1.451 prog=+0.23  win=1  pool=1  speed=18.1
+[iter   167] ts=   598,248  eplen= 1716T  rew=-0.616  start=1.32 completion=1.389 prog=+0.07  win=1  pool=1  speed=25.9
+[iter   168] ts=   604,080  eplen= 5832T  rew=-0.980  start=1.12 completion=1.526 prog=+0.41  win=1  pool=1  speed=22.7
+[iter   169] ts=   605,658  eplen= 1578T  rew=+0.678  start=1.12 completion=1.382 prog=+0.26  win=1  pool=1  speed=37.0
+[iter   170] ts=   606,876  eplen= 1218T  rew=-0.265  start=1.32 completion=1.411 prog=+0.09  win=1  pool=1  speed=33.6
+[iter   171] ts=   609,600  eplen= 2724T  rew=-0.041  start=1.12 completion=1.383 prog=+0.26  win=0  pool=1  speed=26.9
+[iter   172] ts=   611,904  eplen= 2304T  rew=+2.390  start=0.98 completion=1.365 prog=+0.39  win=0  pool=1  speed=35.6
+[iter   173] ts=   613,086  eplen= 1182T  rew=-0.402  start=1.32 completion=1.401 prog=+0.08  win=0  pool=1  speed=30.2
+[iter   174] ts=   614,562  eplen= 1476T  rew=+0.848  start=1.12 completion=1.369 prog=+0.25  win=1  pool=1  speed=40.3
+[iter   175] ts=   626,118  eplen=11556T  rew=-2.544  start=1.22 completion=1.589 prog=+0.37  win=0  pool=1  speed=30.7
+[iter   176] ts=   628,338  eplen= 2220T  rew=+2.342  start=0.98 completion=1.404 prog=+0.43  win=1  pool=1  speed=32.9
+[iter   177] ts=   629,760  eplen= 1422T  rew=+0.114  start=1.22 completion=1.387 prog=+0.17  win=0  pool=1  speed=28.4
+[iter   178] ts=   631,650  eplen= 1890T  rew=-0.296  start=1.22 completion=1.363 prog=+0.15  win=0  pool=1  speed=31.8
+[iter   179] ts=   633,354  eplen= 1704T  rew=-0.008  start=1.22 completion=1.354 prog=+0.14  win=0  pool=1  speed=27.7
+[iter   180] ts=   634,500  eplen= 1146T  rew=-0.384  start=1.32 completion=1.390 prog=+0.07  win=1  pool=1  speed=23.3
+01/06/2026 10:15:09 client_count: 0
+01/06/2026 10:15:09 Client 127.0.0.1 gone
+01/06/2026 10:15:09 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 10:15:09  ServerCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 10:15:09  FramebufferUpdate   :  18452 |         0/        0 (  0.0%)
+01/06/2026 10:15:09  LastRect            :  18422 |    221064/   221064 (  0.0%)
+01/06/2026 10:15:09  tight               :  92803 | 1344415244/-411423952 (  0.0%)
+01/06/2026 10:15:09  RichCursor          :      4 |      3552/     3552 (  0.0%)
+01/06/2026 10:15:09  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 10:15:09  TOTALS              : 129683 | 1344639908/-411199288 (  0.0%)
+01/06/2026 10:15:09 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 10:15:09  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 10:15:09  PointerEvent        :     68 |       408/      408 (  0.0%)
+01/06/2026 10:15:09  FramebufferUpdate   :  18453 |    184530/   184530 (  0.0%)
+01/06/2026 10:15:09  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 10:15:09  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 10:15:09  TOTALS              :  18524 |    185054/   185054 (  0.0%)
+01/06/2026 10:15:09 destroyed xdamage object: 0x20001c
+[iter   181] ts=   643,806  eplen= 9306T  rew=-2.985  start=1.32 completion=1.510 prog=+0.19  win=0  pool=1  speed=24.5
+[iter   182] ts=   647,196  eplen= 3390T  rew=+2.342  start=0.98 completion=1.377 prog=+0.40  win=1  pool=1  speed=22.8
+[iter   183] ts=   649,614  eplen= 2418T  rew=+2.665  start=0.98 completion=1.391 prog=+0.41  win=1  pool=1  speed=30.1
+[iter   184] ts=   651,708  eplen= 2094T  rew=+2.277  start=0.98 completion=1.296 prog=+0.32  win=0  pool=1  speed=26.3
+[iter   185] ts=   654,408  eplen= 2700T  rew=+2.457  start=0.98 completion=1.381 prog=+0.40  win=1  pool=1  speed=30.3
+[iter   186] ts=   655,578  eplen= 1170T  rew=-0.351  start=1.32 completion=1.397 prog=+0.07  win=1  pool=1  speed=31.5
+[iter   187] ts=   657,546  eplen= 1968T  rew=+1.730  start=0.98 completion=1.184 prog=+0.21  win=0  pool=1  speed=16.2
+[iter   188] ts=   662,238  eplen= 4692T  rew=+2.211  start=0.98 completion=1.378 prog=+0.40  win=1  pool=1  speed=26.1
+[iter   189] ts=   664,914  eplen= 2676T  rew=+2.478  start=0.98 completion=1.389 prog=+0.41  win=1  pool=1  speed=28.4
+[iter   190] ts=   667,302  eplen= 2388T  rew=-0.751  start=1.32 completion=1.431 prog=+0.11  win=1  pool=1  speed=30.0
+[iter   191] ts=   668,556  eplen= 1254T  rew=-0.428  start=1.32 completion=1.389 prog=+0.07  win=1  pool=1  speed=32.3
+[iter   192] ts=   670,290  eplen= 1734T  rew=+2.458  start=0.98 completion=1.382 prog=+0.41  win=1  pool=1  speed=47.0
+[iter   193] ts=   673,026  eplen= 2736T  rew=+0.467  start=1.12 completion=1.361 prog=+0.24  win=0  pool=1  speed=32.0
+[iter   194] ts=   675,780  eplen= 2754T  rew=+1.823  start=0.98 completion=1.381 prog=+0.40  win=0  pool=1  speed=33.1
+[iter   195] ts=   676,950  eplen= 1170T  rew=-0.456  start=1.32 completion=1.384 prog=+0.06  win=0  pool=1  speed=18.0
+[iter   196] ts=   681,624  eplen= 4674T  rew=-1.444  start=1.22 completion=1.483 prog=+0.27  win=1  pool=1  speed=21.7
+[iter   197] ts=   685,224  eplen= 3600T  rew=+2.048  start=0.98 completion=1.385 prog=+0.41  win=1  pool=1  speed=22.5
+[iter   198] ts=   687,366  eplen= 2142T  rew=+2.452  start=0.98 completion=1.385 prog=+0.41  win=0  pool=1  speed=36.0
+[iter   199] ts=   688,842  eplen= 1476T  rew=+0.025  start=1.22 completion=1.376 prog=+0.16  win=1  pool=1  speed=25.4
+[iter   200] ts=   690,372  eplen= 1530T  rew=+0.587  start=1.12 completion=1.360 prog=+0.24  win=1  pool=1  speed=32.3
+[iter   201] ts=   692,118  eplen= 1746T  rew=-0.712  start=1.32 completion=1.395 prog=+0.07  win=0  pool=1  speed=19.3
+[iter   202] ts=   693,300  eplen= 1182T  rew=-0.374  start=1.32 completion=1.386 prog=+0.06  win=0  pool=1  speed=17.3
+[iter   203] ts=   695,718  eplen= 2418T  rew=+0.195  start=1.12 completion=1.388 prog=+0.27  win=1  pool=1  speed=27.2
+[iter   204] ts=   698,352  eplen= 2634T  rew=+2.399  start=0.98 completion=1.394 prog=+0.42  win=1  pool=1  speed=28.9
+[iter   205] ts=   700,962  eplen= 2610T  rew=+0.109  start=1.12 completion=1.372 prog=+0.25  win=0  pool=1  speed=20.9
+[iter   206] ts=   702,582  eplen= 1620T  rew=-0.058  start=1.22 completion=1.378 prog=+0.16  win=1  pool=1  speed=28.7
+[iter   207] ts=   705,060  eplen= 2478T  rew=+2.426  start=0.98 completion=1.387 prog=+0.41  win=1  pool=1  speed=33.0
+[iter   208] ts=   706,698  eplen= 1638T  rew=-0.059  start=1.22 completion=1.380 prog=+0.16  win=1  pool=1  speed=27.2
+[iter   209] ts=   709,086  eplen= 2388T  rew=+2.356  start=0.98 completion=1.367 prog=+0.39  win=0  pool=1  speed=32.7
+[iter   210] ts=   710,898  eplen= 1812T  rew=+0.704  start=1.12 completion=1.410 prog=+0.29  win=1  pool=1  speed=40.7
+[iter   211] ts=   712,092  eplen= 1194T  rew=-0.407  start=1.32 completion=1.390 prog=+0.07  win=0  pool=1  speed=20.4
+[iter   212] ts=   713,526  eplen= 1434T  rew=+0.020  start=1.22 completion=1.370 prog=+0.15  win=1  pool=1  speed=24.4
+[iter   213] ts=   717,384  eplen= 3858T  rew=-0.934  start=1.22 completion=1.482 prog=+0.26  win=1  pool=1  speed=15.4
+[iter   214] ts=   718,596  eplen= 1212T  rew=-0.340  start=1.32 completion=1.386 prog=+0.06  win=1  pool=1  speed=22.4
+[iter   215] ts=   720,336  eplen= 1740T  rew=-0.070  start=1.22 completion=1.391 prog=+0.17  win=1  pool=1  speed=29.2
+[iter   216] ts=   722,262  eplen= 1926T  rew=-0.261  start=1.22 completion=1.368 prog=+0.15  win=0  pool=1  speed=30.6
+[iter   217] ts=   723,588  eplen= 1326T  rew=-0.520  start=1.32 completion=1.380 prog=+0.06  win=1  pool=1  speed=14.0
+[iter   218] ts=   725,106  eplen= 1518T  rew=+0.104  start=1.22 completion=1.397 prog=+0.18  win=1  pool=1  speed=29.2
+[iter   219] ts=   726,588  eplen= 1482T  rew=+0.113  start=1.22 completion=1.395 prog=+0.18  win=1  pool=1  speed=34.3
+[iter   220] ts=   729,462  eplen= 2874T  rew=-0.373  start=1.22 completion=1.472 prog=+0.25  win=1  pool=1  speed=21.7
+[iter   221] ts=   730,908  eplen= 1446T  rew=+0.782  start=1.12 completion=1.386 prog=+0.27  win=1  pool=1  speed=42.1
+[iter   222] ts=   733,152  eplen= 2244T  rew=+2.260  start=0.98 completion=1.391 prog=+0.41  win=0  pool=1  speed=33.3
+[iter   223] ts=   738,132  eplen= 4980T  rew=-0.806  start=1.12 completion=1.479 prog=+0.36  win=0  pool=1  speed=22.8
+[iter   224] ts=   742,614  eplen= 4482T  rew=-1.411  start=1.32 completion=1.519 prog=+0.20  win=1  pool=1  speed=31.6
+[iter   225] ts=   744,744  eplen= 2130T  rew=-0.336  start=1.22 completion=1.386 prog=+0.17  win=1  pool=1  speed=21.6
+[iter   226] ts=   746,916  eplen= 2172T  rew=-0.089  start=1.22 completion=1.441 prog=+0.22  win=1  pool=1  speed=27.5
+[iter   227] ts=   748,344  eplen= 1428T  rew=+0.458  start=1.12 completion=1.326 prog=+0.21  win=0  pool=1  speed=40.8
+[iter   228] ts=   753,528  eplen= 5184T  rew=+0.815  start=0.98 completion=1.477 prog=+0.50  win=1  pool=1  speed=30.9
+[iter   229] ts=   756,210  eplen= 2682T  rew=+2.295  start=0.98 completion=1.395 prog=+0.42  win=1  pool=1  speed=29.0
+[iter   230] ts=   757,566  eplen= 1356T  rew=+0.106  start=1.22 completion=1.378 prog=+0.16  win=1  pool=1  speed=35.1
+[iter   231] ts=   760,218  eplen= 2652T  rew=+1.990  start=0.98 completion=1.398 prog=+0.42  win=1  pool=1  speed=37.1
+[iter   232] ts=   762,216  eplen= 1998T  rew=+2.345  start=0.98 completion=1.387 prog=+0.41  win=1  pool=1  speed=43.0
+[iter   233] ts=   764,190  eplen= 1974T  rew=+2.304  start=0.98 completion=1.378 prog=+0.40  win=1  pool=1  speed=34.8
+
+[shutdown] signal 2 received — finishing current episode then saving.
+[iter   234] ts=   764,730  eplen=  540   rew=+0.895  start=1.12 completion=1.303 prog=+0.18  win=0  pool=1  speed=62.0
+[shutdown] final checkpoint at ts=764730
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading output.log; uploading wandb-summary.json
+wandb: uploading history steps 232-233, summary, console lines 234-237
+wandb: 
+wandb: Run history:
+wandb:   rollout/best_race_position ▅▅▁█▁▁▅▁█▁▁▁▁▁▅▁█▁▁▁▅▁▁▁▁▁▁▁▁▅▁▁▁▁▁▁▁▁▅▁
+wandb:        rollout/episode_steps ▂▂▁▂▁▁▂▂▂▃▁▁▂▂▃▂▂▁▅▁▁▄▂▇▄▁█▁▅▂▃▃▁▁▂▁▂▁▂▂
+wandb:          rollout/finish_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  rollout/mean_episode_reward ▆▆▆▆▅▆▁█▆▆█▄▆█▃▄▂▅▃▇▆▅▆▅▆▆█▅▅▆█▅▇▄██▆▆▅█
+wandb: rollout/mean_race_completion ▃▃▃▃▃▃▃▃▃▃▁▃▆▃▂▃▃▅▅▃▃▃▃▂▃█▃▃▃▃▆▃▅▃▃▃▅▄▅▂
+wandb:           rollout/mean_speed ▄▃▁▁▄▂▃▃▂▂▂▃▃▄▄▃▃▃▃▃▂▅▂▄▆▄▄▂▃▃▃▂▄▄▄▂▂▃▅█
+wandb:             rollout/progress ▃▂▅▁▅▁▆▂▅▄▅▂▅▂▁▅▂▄▅▅▁▅▇▃▃▁▅▄▂█▁█▁▅▅▃▅▁▅▅
+wandb:              rollout/stalled ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:     rollout/start_completion ▁▁███▁▆█▁█▁▁▁▁▆█▁█▁▄███▁█▁▆▁▁▆▆▆▄█▄█▄▆▄▁
+wandb:      rollout/win_vs_snapshot ██▁█▁▁▁█▁▁▁▁▁▁████▁████████▁██▁█████████
+wandb:                           +6 ...
+wandb: 
+wandb: Run summary:
+wandb:   rollout/best_race_position 1
+wandb:        rollout/episode_steps 540
+wandb:          rollout/finish_rate 0
+wandb:  rollout/mean_episode_reward 0.89482
+wandb: rollout/mean_race_completion 1.30331
+wandb:           rollout/mean_speed 61.97484
+wandb:             rollout/progress 0.18451
+wandb:              rollout/stalled 0
+wandb:     rollout/start_completion 1.1188
+wandb:      rollout/win_vs_snapshot 0
+wandb:                           +6 ...
+wandb: 
+wandb: 🚀 View run cs377-2v2-mappo-07-diverse at: https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/2k9chfzm
+wandb: ⭐️ View project at: https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260601_085221-2k9chfzm/logs
+
+A signal was received. A second signal will force Dolphin to stop.
+ In exit
+caught signal: 15
+01/06/2026 10:32:02 deleted 20 tile_row polling images.
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:267: UserWarning: resource_tracker: '/DolphinSharedFrameBuffer_0': [Errno 2] No such file or directory: '/DolphinSharedFrameBuffer_0'
+  warnings.warn('resource_tracker: %r: %s' % (name, e))

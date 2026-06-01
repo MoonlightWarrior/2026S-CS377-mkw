@@ -53,6 +53,7 @@ def build_env_options(env_cfg) -> OptionType:
         cup=coerce_choice(env_cfg.cup, CupChoice),
         course=coerce_choice(env_cfg.course, CourseChoice),
         cc=coerce_choice(env_cfg.cc, CCChoice),
+        disable_cpu=bool(env_cfg.get("disable_cpu", False)),
     )
 
 
@@ -66,8 +67,8 @@ def main() -> None:
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
-    register_components()
-    action_parser = get_action_parser(cfg.model.action_parser)
+    from marl.action import MKWTeamAction
+    action_parser = MKWTeamAction()   # item on L (our parser; not in kart_env's registry)
     repeats = int(cfg.env_setting.action_repeats)
 
     env = KartEnvironment(env_id=cfg.env_setting.env_id,

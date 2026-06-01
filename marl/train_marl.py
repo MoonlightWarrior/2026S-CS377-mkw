@@ -23,6 +23,7 @@ Run:
 from __future__ import annotations
 
 import argparse
+import random
 import signal
 import time
 from pathlib import Path
@@ -63,15 +64,22 @@ def build_env_options(env_cfg) -> OptionType:
         cup=coerce_choice(env_cfg.cup, CupChoice),
         course=coerce_choice(env_cfg.course, CourseChoice),
         cc=coerce_choice(env_cfg.cc, CCChoice),
+        disable_cpu=bool(env_cfg.get("disable_cpu", False)),  # CPUs off -> clean 4-kart field
     )
 
 
-def reset_with_retry(env, action_parser, agents_hint, repeats, tries=5):
-    """The memory reader is flaky during race load; retry reset + neutral warmup."""
+def reset_with_retry(env, action_parser, agents_hint, repeats, tries=5, start_states=None):
+    """
+    The memory reader is flaky during race load; retry reset + neutral warmup.
+    If `start_states` is given (list whose entries are None=start line, or a save
+    file path), one is sampled per reset for diverse-start (curriculum) training.
+    """
     neutral = action_parser.parse_action(0)
+    choice = random.choice(start_states) if start_states else None
+    options = {"file": choice} if choice else {}
     for attempt in range(tries):
         try:
-            obs_dict, _ = env.reset()
+            obs_dict, _ = env.reset(options=dict(options))
             agents = list(env.agents)
             for _ in range(10):
                 for _ in range(repeats):
@@ -84,13 +92,22 @@ def reset_with_retry(env, action_parser, agents_hint, repeats, tries=5):
 
 
 def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
-                    action_parser, reward_fn, repeats, max_steps=20_000):
+                    action_parser, reward_fn, repeats, max_steps=20_000,
+                    stall_patience=150, start_states=None):
     """
     Self-play rollout. `learner` (live shared policy) drives `learner_team`;
     `opponent` (frozen snapshot, or a frozen copy of the learner early on) drives
     the rest. Only the learner team's transitions are returned for training.
+
+    Truncates the episode after `stall_patience` policy steps with no new track
+    progress (max_race_completion not advancing). The agents drive off-road early
+    and get stuck; without this they sit there for the full 20k frames, flooding
+    the buffer with useless "stuck" data. Truncating ends the attempt fast so the
+    env resets to the start line, giving many more attempts at the opening + the
+    first turn per unit time.
     """
-    state, agents = reset_with_retry(env, action_parser, None, repeats)
+    state, agents = reset_with_retry(env, action_parser, None, repeats,
+                                     start_states=start_states)
     learner_team = [a for a in learner_team if a in agents]
     opp_team = [a for a in agents if a not in learner_team]
 
@@ -102,6 +119,11 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
     cum_reward = {a: 0.0 for a in learner_team}
     speed_acc = {a: 0.0 for a in learner_team}
     steps = 0
+
+    start_completion = float(np.mean([state.players[a].max_race_completion for a in learner_team]))
+    best_progress = max(state.players[a].max_race_completion for a in learner_team)
+    stall_steps = 0
+    stalled = False
 
     flat = {a: actor_obs_b.build_obs(a, state) for a in agents}
     gstate = {a: critic_b.build_obs(a, state) for a in agents}
@@ -122,7 +144,18 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
         rewards = reward_fn.get_rewards(agents, state)   # needs all agents (team term)
         next_flat = {a: actor_obs_b.build_obs(a, state) for a in agents}
         next_g = {a: critic_b.build_obs(a, state) for a in agents}
-        done = any(terminations.values()) or any(truncations.values())
+
+        # stall detection: max_race_completion is monotone; if the team's furthest
+        # progress hasn't advanced for `stall_patience` steps, they're stuck.
+        cur_progress = max(state.players[a].max_race_completion for a in learner_team)
+        if cur_progress > best_progress + 1e-4:
+            best_progress = cur_progress
+            stall_steps = 0
+        else:
+            stall_steps += 1
+        stalled = stall_steps >= stall_patience
+
+        done = any(terminations.values()) or any(truncations.values()) or stalled
 
         for a in learner_team:                            # train ONLY learner team
             traj[a].append({
@@ -145,10 +178,14 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
     # team win = lower rank-sum than the opponent team (lower position = better)
     learner_ranks = sum(state.players[a].race_position for a in learner_team)
     opp_ranks = sum(state.players[a].race_position for a in opp_team) if opp_team else 1e9
+    end_completion = float(np.mean([state.players[a].max_race_completion for a in learner_team]))
     stats = {
         "episode_steps": steps,
+        "stalled": float(stalled),
+        "start_completion": start_completion,                 # ~0 = start line; >1 = mid-track curriculum
+        "progress": end_completion - start_completion,        # distance driven THIS episode (start-agnostic)
         "mean_episode_reward": float(np.mean(list(cum_reward.values()))),
-        "mean_race_completion": float(np.mean([state.players[a].max_race_completion for a in learner_team])),
+        "mean_race_completion": end_completion,
         "finish_rate": float(np.mean([float(state.players[a].is_finished) for a in learner_team])),
         "mean_speed": float(np.mean([speed_acc[a] / denom for a in learner_team])),
         "best_race_position": float(min(state.players[a].race_position for a in learner_team)),
@@ -172,7 +209,8 @@ def main() -> None:
 
     actor_obs_b = AsymmetricTeamObs(num_agents=cfg.env_setting.num_agents)
     critic_b = CentralizedTeamState(num_agents=cfg.env_setting.num_agents)
-    action_parser = MKWTeamAction()
+    action_parser = MKWTeamAction(
+        disable_item_use=bool(cfg.env_setting.get("disable_item_use", False)))
     reward_fn = build_reward(cfg.reward, gamma=hp.gae_gamma)
     obs_size = actor_obs_b.get_obs_size()
     state_size = critic_b.get_obs_size()
@@ -215,6 +253,16 @@ def main() -> None:
     save_dir = Path("/cs377/marl/results/checkpoints") / cfg.wandb.wandb_run_name
     save_dir.mkdir(parents=True, exist_ok=True)
 
+    # diverse-start curriculum: a list whose entries are None (=start line) or a
+    # save-state path. None entries keep some full-race starts so the agent doesn't
+    # forget the opening. Empty/absent -> always start at the line (old behavior).
+    sc = cfg.get("start_states", None)
+    start_states = (list(sc.files) + [None] * int(sc.get("n_start_line", 1))) if sc else None
+    if start_states:
+        print(f"diverse starts: {len(start_states)} options "
+              f"({sum(x is None for x in start_states)} at start line, "
+              f"{sum(x is not None for x in start_states)} mid-track)", flush=True)
+
     total_ts = 0
     iteration = 0
     last_save = 0
@@ -224,7 +272,8 @@ def main() -> None:
             try:
                 traj, stats = collect_episode(env, actor, opponent, learner_team,
                                               actor_obs_b, critic_b, action_parser, reward_fn,
-                                              cfg.env_setting.action_repeats)
+                                              cfg.env_setting.action_repeats,
+                                              start_states=start_states)
             except RuntimeError as e:
                 # a bad emulator boot (~1/3) leaves the race unloaded; rebuild it
                 print(f"[env] {e}; recreating Dolphin and retrying...", flush=True)
@@ -239,8 +288,10 @@ def main() -> None:
             iteration += 1
 
             print(f"[iter {iteration:5d}] ts={total_ts:10,d}  "
+                  f"eplen={stats['episode_steps']:5d}{'T' if stats['stalled'] else ' '}  "
                   f"rew={stats['mean_episode_reward']:+.3f}  "
-                  f"completion={stats['mean_race_completion']:.3f}  "
+                  f"start={stats['start_completion']:.2f} completion={stats['mean_race_completion']:.3f} "
+                  f"prog={stats['progress']:+.2f}  "
                   f"win={stats['win_vs_snapshot']:.0f}  pool={len(pool)}  "
                   f"speed={stats['mean_speed']:.1f}", flush=True)
 

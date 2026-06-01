@@ -1,0 +1,318 @@
+obs_size=59  state_size=102  n_actions=21
+[checkpoint] resumed from /cs377/marl/results/checkpoints/cs377-2v2-mappo-06-revert/checkpoint_2587104_final.pt
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: moonlight_ (checkcheckcheck) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/wandb/run-20260601_105021-s88dyygj
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run cs377-2v2-mappo-09-funky
+wandb: ⭐️ View project at https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: 🚀 View run at https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/s88dyygj
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+01/06/2026 10:50:22 passing arg to libvncserver: -rfbport
+01/06/2026 10:50:22 passing arg to libvncserver: 5900
+01/06/2026 10:50:22 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 2974
+01/06/2026 10:50:22 Using X display :0
+01/06/2026 10:50:22 rootwin: 0x3a7 reswin: 0x200001 dpy: 0x6e8e95c0
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 ------------------ USEFUL INFORMATION ------------------
+01/06/2026 10:50:22 X DAMAGE available on display, using it for polling hints.
+01/06/2026 10:50:22   To disable this behavior use: '-noxdamage'
+01/06/2026 10:50:22 
+01/06/2026 10:50:22   Most compositing window managers like 'compiz' or 'beryl'
+01/06/2026 10:50:22   cause X DAMAGE to fail, and so you may not see any screen
+01/06/2026 10:50:22   updates via VNC.  Either disable 'compiz' (recommended) or
+01/06/2026 10:50:22   supply the x11vnc '-noxdamage' command line option.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 Wireframing: -wireframe mode is in effect for window moves.
+01/06/2026 10:50:22   If this yields undesired behavior (poor response, painting
+01/06/2026 10:50:22   errors, etc) it may be disabled:
+01/06/2026 10:50:22    - use '-nowf' to disable wireframing completely.
+01/06/2026 10:50:22    - use '-nowcr' to disable the Copy Rectangle after the
+01/06/2026 10:50:22      moved window is released in the new position.
+01/06/2026 10:50:22   Also see the -help entry for tuning parameters.
+01/06/2026 10:50:22   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 10:50:22   repaint the screen, also see the -fixscreen option for
+01/06/2026 10:50:22   periodic repaints.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 XFIXES available on display, resetting cursor mode
+01/06/2026 10:50:22   to: '-cursor most'.
+01/06/2026 10:50:22   to disable this behavior use: '-cursor arrow'
+01/06/2026 10:50:22   or '-noxfixes'.
+01/06/2026 10:50:22 using XFIXES for cursor drawing.
+01/06/2026 10:50:22 GrabServer control via XTEST.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 Scroll Detection: -scrollcopyrect mode is in effect to
+01/06/2026 10:50:22   use RECORD extension to try to detect scrolling windows
+01/06/2026 10:50:22   (induced by either user keystroke or mouse input).
+01/06/2026 10:50:22   If this yields undesired behavior (poor response, painting
+01/06/2026 10:50:22   errors, etc) it may be disabled via: '-noscr'
+01/06/2026 10:50:22   Also see the -help entry for tuning parameters.
+01/06/2026 10:50:22   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 10:50:22   repaint the screen, also see the -fixscreen option for
+01/06/2026 10:50:22   periodic repaints.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 XKEYBOARD: number of keysyms per keycode 7 is greater
+01/06/2026 10:50:22   than 4 and 51 keysyms are mapped above 4.
+01/06/2026 10:50:22   Automatically switching to -xkb mode.
+01/06/2026 10:50:22   If this makes the key mapping worse you can
+01/06/2026 10:50:22   disable it with the "-noxkb" option.
+01/06/2026 10:50:22   Also, remember "-remap DEAD" for accenting characters.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+01/06/2026 10:50:22 X display is not capable of DPMS.
+01/06/2026 10:50:22 --------------------------------------------------------
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 Default visual ID: 0x21
+01/06/2026 10:50:22 Read initial data from X display into framebuffer.
+01/06/2026 10:50:22 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 X display :0 is 32bpp depth=24 true color
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 Listening for VNC connections on TCP port 5900
+01/06/2026 10:50:22 Listening for VNC connections on TCP6 port 5900
+01/06/2026 10:50:22 listen6: bind: Address already in use
+01/06/2026 10:50:22 Not listening on IPv6 interface.
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 Xinerama is present and active (e.g. multi-head).
+01/06/2026 10:50:22 Xinerama: number of sub-screens: 1
+01/06/2026 10:50:22 Xinerama: no blackouts needed (only one sub-screen)
+01/06/2026 10:50:22 
+01/06/2026 10:50:22 fb read rate: 1119 MB/sec
+01/06/2026 10:50:22 fast read: reset -wait  ms to: 10
+01/06/2026 10:50:22 fast read: reset -defer ms to: 10
+01/06/2026 10:50:22 The X server says there are 10 mouse buttons.
+01/06/2026 10:50:22 screen setup finished.
+01/06/2026 10:50:22 
+
+The VNC desktop is:      1c49e4efd1c2:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+sh: 1: xdg-mime: not found
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to localhost:5900
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+diverse starts: 1 options (0 at start line, 1 mid-track)
+[iter     1] ts=     2,328  eplen= 2328T  rew=+1.298  start=0.98 completion=1.183 prog=+0.21  win=0  pool=1  speed=27.4
+[iter     2] ts=     4,098  eplen= 1770T  rew=+1.561  start=0.98 completion=1.165 prog=+0.19  win=0  pool=1  speed=26.4
+[iter     3] ts=     6,060  eplen= 1962T  rew=+1.460  start=0.98 completion=1.172 prog=+0.20  win=1  pool=1  speed=24.9
+[iter     4] ts=     8,070  eplen= 2010T  rew=+1.338  start=0.98 completion=1.166 prog=+0.19  win=1  pool=1  speed=23.8
+[iter     5] ts=    10,980  eplen= 2910T  rew=+1.219  start=0.98 completion=1.191 prog=+0.21  win=0  pool=1  speed=24.5
+[iter     6] ts=    13,290  eplen= 2310T  rew=+1.917  start=0.98 completion=1.171 prog=+0.19  win=0  pool=1  speed=27.7
+[iter     7] ts=    15,498  eplen= 2208T  rew=+1.212  start=0.98 completion=1.170 prog=+0.19  win=1  pool=1  speed=20.5
+[iter     8] ts=    17,130  eplen= 1632T  rew=+1.482  start=0.98 completion=1.159 prog=+0.18  win=0  pool=1  speed=25.4
+[iter     9] ts=    18,732  eplen= 1602T  rew=+1.484  start=0.98 completion=1.135 prog=+0.16  win=0  pool=1  speed=21.4
+[iter    10] ts=    20,640  eplen= 1908T  rew=+1.584  start=0.98 completion=1.157 prog=+0.18  win=0  pool=1  speed=23.0
+[iter    11] ts=    24,840  eplen= 4200T  rew=+0.404  start=0.98 completion=1.173 prog=+0.20  win=0  pool=1  speed=10.0
+[iter    12] ts=    27,174  eplen= 2334T  rew=+1.433  start=0.98 completion=1.181 prog=+0.20  win=1  pool=1  speed=27.6
+[iter    13] ts=    28,812  eplen= 1638T  rew=+1.624  start=0.98 completion=1.174 prog=+0.20  win=0  pool=1  speed=30.2
+[iter    14] ts=    30,942  eplen= 2130T  rew=+1.408  start=0.98 completion=1.168 prog=+0.19  win=0  pool=1  speed=25.6
+143.248.233.24 - - [01/Jun/2026 10:56:22] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 10:56:24] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 10:56:24] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 10:56:24] connecting to: localhost:5900
+01/06/2026 10:56:24 Got connection from client 127.0.0.1
+01/06/2026 10:56:24   0 other clients
+01/06/2026 10:56:24 Normal socket connection
+01/06/2026 10:56:24 Disabled X server key autorepeat.
+01/06/2026 10:56:24   to force back on run: 'xset r on' (3 times)
+01/06/2026 10:56:24 incr accepted_client=1 for 127.0.0.1:40954  sock=10
+01/06/2026 10:56:24 Client Protocol Version 3.8
+01/06/2026 10:56:24 Protocol version sent 3.8, using 3.8
+01/06/2026 10:56:24 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 10:56:24 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 10:56:24 Pixel format for client 127.0.0.1:
+01/06/2026 10:56:24   32 bpp, depth 24, little endian
+01/06/2026 10:56:24   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 10:56:24 Using image quality level 6 for client 127.0.0.1
+01/06/2026 10:56:24 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 10:56:24 Using compression level 2 for client 127.0.0.1
+01/06/2026 10:56:24 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 10:56:24 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 10:56:24 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 10:56:24 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 10:56:24 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 10:56:24 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 10:56:24 Using tight encoding for client 127.0.0.1
+01/06/2026 10:56:25 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 10:56:25 client_set_net: 127.0.0.1  0.0001
+01/06/2026 10:56:25 created   xdamage object: 0x200018
+01/06/2026 10:56:25 copy_tiles: allocating first_line at size 21
+01/06/2026 10:56:25 client 1 network rate 8369.4 KB/sec (109517.5 eff KB/sec)
+01/06/2026 10:56:25 client 1 latency:  1.6 ms
+01/06/2026 10:56:25 dt1: 0.0012, dt2: 0.0078 dt3: 0.0016 bytes: 68557
+01/06/2026 10:56:25 link_rate: LR_LAN - 1 ms, 8369 KB/s
+01/06/2026 10:56:33 created selwin: 0x200019
+01/06/2026 10:56:33 called initialize_xfixes()
+[iter    15] ts=    32,514  eplen= 1572T  rew=+1.601  start=0.98 completion=1.155 prog=+0.18  win=0  pool=1  speed=24.7
+[iter    16] ts=    34,092  eplen= 1578T  rew=+1.630  start=0.98 completion=1.151 prog=+0.17  win=0  pool=1  speed=26.9
+[iter    17] ts=    36,498  eplen= 2406T  rew=+1.257  start=0.98 completion=1.170 prog=+0.19  win=1  pool=1  speed=16.8
+[iter    18] ts=    38,472  eplen= 1974T  rew=+1.686  start=0.98 completion=1.112 prog=+0.13  win=0  pool=1  speed=20.4
+[iter    19] ts=    41,220  eplen= 2748T  rew=+1.177  start=0.98 completion=1.193 prog=+0.22  win=0  pool=1  speed=19.5
+[iter    20] ts=    44,334  eplen= 3114T  rew=+1.560  start=0.98 completion=1.126 prog=+0.15  win=0  pool=1  speed=19.2
+[iter    21] ts=    46,308  eplen= 1974T  rew=+1.261  start=0.98 completion=1.107 prog=+0.13  win=0  pool=1  speed=18.3
+[iter    22] ts=    47,874  eplen= 1566T  rew=+1.522  start=0.98 completion=1.137 prog=+0.16  win=0  pool=1  speed=22.9
+[iter    23] ts=    50,112  eplen= 2238T  rew=+1.498  start=0.98 completion=1.160 prog=+0.18  win=1  pool=1  speed=18.6
+[iter    24] ts=    52,314  eplen= 2202T  rew=+1.321  start=0.98 completion=1.145 prog=+0.17  win=0  pool=1  speed=17.3
+[iter    25] ts=    54,240  eplen= 1926T  rew=+1.466  start=0.98 completion=1.158 prog=+0.18  win=0  pool=1  speed=26.4
+[iter    26] ts=    56,220  eplen= 1980T  rew=+1.402  start=0.98 completion=1.163 prog=+0.19  win=0  pool=1  speed=19.6
+[iter    27] ts=    58,200  eplen= 1980T  rew=+1.446  start=0.98 completion=1.162 prog=+0.18  win=0  pool=1  speed=25.7
+[iter    28] ts=    60,276  eplen= 2076T  rew=+1.266  start=0.98 completion=1.186 prog=+0.21  win=0  pool=1  speed=25.1
+[iter    29] ts=    61,848  eplen= 1572T  rew=+1.598  start=0.98 completion=1.164 prog=+0.19  win=0  pool=1  speed=25.4
+[iter    30] ts=    64,008  eplen= 2160T  rew=+1.391  start=0.98 completion=1.171 prog=+0.19  win=0  pool=1  speed=20.5
+[iter    31] ts=    66,216  eplen= 2208T  rew=+1.356  start=0.98 completion=1.163 prog=+0.19  win=0  pool=1  speed=16.1
+
+[shutdown] signal 2 received — finishing current episode then saving.
+[iter    32] ts=    66,834  eplen=  618   rew=+1.922  start=0.98 completion=1.148 prog=+0.17  win=0  pool=1  speed=36.9
+[shutdown] final checkpoint at ts=66834
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:   rollout/best_race_position █▅▁▁▁█▁▅▁█▁▁██▅█▁▁▁█▁█▁▁█▅▁▁▁▅▅▅
+wandb:        rollout/episode_steps ▄▃▄▄▅▄▄▃▃▄█▄▃▄▃▃▄▄▅▆▄▃▄▄▄▄▄▄▃▄▄▁
+wandb:          rollout/finish_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  rollout/mean_episode_reward ▅▆▆▅▅█▅▆▆▆▁▆▇▆▇▇▅▇▅▆▅▆▆▅▆▆▆▅▇▆▅█
+wandb: rollout/mean_race_completion ▇▆▆▆█▆▆▅▃▅▆▇▆▆▅▅▆▁█▃▁▃▅▄▅▆▆▇▆▆▆▄
+wandb:           rollout/mean_speed ▆▅▅▅▅▆▄▅▄▄▁▆▆▅▅▅▃▄▃▃▃▄▃▃▅▄▅▅▅▄▃█
+wandb:             rollout/progress ▇▆▆▆█▆▆▅▃▅▆▇▆▆▅▅▆▁█▃▁▃▅▄▅▆▆▇▆▆▆▄
+wandb:              rollout/stalled ███████████████████████████████▁
+wandb:     rollout/start_completion ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:      rollout/win_vs_snapshot ▁▁██▁▁█▁▁▁▁█▁▁▁▁█▁▁▁▁▁█▁▁▁▁▁▁▁▁▁
+wandb:                           +6 ...
+wandb: 
+wandb: Run summary:
+wandb:   rollout/best_race_position 2
+wandb:        rollout/episode_steps 618
+wandb:          rollout/finish_rate 0
+wandb:  rollout/mean_episode_reward 1.92155
+wandb: rollout/mean_race_completion 1.14836
+wandb:           rollout/mean_speed 36.85159
+wandb:             rollout/progress 0.17096
+wandb:              rollout/stalled 0
+wandb:     rollout/start_completion 0.9774
+wandb:      rollout/win_vs_snapshot 0
+wandb:                           +6 ...
+wandb: 
+wandb: 🚀 View run cs377-2v2-mappo-09-funky at: https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/s88dyygj
+wandb: ⭐️ View project at: https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260601_105021-s88dyygj/logs
+
+A signal was received. A second signal will force Dolphin to stop.
+ In exit
+Terminating child 3370
+Process Process-3:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 662, in top_new_client
+    client = self.do_handshake(startsock, address)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 590, in do_handshake
+    self.RequestHandlerClass(retsock, address, self)
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 87, in __init__
+    super().__init__(req, addr, server)
+  File "/usr/lib/python3.12/http/server.py", line 672, in __init__
+    super().__init__(*args, **kwargs)
+  File "/usr/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 297, in handle
+    super().handle()
+  File "/usr/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+  File "/usr/lib/python3/dist-packages/websockify/websocketserver.py", line 40, in handle_one_request
+    super().handle_one_request()
+  File "/usr/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+  File "/usr/lib/python3/dist-packages/websockify/websocketserver.py", line 50, in _websocket_do_GET
+    self.handle_upgrade()
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 203, in handle_upgrade
+    super().handle_upgrade()
+  File "/usr/lib/python3/dist-packages/websockify/websocketserver.py", line 77, in handle_upgrade
+    self.handle_websocket()
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 241, in handle_websocket
+    self.new_websocket_client()
+  File "/usr/lib/python3/dist-packages/websockify/websocketproxy.py", line 123, in new_websocket_client
+    self.do_proxy(tsock)
+  File "/usr/lib/python3/dist-packages/websockify/websocketproxy.py", line 198, in do_proxy
+    ins, outs, excepts = select.select(rlist, wlist, [], 1)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 654, in do_SIGTERM
+    self.terminate()
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 627, in terminate
+    raise self.Terminate()
+websockify.websockifyserver.WebSockifyServer.Terminate
+01/06/2026 11:01:08 client_count: 0
+01/06/2026 11:01:08 Restored X server key autorepeat to: 1
+01/06/2026 11:01:08 Client 127.0.0.1 gone
+01/06/2026 11:01:08 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 11:01:08  ServerCutText       :      2 |        24/       24 (  0.0%)
+01/06/2026 11:01:08  FramebufferUpdate   :   8136 |         0/        0 (  0.0%)
+01/06/2026 11:01:08  LastRect            :   8101 |     97212/    97212 (  0.0%)
+01/06/2026 11:01:08  tight               :  48019 | 529914382/-1336160916 (  0.0%)
+01/06/2026 11:01:08  RichCursor          :      5 |      4926/     4926 (  0.0%)
+01/06/2026 11:01:08  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 11:01:08  TOTALS              :  64264 | 530016576/-1336058722 (  0.0%)
+01/06/2026 11:01:08 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 11:01:08  KeyEvent            :      4 |        32/       32 (  0.0%)
+01/06/2026 11:01:08  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 11:01:08  PointerEvent        :    115 |       690/      690 (  0.0%)
+01/06/2026 11:01:08  FramebufferUpdate   :   8138 |     81380/    81380 (  0.0%)
+01/06/2026 11:01:08  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 11:01:08  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 11:01:08  TOTALS              :   8260 |     82218/    82218 (  0.0%)
+01/06/2026 11:01:08 destroyed xdamage object: 0x200018
+caught signal: 15
+01/06/2026 11:01:08 deleted 20 tile_row polling images.
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:267: UserWarning: resource_tracker: '/DolphinSharedFrameBuffer_0': [Errno 2] No such file or directory: '/DolphinSharedFrameBuffer_0'
+  warnings.warn('resource_tracker: %r: %s' % (name, e))

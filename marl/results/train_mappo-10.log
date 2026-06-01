@@ -1,0 +1,352 @@
+obs_size=59  state_size=102  n_actions=21
+[checkpoint] resumed from /cs377/marl/results/checkpoints/cs377-2v2-mappo-06-revert/checkpoint_2587104_final.pt
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: moonlight_ (checkcheckcheck) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/wandb/run-20260601_111841-69b9rees
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run cs377-2v2-mappo-10-racepretrain
+wandb: ⭐️ View project at https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: 🚀 View run at https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/69b9rees
+(EE) 
+Fatal server error:
+(EE) Server is already active for display 0
+	If this server is no longer running, remove /tmp/.X0-lock
+	and start again.
+(EE) 
+01/06/2026 11:18:43 passing arg to libvncserver: -rfbport
+01/06/2026 11:18:43 passing arg to libvncserver: 5900
+01/06/2026 11:18:43 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 4591
+01/06/2026 11:18:43 Using X display :0
+01/06/2026 11:18:43 rootwin: 0x3a7 reswin: 0xc00001 dpy: 0xc551b5c0
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 ------------------ USEFUL INFORMATION ------------------
+01/06/2026 11:18:43 X DAMAGE available on display, using it for polling hints.
+01/06/2026 11:18:43   To disable this behavior use: '-noxdamage'
+01/06/2026 11:18:43 
+01/06/2026 11:18:43   Most compositing window managers like 'compiz' or 'beryl'
+01/06/2026 11:18:43   cause X DAMAGE to fail, and so you may not see any screen
+01/06/2026 11:18:43   updates via VNC.  Either disable 'compiz' (recommended) or
+01/06/2026 11:18:43   supply the x11vnc '-noxdamage' command line option.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 Wireframing: -wireframe mode is in effect for window moves.
+01/06/2026 11:18:43   If this yields undesired behavior (poor response, painting
+01/06/2026 11:18:43   errors, etc) it may be disabled:
+01/06/2026 11:18:43    - use '-nowf' to disable wireframing completely.
+01/06/2026 11:18:43    - use '-nowcr' to disable the Copy Rectangle after the
+01/06/2026 11:18:43      moved window is released in the new position.
+01/06/2026 11:18:43   Also see the -help entry for tuning parameters.
+01/06/2026 11:18:43   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 11:18:43   repaint the screen, also see the -fixscreen option for
+01/06/2026 11:18:43   periodic repaints.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 XFIXES available on display, resetting cursor mode
+01/06/2026 11:18:43   to: '-cursor most'.
+01/06/2026 11:18:43   to disable this behavior use: '-cursor arrow'
+01/06/2026 11:18:43   or '-noxfixes'.
+01/06/2026 11:18:43 using XFIXES for cursor drawing.
+01/06/2026 11:18:43 GrabServer control via XTEST.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 Scroll Detection: -scrollcopyrect mode is in effect to
+01/06/2026 11:18:43   use RECORD extension to try to detect scrolling windows
+01/06/2026 11:18:43   (induced by either user keystroke or mouse input).
+01/06/2026 11:18:43   If this yields undesired behavior (poor response, painting
+01/06/2026 11:18:43   errors, etc) it may be disabled via: '-noscr'
+01/06/2026 11:18:43   Also see the -help entry for tuning parameters.
+01/06/2026 11:18:43   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 11:18:43   repaint the screen, also see the -fixscreen option for
+01/06/2026 11:18:43   periodic repaints.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 XKEYBOARD: number of keysyms per keycode 7 is greater
+01/06/2026 11:18:43   than 4 and 51 keysyms are mapped above 4.
+01/06/2026 11:18:43   Automatically switching to -xkb mode.
+01/06/2026 11:18:43   If this makes the key mapping worse you can
+01/06/2026 11:18:43   disable it with the "-noxkb" option.
+01/06/2026 11:18:43   Also, remember "-remap DEAD" for accenting characters.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+01/06/2026 11:18:43 X display is not capable of DPMS.
+01/06/2026 11:18:43 --------------------------------------------------------
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 Default visual ID: 0x21
+01/06/2026 11:18:43 Read initial data from X display into framebuffer.
+01/06/2026 11:18:43 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 X display :0 is 32bpp depth=24 true color
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 ListenOnTCPPort: Address already in use
+01/06/2026 11:18:43 listen6: bind: Address already in use
+01/06/2026 11:18:43 Not listening on IPv6 interface.
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 Xinerama is present and active (e.g. multi-head).
+01/06/2026 11:18:43 Xinerama: number of sub-screens: 1
+01/06/2026 11:18:43 Xinerama: no blackouts needed (only one sub-screen)
+01/06/2026 11:18:43 
+01/06/2026 11:18:43 fb read rate: 1288 MB/sec
+01/06/2026 11:18:43 fast read: reset -wait  ms to: 10
+01/06/2026 11:18:43 fast read: reset -defer ms to: 10
+01/06/2026 11:18:43 The X server says there are 10 mouse buttons.
+01/06/2026 11:18:43 Error: could not obtain listening port.
+01/06/2026 11:18:43 deleted 20 tile_row polling images.
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+sh: 1: xdg-mime: not found
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+Traceback (most recent call last):
+  File "/usr/bin/websockify", line 33, in <module>
+    sys.exit(load_entry_point('websockify==0.10.0', 'console_scripts', 'websockify')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/websockify/websocketproxy.py", line 696, in websockify_init
+    server.start_server()
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 704, in start_server
+    lsock = self.socket(self.listen_host, self.listen_port, False,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/websockify/websockifyserver.py", line 470, in socket
+    sock.bind(addrs[0][4])
+OSError: [Errno 98] Address already in use
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+obs_size=59  state_size=102  n_actions=21
+[checkpoint] resumed from /cs377/marl/results/checkpoints/cs377-2v2-mappo-06-revert/checkpoint_2587104_final.pt
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: moonlight_ (checkcheckcheck) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/wandb/run-20260601_112105-0i3zxx3e
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run cs377-2v2-mappo-10-racepretrain
+wandb: ⭐️ View project at https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: 🚀 View run at https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/0i3zxx3e
+01/06/2026 11:21:06 passing arg to libvncserver: -rfbport
+01/06/2026 11:21:06 passing arg to libvncserver: 5900
+01/06/2026 11:21:06 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 212
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+01/06/2026 11:21:06 Using X display :0
+01/06/2026 11:21:06 rootwin: 0x3a7 reswin: 0x200001 dpy: 0x9cf235c0
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 ------------------ USEFUL INFORMATION ------------------
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+01/06/2026 11:21:06 X DAMAGE available on display, using it for polling hints.
+01/06/2026 11:21:06   To disable this behavior use: '-noxdamage'
+01/06/2026 11:21:06 
+01/06/2026 11:21:06   Most compositing window managers like 'compiz' or 'beryl'
+01/06/2026 11:21:06   cause X DAMAGE to fail, and so you may not see any screen
+01/06/2026 11:21:06   updates via VNC.  Either disable 'compiz' (recommended) or
+01/06/2026 11:21:06   supply the x11vnc '-noxdamage' command line option.
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 Wireframing: -wireframe mode is in effect for window moves.
+01/06/2026 11:21:06   If this yields undesired behavior (poor response, painting
+01/06/2026 11:21:06   errors, etc) it may be disabled:
+01/06/2026 11:21:06    - use '-nowf' to disable wireframing completely.
+01/06/2026 11:21:06    - use '-nowcr' to disable the Copy Rectangle after the
+01/06/2026 11:21:06      moved window is released in the new position.
+01/06/2026 11:21:06   Also see the -help entry for tuning parameters.
+01/06/2026 11:21:06   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 11:21:06   repaint the screen, also see the -fixscreen option for
+01/06/2026 11:21:06   periodic repaints.
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 XFIXES available on display, resetting cursor mode
+01/06/2026 11:21:06   to: '-cursor most'.
+01/06/2026 11:21:06   to disable this behavior use: '-cursor arrow'
+01/06/2026 11:21:06   or '-noxfixes'.
+01/06/2026 11:21:06 using XFIXES for cursor drawing.
+01/06/2026 11:21:06 GrabServer control via XTEST.
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 Scroll Detection: -scrollcopyrect mode is in effect to
+01/06/2026 11:21:06   use RECORD extension to try to detect scrolling windows
+01/06/2026 11:21:06   (induced by either user keystroke or mouse input).
+01/06/2026 11:21:06   If this yields undesired behavior (poor response, painting
+01/06/2026 11:21:06   errors, etc) it may be disabled via: '-noscr'
+01/06/2026 11:21:06   Also see the -help entry for tuning parameters.
+01/06/2026 11:21:06   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 11:21:06   repaint the screen, also see the -fixscreen option for
+01/06/2026 11:21:06   periodic repaints.
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 XKEYBOARD: number of keysyms per keycode 7 is greater
+01/06/2026 11:21:06   than 4 and 51 keysyms are mapped above 4.
+01/06/2026 11:21:06   Automatically switching to -xkb mode.
+01/06/2026 11:21:06   If this makes the key mapping worse you can
+01/06/2026 11:21:06   disable it with the "-noxkb" option.
+01/06/2026 11:21:06   Also, remember "-remap DEAD" for accenting characters.
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+01/06/2026 11:21:06 X display is not capable of DPMS.
+01/06/2026 11:21:06 --------------------------------------------------------
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 Default visual ID: 0x21
+01/06/2026 11:21:06 Read initial data from X display into framebuffer.
+01/06/2026 11:21:06 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 X display :0 is 32bpp depth=24 true color
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 Listening for VNC connections on TCP port 5900
+01/06/2026 11:21:06 Listening for VNC connections on TCP6 port 5900
+01/06/2026 11:21:06 listen6: bind: Address already in use
+01/06/2026 11:21:06 Not listening on IPv6 interface.
+sh: 1: xdg-mime: not found
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 Xinerama is present and active (e.g. multi-head).
+01/06/2026 11:21:06 Xinerama: number of sub-screens: 1
+01/06/2026 11:21:06 Xinerama: no blackouts needed (only one sub-screen)
+01/06/2026 11:21:06 
+01/06/2026 11:21:06 fb read rate: 984 MB/sec
+01/06/2026 11:21:06 fast read: reset -wait  ms to: 10
+01/06/2026 11:21:06 fast read: reset -defer ms to: 10
+01/06/2026 11:21:06 The X server says there are 10 mouse buttons.
+01/06/2026 11:21:06 screen setup finished.
+01/06/2026 11:21:06 
+
+The VNC desktop is:      1c49e4efd1c2:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to localhost:5900
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+diverse starts: 1 options (0 at start line, 1 mid-track)
+[iter     1] ts=     4,542  eplen= 4542T  rew=+0.985  start=0.98 completion=1.158 prog=+0.18  win=0  pool=1  speed=9.3
+[iter     2] ts=     6,654  eplen= 2112T  rew=+1.392  start=0.98 completion=1.180 prog=+0.20  win=0  pool=1  speed=20.0
+[iter     3] ts=     8,742  eplen= 2088T  rew=+1.423  start=0.98 completion=1.157 prog=+0.18  win=0  pool=1  speed=22.1
+[iter     4] ts=    13,812  eplen= 5070T  rew=+0.280  start=0.98 completion=1.280 prog=+0.30  win=1  pool=1  speed=16.7
+[iter     5] ts=    15,384  eplen= 1572T  rew=+1.748  start=0.98 completion=1.160 prog=+0.18  win=1  pool=1  speed=26.1
+[iter     6] ts=    20,118  eplen= 4734T  rew=+0.442  start=0.98 completion=1.159 prog=+0.18  win=0  pool=1  speed=8.6
+[iter     7] ts=    22,812  eplen= 2694T  rew=+1.111  start=0.98 completion=1.158 prog=+0.18  win=0  pool=1  speed=15.0
+[iter     8] ts=    24,876  eplen= 2064T  rew=+1.445  start=0.98 completion=1.177 prog=+0.20  win=0  pool=1  speed=20.3
+143.248.233.24 - - [01/Jun/2026 11:25:18] code 404, message File not found
+143.248.233.24 - - [01/Jun/2026 11:25:19] 143.248.233.24: Plain non-SSL (ws://) WebSocket connection
+143.248.233.24 - - [01/Jun/2026 11:25:19] 143.248.233.24: Path: '/websockify'
+143.248.233.24 - - [01/Jun/2026 11:25:19] connecting to: localhost:5900
+01/06/2026 11:25:19 Got connection from client 127.0.0.1
+01/06/2026 11:25:19   0 other clients
+01/06/2026 11:25:19 Normal socket connection
+01/06/2026 11:25:19 Disabled X server key autorepeat.
+01/06/2026 11:25:19   to force back on run: 'xset r on' (3 times)
+01/06/2026 11:25:19 incr accepted_client=1 for 127.0.0.1:58480  sock=10
+01/06/2026 11:25:19 Client Protocol Version 3.8
+01/06/2026 11:25:19 Protocol version sent 3.8, using 3.8
+01/06/2026 11:25:19 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 11:25:19 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 11:25:19 Pixel format for client 127.0.0.1:
+01/06/2026 11:25:19   32 bpp, depth 24, little endian
+01/06/2026 11:25:19   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 11:25:20 Using image quality level 6 for client 127.0.0.1
+01/06/2026 11:25:20 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 11:25:20 Using compression level 2 for client 127.0.0.1
+01/06/2026 11:25:20 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 11:25:20 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 11:25:20 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 11:25:20 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 11:25:20 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 11:25:20 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 11:25:20 Using tight encoding for client 127.0.0.1
+[iter     9] ts=    27,024  eplen= 2148T  rew=+1.312  start=0.98 completion=1.189 prog=+0.21  win=1  pool=1  speed=20.0
+01/06/2026 11:25:20 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 11:25:20 client_set_net: 127.0.0.1  0.0001
+01/06/2026 11:25:20 created   xdamage object: 0x200018
+01/06/2026 11:25:20 copy_tiles: allocating first_line at size 21
+01/06/2026 11:25:21 client 1 network rate 6810.5 KB/sec (60464.4 eff KB/sec)
+01/06/2026 11:25:21 client 1 latency:  1.6 ms
+01/06/2026 11:25:21 dt1: 0.0012, dt2: 0.0086 dt3: 0.0016 bytes: 60995
+01/06/2026 11:25:21 link_rate: LR_LAN - 1 ms, 6810 KB/s
+01/06/2026 11:25:28 created selwin: 0x200019
+01/06/2026 11:25:28 called initialize_xfixes()
+[iter    10] ts=    29,346  eplen= 2322T  rew=+1.462  start=0.98 completion=1.188 prog=+0.21  win=1  pool=1  speed=22.4
+01/06/2026 11:25:53 client_count: 0
+01/06/2026 11:25:53 Restored X server key autorepeat to: 1
+01/06/2026 11:25:53 Client 127.0.0.1 gone
+01/06/2026 11:25:53 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 11:25:53  ServerCutText       :      2 |        24/       24 (  0.0%)
+01/06/2026 11:25:53  FramebufferUpdate   :    957 |         0/        0 (  0.0%)
+01/06/2026 11:25:53  LastRect            :    952 |     11424/    11424 (  0.0%)
+01/06/2026 11:25:53  tight               :   5495 |  62736789/852680344 ( 92.6%)
+01/06/2026 11:25:53  RichCursor          :      2 |      2070/     2070 (  0.0%)
+01/06/2026 11:25:53  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 11:25:53  TOTALS              :   7409 |  62750339/852693894 ( 92.6%)
+01/06/2026 11:25:53 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 11:25:53  PointerEvent        :     94 |       564/      564 (  0.0%)
+01/06/2026 11:25:53  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 11:25:53  FramebufferUpdate   :    959 |      9590/     9590 (  0.0%)
+01/06/2026 11:25:53  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 11:25:53  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 11:25:53  TOTALS              :   1056 |     10270/    10270 (  0.0%)
+01/06/2026 11:25:53 destroyed xdamage object: 0x200018
+[iter    11] ts=    31,416  eplen= 2070T  rew=+1.396  start=0.98 completion=1.172 prog=+0.19  win=1  pool=1  speed=19.7
+[iter    12] ts=    33,390  eplen= 1974T  rew=+1.416  start=0.98 completion=1.169 prog=+0.19  win=1  pool=1  speed=19.5
+[iter    13] ts=    35,412  eplen= 2022T  rew=+1.480  start=0.98 completion=1.167 prog=+0.19  win=0  pool=1  speed=19.9
+[iter    14] ts=    37,068  eplen= 1656T  rew=+1.596  start=0.98 completion=1.183 prog=+0.21  win=1  pool=1  speed=25.1
+[iter    15] ts=    39,156  eplen= 2088T  rew=+1.360  start=0.98 completion=1.178 prog=+0.20  win=1  pool=1  speed=19.9
+[iter    16] ts=    44,280  eplen= 5124T  rew=+0.575  start=0.98 completion=1.270 prog=+0.29  win=0  pool=1  speed=14.1
+[iter    17] ts=    46,644  eplen= 2364T  rew=+1.178  start=0.98 completion=1.173 prog=+0.20  win=1  pool=1  speed=16.2
+[iter    18] ts=    48,762  eplen= 2118T  rew=+1.316  start=0.98 completion=1.172 prog=+0.19  win=1  pool=1  speed=19.2
+[iter    19] ts=    54,072  eplen= 5310T  rew=+0.728  start=0.98 completion=1.297 prog=+0.32  win=1  pool=1  speed=15.6
+[iter    20] ts=    56,298  eplen= 2226T  rew=+1.285  start=0.98 completion=1.190 prog=+0.21  win=1  pool=1  speed=21.0
+[iter    21] ts=    57,888  eplen= 1590T  rew=+1.645  start=0.98 completion=1.167 prog=+0.19  win=1  pool=1  speed=26.3
+[iter    22] ts=    65,274  eplen= 7386T  rew=-0.554  start=0.98 completion=1.173 prog=+0.20  win=0  pool=1  speed=5.7
+[iter    23] ts=    67,566  eplen= 2292T  rew=+1.222  start=0.98 completion=1.172 prog=+0.19  win=1  pool=1  speed=18.5
+[iter    24] ts=    73,056  eplen= 5490T  rew=-0.647  start=0.98 completion=1.185 prog=+0.21  win=1  pool=1  speed=7.6
+[iter    25] ts=    74,730  eplen= 1674T  rew=+1.588  start=0.98 completion=1.183 prog=+0.21  win=1  pool=1  speed=24.5
+[iter    26] ts=    76,878  eplen= 2148T  rew=+1.389  start=0.98 completion=1.163 prog=+0.19  win=0  pool=1  speed=22.7
+[iter    27] ts=    79,218  eplen= 2340T  rew=+1.279  start=0.98 completion=1.185 prog=+0.21  win=1  pool=1  speed=18.4
+[iter    28] ts=    81,318  eplen= 2100T  rew=+1.426  start=0.98 completion=1.180 prog=+0.20  win=1  pool=1  speed=18.9
+[iter    29] ts=    83,970  eplen= 2652T  rew=+1.076  start=0.98 completion=1.195 prog=+0.22  win=1  pool=1  speed=19.1
+[iter    30] ts=    85,620  eplen= 1650T  rew=+1.502  start=0.98 completion=1.182 prog=+0.21  win=0  pool=1  speed=25.2
+[iter    31] ts=    90,762  eplen= 5142T  rew=-0.206  start=0.98 completion=1.193 prog=+0.22  win=1  pool=1  speed=8.5
+[iter    32] ts=    93,036  eplen= 2274T  rew=+1.367  start=0.98 completion=1.203 prog=+0.23  win=1  pool=1  speed=22.8
+[iter    33] ts=    96,816  eplen= 3780T  rew=+0.583  start=0.98 completion=1.244 prog=+0.27  win=1  pool=1  speed=13.9
+[iter    34] ts=    99,552  eplen= 2736T  rew=+1.298  start=0.98 completion=1.173 prog=+0.20  win=0  pool=1  speed=14.1
+[iter    35] ts=   108,198  eplen= 8646T  rew=-2.507  start=0.98 completion=1.235 prog=+0.26  win=1  pool=1  speed=5.9
+[iter    36] ts=   110,592  eplen= 2394T  rew=+1.365  start=0.98 completion=1.201 prog=+0.22  win=1  pool=1  speed=17.3
+[iter    37] ts=   112,260  eplen= 1668T  rew=+1.507  start=0.98 completion=1.172 prog=+0.19  win=0  pool=1  speed=19.9
