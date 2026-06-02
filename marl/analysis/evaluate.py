@@ -55,12 +55,19 @@ def main() -> None:
     ap.add_argument("--config", default="/cs377/marl/configs/mkw_2v2_mappo.yaml")
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--episodes", type=int, default=10)
+    ap.add_argument("--stochastic", action="store_true",
+                    help="sample actions from the policy (true variance) instead of greedy argmax")
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
     obs_b = AsymmetricTeamObs(num_agents=cfg.env_setting.num_agents)
-    action_parser = MKWTeamAction()
+    action_parser = MKWTeamAction()   # items ALWAYS enabled for eval (observe item behavior)
     repeats = cfg.env_setting.action_repeats
+    # Load the SAME start-state baseline as training (the verified 4xFunky savestate)
+    # so the eval runs on identical karts; otherwise reset() falls back to the
+    # menu-nav slot 0, whose characters are wrong and would invalidate RQ1.
+    sc = cfg.get("start_states", None)
+    start_states = (list(sc.files) + [None] * int(sc.get("n_start_line", 1))) if sc else None
 
     actor = SharedActor(obs_b.get_obs_size(), action_parser.get_action_space().n,
                         hidden=OmegaConf.to_container(cfg.model.policy_kwargs.layer_sizes))
@@ -69,14 +76,16 @@ def main() -> None:
     env = KartEnvironment(env_id=cfg.env_setting.env_id,
                           options=build_env_options(cfg.env_setting))
     az = RolloutAnalyzer(item_use_actions=ITEM_USE_ACTIONS)
+    ep_completion = []   # per-episode (max completion reached, finished?)
 
     for ep in range(args.episodes):
-        state, agents = reset_with_retry(env, action_parser, None, repeats)
+        state, agents = reset_with_retry(env, action_parser, None, repeats,
+                                         start_states=start_states)
         obs_b.reset(agents, state)
         steps = 0
         while steps < 20_000:
             obs = {a: obs_b.build_obs(a, state) for a in agents}
-            actions = greedy_actions(actor, obs)
+            actions = actor.get_actions(obs) if args.stochastic else greedy_actions(actor, obs)
             az.record(state, actions)
             kart_actions = {a: action_parser.parse_action(actions[a]) for a in agents}
             try:
@@ -88,10 +97,24 @@ def main() -> None:
             steps += repeats
             if any(term.values()) or any(trunc.values()):
                 break
-        print(f"[eval] episode {ep+1}/{args.episodes} done ({steps} steps)", flush=True)
+        comp = max(float(state.players[a].max_race_completion) for a in agents)
+        fin = any(bool(getattr(state.players[a], "is_finished", False)) for a in agents)
+        ep_completion.append((comp, fin))
+        print(f"[eval] episode {ep+1}/{args.episodes} done ({steps} steps, "
+              f"max_completion={comp:.2f}, finished={fin})", flush=True)
+
+    comps = [c for c, _ in ep_completion]
+    fins = [f for _, f in ep_completion]
+    finish_rate = float(np.mean(fins)) if fins else 0.0
+    print(f"[eval] FINISH: completion mean={np.mean(comps):.2f} max={np.max(comps):.2f} "
+          f"| finish_rate={finish_rate:.2f} ({sum(fins)}/{len(fins)} eps)", flush=True)
 
     summary = az.summary()
-    out_dir = Path("/cs377/marl/results/analysis") / cfg.wandb.wandb_run_name
+    summary["completion_mean"] = float(np.mean(comps)) if comps else 0.0
+    summary["completion_max"] = float(np.max(comps)) if comps else 0.0
+    summary["finish_rate"] = finish_rate
+    out_dir = Path("/cs377/marl/results/analysis") / (
+        cfg.wandb.wandb_run_name + ("-stochastic" if args.stochastic else ""))
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # CSV

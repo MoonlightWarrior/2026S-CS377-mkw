@@ -1,4 +1,5 @@
 import functools
+import os
 from dataclasses import replace
 from pettingzoo import ParallelEnv
 from gymnasium import spaces
@@ -59,8 +60,9 @@ class KartEnvironment(ParallelEnv):
             self.dolphins_mem.append(DolphinMem(dolphin.dolphin_proc_pid))
 
         launch_game(self, self.options)
-        for dolphin in self.dolphins:
-            self.graphic_obss.append(KartGraphicObs(dolphin.instance_id))
+        if os.environ.get("KART_NULL_RENDER") != "1":
+            for dolphin in self.dolphins:
+                self.graphic_obss.append(KartGraphicObs(dolphin.instance_id))
 
         # Advance frames until race memory is valid before taking the initial save state.
         for _ in range(6000):
@@ -170,15 +172,14 @@ class KartEnvironment(ParallelEnv):
 
         else:
             raw_vector_obs = self.dolphins_mem[0].read_obs(self.options.num_agents)
-            raw_graphic_obs = self.graphic_obss[
-                0
-            ].get()  # TODO give graphic obs correctly
+            _null = os.environ.get("KART_NULL_RENDER") == "1"
+            raw_graphic_obs = None if _null else self.graphic_obss[0].get()
             # save_graphic_obs(raw_graphic_obs) # for DEBUG
             for agent_id in self.agents:
                 observation = {
                     "RACE_INFO": raw_vector_obs["RACE_INFO"],
                     "PLAYER_INFO": raw_vector_obs["PLAYER_INFO"][agent_id],
-                    "GRAPHIC_INFO": (
+                    "GRAPHIC_INFO": None if _null else (
                         raw_graphic_obs[0],
                         raw_graphic_obs[1],
                         raw_graphic_obs[2],

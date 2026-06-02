@@ -29,3 +29,5 @@ pid_num.txt
 instance_id0.txt
 id_num.txt
 alive.txt
+# academic report — keep out of the public repo
+report/

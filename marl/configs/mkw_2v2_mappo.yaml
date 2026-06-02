@@ -13,12 +13,9 @@ env_setting:
   action_repeats: 6
   items_enabled: true           # NOTE: not actually wired to the env (menu nav walks past
                                 # the Items screen); item field stays at VS default (on).
-  disable_item_use: true        # PHASE A (race-first pretrain): force the L/item button OFF
-                                # for all agents -> policy learns pure racing-line/bike control,
-                                # no item management. Same Discrete(21) action space, so the
-                                # weights warm-start straight into Phase B (set this false).
-                                # (8 CPUs can still throw items; removing those needs an
-                                # items-off savestate -- a later refinement if needed.)
+  disable_item_use: false       # PHASE B: items ON. Agents now USE items -> rank-conditioned
+                                # item behavior (RQ1) + team cooperation (RQ2) can emerge.
+                                # Warm-started from the Phase A (items-off) racing policy.
   disable_cpu: false            # CPU->Off menu nav works but (a) does NOT shrink MKW's 12-kart
                                 # field and (b) the extra menu steps destabilize the boot
                                 # (repeated "race did not load"). Feature kept in code; off here
@@ -40,7 +37,14 @@ reward:
     # Primary dense signal: actual forward track progress (drives finishing).
     # Replaces raw SpeedReward, which over-rewarded fast-but-not-progressing motion
     # and caused completion to plateau ~1.2 laps while reward/speed kept rising.
-    - RaceProgressReward: 5.0
+    - RaceProgressReward:       # SIGNED current-completion delta -> going backward/
+        weight: 5.0             # off-line into grass now costs reward (pulls back to track)
+        params: {use_current: true}
+    # ProgressGatedSpeedReward: rewards speed ONLY while advancing along the track
+    # -> "carry speed on the racing line". Avoids raw-speed's wrong-way exploit and
+    # OffroadPenalty's timidity (grass caps speed/progress, so off-road just earns less).
+    - ProgressGatedSpeedReward: 0.02   # dense per-step; 0.3 swamped progress (~14 vs 0.9/ep),
+                                       # so kept small -> a gentle "carry speed" assist, not the objective
     # OffroadPenalty removed: at 0.05 it swamped progress and regressed the policy
     # (completion 1.28->1.11, win 58%->14%). Code kept in marl/rewards for future use.
     - RankReward: 0.3           # cut from 1.0: its potential-drift variance was swamping progress
@@ -51,7 +55,8 @@ reward:
     - LapReward:
         weight: 1.0
         params: {bonus: 1.0}
-    - MTBoostReward: 0.1        # encourage mini-turbo technique (down-weighted)
+    - MTBoostReward: 0.25       # bumped 0.1->0.25: on bikes, mini-turbo/drift-boost
+                                # carries speed through turns -> helps hold the line
 
 # Start baseline = a VERIFIED 4xFunky savestate, loaded every episode. The MKW
 # character-select menu macro is unreliable (only 1 of 4 karts landed on Funky;
@@ -86,10 +91,10 @@ hyperparameter:
   clip_eps: 0.2
   vf_coef: 0.5
   max_grad_norm: 0.5
-  save_every_ts: 1_000_000
+  save_every_ts: 400_000     # more frequent checkpoints (fast null-render run; enables Phase B sooner + safety)
   timestep_limit: 200_000_000
 
 wandb:
-  wandb_run_name: "cs377-2v2-mappo-10-racepretrain"
+  wandb_run_name: "cs377-2v2-mappo-13-2v2items"
   wandb_project: "mario-kart-rl"
   wandb_entity: null

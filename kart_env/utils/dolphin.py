@@ -119,18 +119,34 @@ class Dolphin:
         self.processes.append(subprocess.Popen(websockify_command, stdout=stdout))
 
         script_path = pathlib.Path(__file__).parent.parent / "script.py"
-        dolphin_command = [
-            "vglrun",
-            "-d",
-            "egl0",
-            DOLPHIN_PATH,
-            "--batch",
-            f"--user={self.user_dir}",
-            "-e",
-            "MarioKartWii.iso",
-            "--script",
-            script_path,
-        ]
+        if os.environ.get("KART_NULL_RENDER") == "1":
+            # Headless high-throughput mode: Null video backend (no GPU rendering),
+            # no vglrun. Graphic obs is skipped in KartEnvironment when this is set;
+            # the memory/vector obs (which is all the MAPPO policy uses) is unaffected.
+            dolphin_command = [
+                DOLPHIN_PATH,
+                "--batch",
+                f"--user={self.user_dir}",
+                "-e",
+                "MarioKartWii.iso",
+                "--script",
+                script_path,
+                "-v",
+                "Null",
+            ]
+        else:
+            dolphin_command = [
+                "vglrun",
+                "-d",
+                "egl0",
+                DOLPHIN_PATH,
+                "--batch",
+                f"--user={self.user_dir}",
+                "-e",
+                "MarioKartWii.iso",
+                "--script",
+                script_path,
+            ]
         dolphin_env = os.environ.copy()
         dolphin_env["DISPLAY"] = f":{self.instance_id}"
         dolphin_env["INSTANCE_ID"] = f"{self.instance_id}"

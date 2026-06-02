@@ -1,0 +1,644 @@
+obs_size=59  state_size=102  n_actions=21
+[checkpoint] resumed from /cs377/marl/results/checkpoints/cs377-2v2-mappo-06-revert/checkpoint_2587104_final.pt
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: moonlight_ (checkcheckcheck) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /workspace/wandb/run-20260601_133252-82ds3m1s
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run cs377-2v2-mappo-12-fast
+wandb: ⭐️ View project at https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: 🚀 View run at https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/82ds3m1s
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+01/06/2026 13:32:54 passing arg to libvncserver: -rfbport
+01/06/2026 13:32:54 passing arg to libvncserver: 5900
+01/06/2026 13:32:54 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 2806
+01/06/2026 13:32:54 Using X display :0
+01/06/2026 13:32:54 rootwin: 0x3a7 reswin: 0x200001 dpy: 0x37fc3f0
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 ------------------ USEFUL INFORMATION ------------------
+01/06/2026 13:32:54 X DAMAGE available on display, using it for polling hints.
+01/06/2026 13:32:54   To disable this behavior use: '-noxdamage'
+01/06/2026 13:32:54 
+01/06/2026 13:32:54   Most compositing window managers like 'compiz' or 'beryl'
+01/06/2026 13:32:54   cause X DAMAGE to fail, and so you may not see any screen
+01/06/2026 13:32:54   updates via VNC.  Either disable 'compiz' (recommended) or
+01/06/2026 13:32:54   supply the x11vnc '-noxdamage' command line option.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 Wireframing: -wireframe mode is in effect for window moves.
+01/06/2026 13:32:54   If this yields undesired behavior (poor response, painting
+01/06/2026 13:32:54   errors, etc) it may be disabled:
+01/06/2026 13:32:54    - use '-nowf' to disable wireframing completely.
+01/06/2026 13:32:54    - use '-nowcr' to disable the Copy Rectangle after the
+01/06/2026 13:32:54      moved window is released in the new position.
+01/06/2026 13:32:54   Also see the -help entry for tuning parameters.
+01/06/2026 13:32:54   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 13:32:54   repaint the screen, also see the -fixscreen option for
+01/06/2026 13:32:54   periodic repaints.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 XFIXES available on display, resetting cursor mode
+01/06/2026 13:32:54   to: '-cursor most'.
+01/06/2026 13:32:54   to disable this behavior use: '-cursor arrow'
+01/06/2026 13:32:54   or '-noxfixes'.
+01/06/2026 13:32:54 using XFIXES for cursor drawing.
+01/06/2026 13:32:54 GrabServer control via XTEST.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 Scroll Detection: -scrollcopyrect mode is in effect to
+01/06/2026 13:32:54   use RECORD extension to try to detect scrolling windows
+01/06/2026 13:32:54   (induced by either user keystroke or mouse input).
+01/06/2026 13:32:54   If this yields undesired behavior (poor response, painting
+01/06/2026 13:32:54   errors, etc) it may be disabled via: '-noscr'
+01/06/2026 13:32:54   Also see the -help entry for tuning parameters.
+01/06/2026 13:32:54   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+01/06/2026 13:32:54   repaint the screen, also see the -fixscreen option for
+01/06/2026 13:32:54   periodic repaints.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 XKEYBOARD: number of keysyms per keycode 7 is greater
+01/06/2026 13:32:54   than 4 and 51 keysyms are mapped above 4.
+01/06/2026 13:32:54   Automatically switching to -xkb mode.
+01/06/2026 13:32:54   If this makes the key mapping worse you can
+01/06/2026 13:32:54   disable it with the "-noxkb" option.
+01/06/2026 13:32:54   Also, remember "-remap DEAD" for accenting characters.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+01/06/2026 13:32:54 X display is not capable of DPMS.
+01/06/2026 13:32:54 --------------------------------------------------------
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 Default visual ID: 0x21
+01/06/2026 13:32:54 Read initial data from X display into framebuffer.
+01/06/2026 13:32:54 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 X display :0 is 32bpp depth=24 true color
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 Listening for VNC connections on TCP port 5900
+01/06/2026 13:32:54 Listening for VNC connections on TCP6 port 5900
+01/06/2026 13:32:54 listen6: bind: Address already in use
+01/06/2026 13:32:54 Not listening on IPv6 interface.
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 Xinerama is present and active (e.g. multi-head).
+01/06/2026 13:32:54 Xinerama: number of sub-screens: 1
+01/06/2026 13:32:54 Xinerama: no blackouts needed (only one sub-screen)
+01/06/2026 13:32:54 
+01/06/2026 13:32:54 fb read rate: 1156 MB/sec
+01/06/2026 13:32:54 fast read: reset -wait  ms to: 10
+01/06/2026 13:32:54 fast read: reset -defer ms to: 10
+01/06/2026 13:32:54 The X server says there are 10 mouse buttons.
+01/06/2026 13:32:54 screen setup finished.
+01/06/2026 13:32:54 
+
+The VNC desktop is:      1c49e4efd1c2:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+sh: 1: xdg-mime: not found
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to localhost:5900
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+diverse starts: 1 options (0 at start line, 1 mid-track)
+[iter     1] ts=     3,900  eplen= 3900T  rew=+2.667  start=0.98 completion=1.300 prog=+0.32  win=0  pool=1  speed=18.1  wheelie=0.08 drift=0.07
+[iter     2] ts=     6,240  eplen= 2340T  rew=+2.448  start=0.98 completion=1.171 prog=+0.19  win=0  pool=1  speed=17.9  wheelie=0.02 drift=0.07
+[iter     3] ts=     8,352  eplen= 2112T  rew=+2.315  start=0.98 completion=1.168 prog=+0.19  win=0  pool=1  speed=18.9  wheelie=0.04 drift=0.07
+[iter     4] ts=     9,960  eplen= 1608T  rew=+2.412  start=0.98 completion=1.157 prog=+0.18  win=1  pool=1  speed=24.8  wheelie=0.03 drift=0.06
+[iter     5] ts=    11,496  eplen= 1536T  rew=+2.025  start=0.98 completion=1.127 prog=+0.15  win=0  pool=1  speed=22.3  wheelie=0.03 drift=0.09
+[iter     6] ts=    16,572  eplen= 5076T  rew=+0.393  start=0.98 completion=1.169 prog=+0.19  win=1  pool=1  speed=8.3  wheelie=0.04 drift=0.16
+[iter     7] ts=    18,552  eplen= 1980T  rew=+2.282  start=0.98 completion=1.159 prog=+0.18  win=1  pool=1  speed=21.3  wheelie=0.02 drift=0.08
+[iter     8] ts=    20,712  eplen= 2160T  rew=+2.282  start=0.98 completion=1.168 prog=+0.19  win=1  pool=1  speed=23.3  wheelie=0.02 drift=0.02
+[iter     9] ts=    22,686  eplen= 1974T  rew=+1.999  start=0.98 completion=1.134 prog=+0.16  win=0  pool=1  speed=17.3  wheelie=0.02 drift=0.04
+[iter    10] ts=    24,282  eplen= 1596T  rew=+2.239  start=0.98 completion=1.159 prog=+0.18  win=0  pool=1  speed=27.2  wheelie=0.01 drift=0.01
+[iter    11] ts=    26,694  eplen= 2412T  rew=+2.188  start=0.98 completion=1.178 prog=+0.20  win=1  pool=1  speed=17.6  wheelie=0.03 drift=0.07
+[iter    12] ts=    28,260  eplen= 1566T  rew=+2.478  start=0.98 completion=1.167 prog=+0.19  win=1  pool=1  speed=25.8  wheelie=0.02 drift=0.04
+[iter    13] ts=    29,862  eplen= 1602T  rew=+2.424  start=0.98 completion=1.158 prog=+0.18  win=0  pool=1  speed=25.8  wheelie=0.03 drift=0.04
+[iter    14] ts=    34,728  eplen= 4866T  rew=+1.700  start=0.98 completion=1.231 prog=+0.25  win=1  pool=1  speed=11.5  wheelie=0.04 drift=0.05
+[iter    15] ts=    38,460  eplen= 3732T  rew=+1.627  start=0.98 completion=1.191 prog=+0.21  win=1  pool=1  speed=11.4  wheelie=0.05 drift=0.07
+[iter    16] ts=    40,032  eplen= 1572T  rew=+2.442  start=0.98 completion=1.163 prog=+0.19  win=1  pool=1  speed=24.7  wheelie=0.02 drift=0.04
+[iter    17] ts=    41,622  eplen= 1590T  rew=+2.380  start=0.98 completion=1.163 prog=+0.19  win=0  pool=1  speed=25.4  wheelie=0.01 drift=0.05
+[iter    18] ts=    43,656  eplen= 2034T  rew=+2.394  start=0.98 completion=1.174 prog=+0.20  win=1  pool=1  speed=25.3  wheelie=0.01 drift=0.06
+[iter    19] ts=    45,834  eplen= 2178T  rew=+2.381  start=0.98 completion=1.178 prog=+0.20  win=1  pool=1  speed=20.6  wheelie=0.04 drift=0.08
+[iter    20] ts=    48,126  eplen= 2292T  rew=+2.159  start=0.98 completion=1.169 prog=+0.19  win=1  pool=1  speed=17.6  wheelie=0.05 drift=0.07
+[iter    21] ts=    50,202  eplen= 2076T  rew=+2.272  start=0.98 completion=1.167 prog=+0.19  win=0  pool=1  speed=21.0  wheelie=0.04 drift=0.08
+[iter    22] ts=    52,152  eplen= 1950T  rew=+2.134  start=0.98 completion=1.168 prog=+0.19  win=0  pool=1  speed=22.9  wheelie=0.03 drift=0.08
+[iter    23] ts=    53,754  eplen= 1602T  rew=+2.448  start=0.98 completion=1.161 prog=+0.18  win=0  pool=1  speed=25.1  wheelie=0.03 drift=0.07
+[iter    24] ts=    55,362  eplen= 1608T  rew=+2.360  start=0.98 completion=1.175 prog=+0.20  win=0  pool=1  speed=25.4  wheelie=0.03 drift=0.08
+[iter    25] ts=    57,480  eplen= 2118T  rew=+2.199  start=0.98 completion=1.179 prog=+0.20  win=1  pool=1  speed=18.7  wheelie=0.04 drift=0.11
+[iter    26] ts=    59,802  eplen= 2322T  rew=+2.101  start=0.98 completion=1.186 prog=+0.21  win=1  pool=1  speed=18.4  wheelie=0.04 drift=0.07
+[iter    27] ts=    61,848  eplen= 2046T  rew=+1.912  start=0.98 completion=1.170 prog=+0.19  win=0  pool=1  speed=23.9  wheelie=0.04 drift=0.09
+[iter    28] ts=    63,450  eplen= 1602T  rew=+2.439  start=0.98 completion=1.168 prog=+0.19  win=1  pool=1  speed=24.2  wheelie=0.02 drift=0.20
+[iter    29] ts=    68,562  eplen= 5112T  rew=+0.927  start=0.98 completion=1.190 prog=+0.21  win=1  pool=1  speed=15.8  wheelie=0.02 drift=0.19
+[iter    30] ts=    70,602  eplen= 2040T  rew=+2.505  start=0.98 completion=1.190 prog=+0.21  win=1  pool=1  speed=22.7  wheelie=0.03 drift=0.17
+[iter    31] ts=    72,192  eplen= 1590T  rew=+2.391  start=0.98 completion=1.166 prog=+0.19  win=0  pool=1  speed=26.0  wheelie=0.02 drift=0.14
+[iter    32] ts=    74,256  eplen= 2064T  rew=+2.262  start=0.98 completion=1.175 prog=+0.20  win=1  pool=1  speed=18.8  wheelie=0.01 drift=0.20
+[iter    33] ts=    76,038  eplen= 1782T  rew=+2.338  start=0.98 completion=1.170 prog=+0.19  win=1  pool=1  speed=20.3  wheelie=0.05 drift=0.19
+[iter    34] ts=    77,748  eplen= 1710T  rew=+2.331  start=0.98 completion=1.176 prog=+0.20  win=0  pool=1  speed=23.5  wheelie=0.02 drift=0.17
+[iter    35] ts=    79,548  eplen= 1800T  rew=+2.253  start=0.98 completion=1.192 prog=+0.21  win=0  pool=1  speed=26.8  wheelie=0.04 drift=0.16
+[iter    36] ts=    81,354  eplen= 1806T  rew=+2.711  start=0.98 completion=1.212 prog=+0.23  win=1  pool=1  speed=25.3  wheelie=0.04 drift=0.19
+[iter    37] ts=    83,076  eplen= 1722T  rew=+2.669  start=0.98 completion=1.197 prog=+0.22  win=1  pool=1  speed=26.5  wheelie=0.03 drift=0.12
+[iter    38] ts=    85,362  eplen= 2286T  rew=+2.459  start=0.98 completion=1.218 prog=+0.24  win=1  pool=1  speed=18.8  wheelie=0.06 drift=0.16
+[iter    39] ts=    87,126  eplen= 1764T  rew=+2.415  start=0.98 completion=1.161 prog=+0.18  win=0  pool=1  speed=21.6  wheelie=0.05 drift=0.17
+[iter    40] ts=    95,820  eplen= 8694T  rew=-1.070  start=0.98 completion=1.269 prog=+0.29  win=1  pool=1  speed=6.9  wheelie=0.04 drift=0.17
+[iter    41] ts=    97,596  eplen= 1776T  rew=+1.601  start=0.98 completion=1.120 prog=+0.14  win=1  pool=1  speed=16.1  wheelie=0.08 drift=0.16
+[iter    42] ts=    99,768  eplen= 2172T  rew=+2.383  start=0.98 completion=1.220 prog=+0.24  win=1  pool=1  speed=20.5  wheelie=0.06 drift=0.15
+[iter    43] ts=   103,752  eplen= 3984T  rew=+1.073  start=0.98 completion=1.117 prog=+0.14  win=0  pool=1  speed=8.3  wheelie=0.05 drift=0.22
+[iter    44] ts=   105,984  eplen= 2232T  rew=+2.046  start=0.98 completion=1.218 prog=+0.24  win=1  pool=1  speed=19.4  wheelie=0.05 drift=0.15
+[iter    45] ts=   120,672  eplen=14688T  rew=-3.942  start=0.98 completion=1.354 prog=+0.38  win=1  pool=1  speed=6.4  wheelie=0.07 drift=0.13
+[iter    46] ts=   136,548  eplen=15876T  rew=-4.336  start=0.98 completion=1.390 prog=+0.41  win=1  pool=1  speed=7.7  wheelie=0.09 drift=0.11
+[iter    47] ts=   138,276  eplen= 1728T  rew=+2.656  start=0.98 completion=1.193 prog=+0.22  win=1  pool=1  speed=25.5  wheelie=0.05 drift=0.15
+[iter    48] ts=   140,118  eplen= 1842T  rew=+2.692  start=0.98 completion=1.220 prog=+0.24  win=1  pool=1  speed=24.7  wheelie=0.05 drift=0.10
+[iter    49] ts=   152,592  eplen=12474T  rew=-2.550  start=0.98 completion=1.354 prog=+0.38  win=1  pool=1  speed=7.6  wheelie=0.04 drift=0.15
+[iter    50] ts=   154,308  eplen= 1716T  rew=+2.649  start=0.98 completion=1.203 prog=+0.23  win=1  pool=1  speed=25.5  wheelie=0.02 drift=0.18
+[iter    51] ts=   156,780  eplen= 2472T  rew=+2.073  start=0.98 completion=1.190 prog=+0.21  win=1  pool=1  speed=14.9  wheelie=0.02 drift=0.13
+[iter    52] ts=   159,408  eplen= 2628T  rew=+2.545  start=0.98 completion=1.240 prog=+0.26  win=1  pool=1  speed=19.6  wheelie=0.02 drift=0.14
+[iter    53] ts=   163,152  eplen= 3744T  rew=+1.508  start=0.98 completion=1.226 prog=+0.25  win=1  pool=1  speed=11.8  wheelie=0.02 drift=0.09
+[iter    54] ts=   172,752  eplen= 9600T  rew=-0.975  start=0.98 completion=1.344 prog=+0.37  win=1  pool=1  speed=9.5  wheelie=0.04 drift=0.09
+[iter    55] ts=   175,134  eplen= 2382T  rew=+2.487  start=0.98 completion=1.210 prog=+0.23  win=1  pool=1  speed=20.7  wheelie=0.02 drift=0.15
+[iter    56] ts=   179,142  eplen= 4008T  rew=+2.633  start=0.98 completion=1.367 prog=+0.39  win=1  pool=1  speed=18.5  wheelie=0.03 drift=0.10
+[iter    57] ts=   199,146  eplen=20004   rew=-3.727  start=0.98 completion=1.227 prog=+0.25  win=0  pool=1  speed=5.9  wheelie=0.04 drift=0.18
+[iter    58] ts=   201,678  eplen= 2532T  rew=+2.547  start=0.98 completion=1.246 prog=+0.27  win=1  pool=1  speed=17.0  wheelie=0.02 drift=0.11
+[iter    59] ts=   205,578  eplen= 3900T  rew=+2.117  start=0.98 completion=1.191 prog=+0.21  win=0  pool=1  speed=12.9  wheelie=0.02 drift=0.10
+[iter    60] ts=   211,812  eplen= 6234T  rew=+1.255  start=0.98 completion=1.342 prog=+0.36  win=1  pool=1  speed=11.7  wheelie=0.03 drift=0.07
+[iter    61] ts=   221,040  eplen= 9228T  rew=-0.507  start=0.98 completion=1.362 prog=+0.38  win=1  pool=1  speed=9.2  wheelie=0.04 drift=0.07
+[iter    62] ts=   228,072  eplen= 7032T  rew=+1.423  start=0.98 completion=1.316 prog=+0.34  win=1  pool=1  speed=15.1  wheelie=0.04 drift=0.16
+[iter    63] ts=   240,924  eplen=12852T  rew=-1.318  start=0.98 completion=1.267 prog=+0.29  win=0  pool=1  speed=5.1  wheelie=0.05 drift=0.23
+[iter    64] ts=   242,622  eplen= 1698T  rew=+2.101  start=0.98 completion=1.152 prog=+0.17  win=0  pool=1  speed=22.5  wheelie=0.03 drift=0.15
+[iter    65] ts=   253,164  eplen=10542T  rew=-1.474  start=0.98 completion=1.168 prog=+0.19  win=0  pool=1  speed=3.6  wheelie=0.04 drift=0.14
+[iter    66] ts=   258,834  eplen= 5670T  rew=+2.006  start=0.98 completion=1.368 prog=+0.39  win=1  pool=1  speed=18.0  wheelie=0.06 drift=0.14
+[iter    67] ts=   261,216  eplen= 2382T  rew=+2.023  start=0.98 completion=1.215 prog=+0.24  win=0  pool=1  speed=21.4  wheelie=0.02 drift=0.12
+[iter    68] ts=   264,264  eplen= 3048T  rew=+1.905  start=0.98 completion=1.189 prog=+0.21  win=0  pool=1  speed=15.0  wheelie=0.02 drift=0.09
+[iter    69] ts=   270,918  eplen= 6654T  rew=-0.204  start=0.98 completion=1.191 prog=+0.21  win=0  pool=1  speed=6.0  wheelie=0.01 drift=0.04
+[iter    70] ts=   282,654  eplen=11736T  rew=-1.826  start=0.98 completion=1.352 prog=+0.37  win=1  pool=1  speed=8.9  wheelie=0.03 drift=0.06
+[iter    71] ts=   285,114  eplen= 2460T  rew=+2.422  start=0.98 completion=1.233 prog=+0.26  win=0  pool=1  speed=27.0  wheelie=0.02 drift=0.28
+[iter    72] ts=   287,250  eplen= 2136T  rew=+3.195  start=0.98 completion=1.289 prog=+0.31  win=1  pool=1  speed=30.5  wheelie=0.01 drift=0.19
+[iter    73] ts=   292,200  eplen= 4950T  rew=+2.430  start=0.98 completion=1.328 prog=+0.35  win=1  pool=1  speed=16.7  wheelie=0.02 drift=0.09
+[iter    74] ts=   299,856  eplen= 7656T  rew=+0.869  start=0.98 completion=1.273 prog=+0.30  win=0  pool=1  speed=9.5  wheelie=0.02 drift=0.25
+[iter    75] ts=   305,778  eplen= 5922T  rew=+1.862  start=0.98 completion=1.382 prog=+0.41  win=1  pool=1  speed=14.5  wheelie=0.04 drift=0.10
+[iter    76] ts=   316,758  eplen=10980T  rew=+0.111  start=0.98 completion=1.447 prog=+0.47  win=1  pool=1  speed=12.0  wheelie=0.04 drift=0.11
+[iter    77] ts=   323,706  eplen= 6948T  rew=+1.030  start=0.98 completion=1.277 prog=+0.30  win=0  pool=1  speed=12.7  wheelie=0.01 drift=0.34
+[iter    78] ts=   328,566  eplen= 4860T  rew=+2.175  start=0.98 completion=1.259 prog=+0.28  win=0  pool=1  speed=11.7  wheelie=0.02 drift=0.22
+[iter    79] ts=   337,944  eplen= 9378T  rew=-0.098  start=0.98 completion=1.370 prog=+0.39  win=1  pool=1  speed=10.8  wheelie=0.05 drift=0.15
+[iter    80] ts=   351,666  eplen=13722T  rew=-1.317  start=0.98 completion=1.330 prog=+0.35  win=0  pool=1  speed=8.7  wheelie=0.02 drift=0.25
+[iter    81] ts=   358,140  eplen= 6474T  rew=+0.974  start=0.98 completion=1.327 prog=+0.35  win=1  pool=1  speed=11.1  wheelie=0.05 drift=0.20
+[iter    82] ts=   366,180  eplen= 8040T  rew=-1.254  start=0.98 completion=1.238 prog=+0.26  win=1  pool=1  speed=4.4  wheelie=0.01 drift=0.03
+[iter    83] ts=   374,910  eplen= 8730T  rew=+0.345  start=0.98 completion=1.321 prog=+0.34  win=1  pool=1  speed=12.2  wheelie=0.05 drift=0.06
+[iter    84] ts=   378,900  eplen= 3990T  rew=+2.855  start=0.98 completion=1.357 prog=+0.38  win=1  pool=1  speed=20.2  wheelie=0.08 drift=0.09
+[iter    85] ts=   384,036  eplen= 5136T  rew=+2.152  start=0.98 completion=1.368 prog=+0.39  win=1  pool=1  speed=16.8  wheelie=0.13 drift=0.07
+[iter    86] ts=   388,026  eplen= 3990T  rew=+2.577  start=0.98 completion=1.334 prog=+0.36  win=1  pool=1  speed=17.4  wheelie=0.06 drift=0.10
+[iter    87] ts=   395,772  eplen= 7746T  rew=+0.936  start=0.98 completion=1.365 prog=+0.39  win=1  pool=1  speed=13.4  wheelie=0.05 drift=0.09
+[iter    88] ts=   400,878  eplen= 5106T  rew=+1.277  start=0.98 completion=1.256 prog=+0.28  win=1  pool=1  speed=11.4  wheelie=0.01 drift=0.06
+[checkpoint] saved checkpoint_400878.pt
+[iter    89] ts=   406,734  eplen= 5856T  rew=+1.847  start=0.98 completion=1.360 prog=+0.38  win=1  pool=1  speed=15.6  wheelie=0.05 drift=0.10
+[iter    90] ts=   408,492  eplen= 1758T  rew=+1.748  start=0.98 completion=1.101 prog=+0.12  win=0  pool=1  speed=13.9  wheelie=0.05 drift=0.20
+[iter    91] ts=   415,536  eplen= 7044T  rew=+0.904  start=0.98 completion=1.355 prog=+0.38  win=1  pool=1  speed=15.6  wheelie=0.04 drift=0.13
+[iter    92] ts=   423,714  eplen= 8178T  rew=+1.410  start=0.98 completion=1.349 prog=+0.37  win=0  pool=1  speed=13.2  wheelie=0.03 drift=0.21
+[iter    93] ts=   426,276  eplen= 2562T  rew=+1.842  start=0.98 completion=1.142 prog=+0.16  win=0  pool=1  speed=14.7  wheelie=0.03 drift=0.15
+[iter    94] ts=   431,760  eplen= 5484T  rew=+1.976  start=0.98 completion=1.341 prog=+0.36  win=1  pool=1  speed=16.6  wheelie=0.04 drift=0.13
+[iter    95] ts=   435,636  eplen= 3876T  rew=+1.733  start=0.98 completion=1.242 prog=+0.26  win=1  pool=1  speed=12.6  wheelie=0.04 drift=0.10
+[iter    96] ts=   443,184  eplen= 7548T  rew=-0.661  start=0.98 completion=1.284 prog=+0.31  win=1  pool=1  speed=8.7  wheelie=0.04 drift=0.08
+[iter    97] ts=   455,796  eplen=12612T  rew=-1.986  start=0.98 completion=1.356 prog=+0.38  win=1  pool=1  speed=11.3  wheelie=0.06 drift=0.09
+[iter    98] ts=   459,048  eplen= 3252T  rew=+2.307  start=0.98 completion=1.185 prog=+0.21  win=0  pool=1  speed=16.5  wheelie=0.02 drift=0.13
+[iter    99] ts=   473,142  eplen=14094T  rew=-2.428  start=0.98 completion=1.410 prog=+0.43  win=1  pool=1  speed=9.0  wheelie=0.05 drift=0.16
+[iter   100] ts=   481,638  eplen= 8496T  rew=+0.216  start=0.98 completion=1.347 prog=+0.37  win=0  pool=1  speed=13.5  wheelie=0.06 drift=0.17
+[iter   101] ts=   487,578  eplen= 5940T  rew=+1.917  start=0.98 completion=1.267 prog=+0.29  win=0  pool=1  speed=14.8  wheelie=0.04 drift=0.13
+[iter   102] ts=   500,190  eplen=12612T  rew=-0.572  start=0.98 completion=1.347 prog=+0.37  win=0  pool=1  speed=10.5  wheelie=0.03 drift=0.24
+[iter   103] ts=   508,296  eplen= 8106T  rew=+1.824  start=0.98 completion=1.341 prog=+0.36  win=1  pool=1  speed=13.8  wheelie=0.05 drift=0.16
+[iter   104] ts=   518,490  eplen=10194T  rew=-1.225  start=0.98 completion=1.351 prog=+0.37  win=1  pool=1  speed=12.2  wheelie=0.06 drift=0.17
+[iter   105] ts=   527,592  eplen= 9102T  rew=+0.555  start=0.98 completion=1.378 prog=+0.40  win=1  pool=1  speed=14.0  wheelie=0.06 drift=0.19
+[iter   106] ts=   534,240  eplen= 6648T  rew=+1.605  start=0.98 completion=1.381 prog=+0.40  win=1  pool=1  speed=14.2  wheelie=0.09 drift=0.15
+[iter   107] ts=   541,218  eplen= 6978T  rew=+0.965  start=0.98 completion=1.207 prog=+0.23  win=0  pool=1  speed=11.2  wheelie=0.04 drift=0.10
+[iter   108] ts=   552,186  eplen=10968T  rew=+0.635  start=0.98 completion=1.353 prog=+0.38  win=0  pool=1  speed=10.6  wheelie=0.04 drift=0.16
+[iter   109] ts=   556,146  eplen= 3960T  rew=+2.609  start=0.98 completion=1.343 prog=+0.37  win=1  pool=1  speed=25.6  wheelie=0.09 drift=0.14
+[iter   110] ts=   563,598  eplen= 7452T  rew=+1.408  start=0.98 completion=1.410 prog=+0.43  win=1  pool=1  speed=14.7  wheelie=0.06 drift=0.14
+[iter   111] ts=   569,874  eplen= 6276T  rew=+1.904  start=0.98 completion=1.374 prog=+0.40  win=1  pool=1  speed=17.2  wheelie=0.08 drift=0.11
+[iter   112] ts=   574,728  eplen= 4854T  rew=+2.716  start=0.98 completion=1.383 prog=+0.41  win=1  pool=1  speed=21.0  wheelie=0.08 drift=0.13
+[iter   113] ts=   578,928  eplen= 4200T  rew=+3.773  start=0.98 completion=1.454 prog=+0.48  win=1  pool=1  speed=22.4  wheelie=0.06 drift=0.14
+[iter   114] ts=   583,368  eplen= 4440T  rew=+2.728  start=0.98 completion=1.359 prog=+0.38  win=1  pool=1  speed=19.3  wheelie=0.12 drift=0.13
+[iter   115] ts=   592,416  eplen= 9048T  rew=+1.145  start=0.98 completion=1.479 prog=+0.50  win=1  pool=1  speed=15.4  wheelie=0.11 drift=0.09
+[iter   116] ts=   596,550  eplen= 4134T  rew=+3.097  start=0.98 completion=1.396 prog=+0.42  win=1  pool=1  speed=23.2  wheelie=0.08 drift=0.13
+[iter   117] ts=   599,592  eplen= 3042T  rew=+2.909  start=0.98 completion=1.336 prog=+0.36  win=1  pool=1  speed=25.3  wheelie=0.08 drift=0.09
+[iter   118] ts=   604,512  eplen= 4920T  rew=+3.460  start=0.98 completion=1.308 prog=+0.33  win=0  pool=1  speed=17.2  wheelie=0.08 drift=0.09
+[iter   119] ts=   607,194  eplen= 2682T  rew=+2.578  start=0.98 completion=1.249 prog=+0.27  win=1  pool=1  speed=22.1  wheelie=0.06 drift=0.10
+[iter   120] ts=   609,930  eplen= 2736T  rew=+2.606  start=0.98 completion=1.247 prog=+0.27  win=1  pool=1  speed=19.0  wheelie=0.06 drift=0.09
+[iter   121] ts=   613,662  eplen= 3732T  rew=+2.012  start=0.98 completion=1.245 prog=+0.27  win=1  pool=1  speed=21.1  wheelie=0.07 drift=0.11
+[iter   122] ts=   616,290  eplen= 2628T  rew=+3.013  start=0.98 completion=1.279 prog=+0.30  win=1  pool=1  speed=23.6  wheelie=0.07 drift=0.10
+[iter   123] ts=   620,466  eplen= 4176T  rew=+2.379  start=0.98 completion=1.327 prog=+0.35  win=1  pool=1  speed=22.6  wheelie=0.14 drift=0.11
+[iter   124] ts=   626,268  eplen= 5802T  rew=+1.853  start=0.98 completion=1.349 prog=+0.37  win=1  pool=1  speed=16.5  wheelie=0.16 drift=0.07
+[iter   125] ts=   630,330  eplen= 4062T  rew=+2.689  start=0.98 completion=1.334 prog=+0.36  win=1  pool=1  speed=25.8  wheelie=0.13 drift=0.12
+[iter   126] ts=   634,584  eplen= 4254T  rew=+3.049  start=0.98 completion=1.339 prog=+0.36  win=1  pool=1  speed=24.9  wheelie=0.15 drift=0.14
+[iter   127] ts=   637,896  eplen= 3312T  rew=+3.532  start=0.98 completion=1.368 prog=+0.39  win=1  pool=1  speed=25.5  wheelie=0.13 drift=0.13
+[iter   128] ts=   641,478  eplen= 3582T  rew=+3.502  start=0.98 completion=1.385 prog=+0.41  win=1  pool=1  speed=23.6  wheelie=0.11 drift=0.14
+[iter   129] ts=   648,606  eplen= 7128T  rew=+1.211  start=0.98 completion=1.338 prog=+0.36  win=1  pool=1  speed=16.6  wheelie=0.13 drift=0.11
+[iter   130] ts=   652,314  eplen= 3708T  rew=+2.118  start=0.98 completion=1.275 prog=+0.30  win=1  pool=1  speed=15.2  wheelie=0.07 drift=0.06
+[iter   131] ts=   655,302  eplen= 2988T  rew=+2.659  start=0.98 completion=1.260 prog=+0.28  win=1  pool=1  speed=20.4  wheelie=0.08 drift=0.08
+[iter   132] ts=   659,208  eplen= 3906T  rew=+2.092  start=0.98 completion=1.261 prog=+0.28  win=1  pool=1  speed=15.8  wheelie=0.08 drift=0.05
+[iter   133] ts=   662,070  eplen= 2862T  rew=+2.107  start=0.98 completion=1.164 prog=+0.19  win=0  pool=1  speed=13.3  wheelie=0.05 drift=0.05
+[iter   134] ts=   665,514  eplen= 3444T  rew=+2.532  start=0.98 completion=1.287 prog=+0.31  win=1  pool=1  speed=18.7  wheelie=0.09 drift=0.06
+[iter   135] ts=   669,114  eplen= 3600T  rew=+3.298  start=0.98 completion=1.350 prog=+0.37  win=1  pool=1  speed=24.4  wheelie=0.12 drift=0.15
+[iter   136] ts=   673,044  eplen= 3930T  rew=+3.072  start=0.98 completion=1.351 prog=+0.37  win=1  pool=1  speed=24.6  wheelie=0.11 drift=0.12
+[iter   137] ts=   678,006  eplen= 4962T  rew=+2.669  start=0.98 completion=1.350 prog=+0.37  win=1  pool=1  speed=21.2  wheelie=0.18 drift=0.13
+[iter   138] ts=   682,578  eplen= 4572T  rew=+2.924  start=0.98 completion=1.388 prog=+0.41  win=1  pool=1  speed=21.1  wheelie=0.15 drift=0.24
+[iter   139] ts=   688,314  eplen= 5736T  rew=+1.652  start=0.98 completion=1.349 prog=+0.37  win=0  pool=1  speed=18.1  wheelie=0.13 drift=0.21
+[iter   140] ts=   693,942  eplen= 5628T  rew=+0.836  start=0.98 completion=1.249 prog=+0.27  win=1  pool=1  speed=10.0  wheelie=0.22 drift=0.07
+[iter   141] ts=   713,544  eplen=19602T  rew=-3.510  start=0.98 completion=1.252 prog=+0.27  win=0  pool=1  speed=8.1  wheelie=0.18 drift=0.16
+[iter   142] ts=   717,708  eplen= 4164T  rew=+3.337  start=0.98 completion=1.398 prog=+0.42  win=1  pool=1  speed=23.7  wheelie=0.22 drift=0.15
+[iter   143] ts=   724,698  eplen= 6990T  rew=+2.278  start=0.98 completion=1.429 prog=+0.45  win=1  pool=1  speed=18.6  wheelie=0.18 drift=0.18
+[iter   144] ts=   728,508  eplen= 3810T  rew=+1.690  start=0.98 completion=1.195 prog=+0.22  win=0  pool=1  speed=14.3  wheelie=0.17 drift=0.13
+[iter   145] ts=   733,740  eplen= 5232T  rew=+1.870  start=0.98 completion=1.219 prog=+0.24  win=0  pool=1  speed=11.8  wheelie=0.14 drift=0.13
+[iter   146] ts=   747,042  eplen=13302T  rew=-0.556  start=0.98 completion=1.362 prog=+0.38  win=0  pool=1  speed=11.6  wheelie=0.10 drift=0.13
+[iter   147] ts=   752,268  eplen= 5226T  rew=+2.827  start=0.98 completion=1.433 prog=+0.46  win=1  pool=1  speed=21.8  wheelie=0.13 drift=0.13
+[iter   148] ts=   758,610  eplen= 6342T  rew=+2.152  start=0.98 completion=1.409 prog=+0.43  win=1  pool=1  speed=19.3  wheelie=0.19 drift=0.12
+[iter   149] ts=   764,406  eplen= 5796T  rew=+1.836  start=0.98 completion=1.375 prog=+0.40  win=1  pool=1  speed=16.7  wheelie=0.16 drift=0.05
+[iter   150] ts=   768,282  eplen= 3876T  rew=+3.796  start=0.98 completion=1.418 prog=+0.44  win=1  pool=1  speed=27.7  wheelie=0.19 drift=0.10
+[iter   151] ts=   776,142  eplen= 7860T  rew=+1.332  start=0.98 completion=1.407 prog=+0.43  win=1  pool=1  speed=15.8  wheelie=0.20 drift=0.06
+[iter   152] ts=   782,574  eplen= 6432T  rew=+2.061  start=0.98 completion=1.360 prog=+0.38  win=1  pool=1  speed=17.9  wheelie=0.20 drift=0.07
+[iter   153] ts=   794,580  eplen=12006T  rew=+1.254  start=0.98 completion=1.340 prog=+0.36  win=0  pool=1  speed=12.0  wheelie=0.17 drift=0.12
+[iter   154] ts=   801,360  eplen= 6780T  rew=+0.770  start=0.98 completion=1.235 prog=+0.26  win=0  pool=1  speed=12.0  wheelie=0.20 drift=0.12
+[checkpoint] saved checkpoint_801360.pt
+[iter   155] ts=   809,946  eplen= 8586T  rew=-0.277  start=0.98 completion=1.237 prog=+0.26  win=0  pool=1  speed=11.2  wheelie=0.23 drift=0.13
+[iter   156] ts=   811,734  eplen= 1788T  rew=+2.121  start=0.98 completion=1.131 prog=+0.15  win=0  pool=1  speed=16.5  wheelie=0.10 drift=0.09
+[iter   157] ts=   813,486  eplen= 1752T  rew=+2.259  start=0.98 completion=1.149 prog=+0.17  win=0  pool=1  speed=20.5  wheelie=0.13 drift=0.08
+[iter   158] ts=   817,716  eplen= 4230T  rew=+2.269  start=0.98 completion=1.315 prog=+0.34  win=1  pool=1  speed=15.7  wheelie=0.30 drift=0.06
+[iter   159] ts=   827,460  eplen= 9744T  rew=-1.081  start=0.98 completion=1.326 prog=+0.35  win=1  pool=1  speed=7.4  wheelie=0.34 drift=0.06
+[iter   160] ts=   833,172  eplen= 5712T  rew=+1.356  start=0.98 completion=1.319 prog=+0.34  win=1  pool=1  speed=12.0  wheelie=0.25 drift=0.08
+[iter   161] ts=   836,694  eplen= 3522T  rew=+1.752  start=0.98 completion=1.171 prog=+0.19  win=0  pool=1  speed=17.3  wheelie=0.15 drift=0.15
+[iter   162] ts=   838,614  eplen= 1920T  rew=+1.920  start=0.98 completion=1.131 prog=+0.15  win=0  pool=1  speed=21.3  wheelie=0.13 drift=0.13
+[iter   163] ts=   844,104  eplen= 5490T  rew=+1.187  start=0.98 completion=1.192 prog=+0.21  win=0  pool=1  speed=14.9  wheelie=0.15 drift=0.14
+[iter   164] ts=   851,598  eplen= 7494T  rew=+0.117  start=0.98 completion=1.226 prog=+0.25  win=0  pool=1  speed=10.4  wheelie=0.17 drift=0.18
+[iter   165] ts=   854,664  eplen= 3066T  rew=+3.285  start=0.98 completion=1.329 prog=+0.35  win=1  pool=1  speed=24.7  wheelie=0.25 drift=0.10
+[iter   166] ts=   857,610  eplen= 2946T  rew=+3.370  start=0.98 completion=1.338 prog=+0.36  win=1  pool=1  speed=24.8  wheelie=0.22 drift=0.09
+[iter   167] ts=   869,232  eplen=11622T  rew=+0.190  start=0.98 completion=1.219 prog=+0.24  win=0  pool=1  speed=10.5  wheelie=0.17 drift=0.17
+[iter   168] ts=   878,766  eplen= 9534T  rew=-0.662  start=0.98 completion=1.342 prog=+0.36  win=1  pool=1  speed=8.2  wheelie=0.27 drift=0.10
+[iter   169] ts=   883,776  eplen= 5010T  rew=+1.976  start=0.98 completion=1.368 prog=+0.39  win=1  pool=1  speed=18.7  wheelie=0.25 drift=0.08
+[iter   170] ts=   887,328  eplen= 3552T  rew=+2.910  start=0.98 completion=1.326 prog=+0.35  win=1  pool=1  speed=20.3  wheelie=0.23 drift=0.11
+[iter   171] ts=   890,322  eplen= 2994T  rew=+3.381  start=0.98 completion=1.336 prog=+0.36  win=1  pool=1  speed=26.2  wheelie=0.24 drift=0.11
+[iter   172] ts=   895,092  eplen= 4770T  rew=+2.156  start=0.98 completion=1.330 prog=+0.35  win=1  pool=1  speed=15.6  wheelie=0.24 drift=0.10
+[iter   173] ts=   902,454  eplen= 7362T  rew=+1.105  start=0.98 completion=1.208 prog=+0.23  win=0  pool=1  speed=12.0  wheelie=0.16 drift=0.20
+[iter   174] ts=   910,092  eplen= 7638T  rew=+0.381  start=0.98 completion=1.329 prog=+0.35  win=1  pool=1  speed=10.3  wheelie=0.27 drift=0.09
+[iter   175] ts=   913,344  eplen= 3252T  rew=+3.243  start=0.98 completion=1.333 prog=+0.36  win=1  pool=1  speed=19.8  wheelie=0.25 drift=0.07
+[iter   176] ts=   919,008  eplen= 5664T  rew=+1.672  start=0.98 completion=1.248 prog=+0.27  win=0  pool=1  speed=13.8  wheelie=0.15 drift=0.16
+[iter   177] ts=   925,266  eplen= 6258T  rew=+0.977  start=0.98 completion=1.298 prog=+0.32  win=1  pool=1  speed=12.8  wheelie=0.29 drift=0.10
+[iter   178] ts=   927,924  eplen= 2658T  rew=+3.130  start=0.98 completion=1.314 prog=+0.34  win=1  pool=1  speed=21.5  wheelie=0.22 drift=0.07
+[iter   179] ts=   937,680  eplen= 9756T  rew=+0.945  start=0.98 completion=1.214 prog=+0.24  win=0  pool=1  speed=10.8  wheelie=0.19 drift=0.22
+[iter   180] ts=   940,980  eplen= 3300T  rew=+2.446  start=0.98 completion=1.226 prog=+0.25  win=0  pool=1  speed=16.4  wheelie=0.17 drift=0.16
+[iter   181] ts=   946,170  eplen= 5190T  rew=+1.984  start=0.98 completion=1.326 prog=+0.35  win=1  pool=1  speed=12.6  wheelie=0.28 drift=0.08
+[iter   182] ts=   955,206  eplen= 9036T  rew=-0.366  start=0.98 completion=1.332 prog=+0.35  win=1  pool=1  speed=9.1  wheelie=0.39 drift=0.10
+[iter   183] ts=   958,656  eplen= 3450T  rew=+2.522  start=0.98 completion=1.208 prog=+0.23  win=0  pool=1  speed=17.7  wheelie=0.20 drift=0.12
+[iter   184] ts=   969,624  eplen=10968T  rew=-1.512  start=0.98 completion=1.340 prog=+0.36  win=1  pool=1  speed=6.9  wheelie=0.37 drift=0.11
+[iter   185] ts=   973,128  eplen= 3504T  rew=+3.029  start=0.98 completion=1.326 prog=+0.35  win=1  pool=1  speed=19.5  wheelie=0.28 drift=0.09
+[iter   186] ts=   976,290  eplen= 3162T  rew=+3.298  start=0.98 completion=1.336 prog=+0.36  win=1  pool=1  speed=22.6  wheelie=0.28 drift=0.08
+[iter   187] ts=   988,008  eplen=11718T  rew=-2.309  start=0.98 completion=1.329 prog=+0.35  win=1  pool=1  speed=6.4  wheelie=0.31 drift=0.09
+[iter   188] ts=   991,590  eplen= 3582T  rew=+3.042  start=0.98 completion=1.335 prog=+0.36  win=1  pool=1  speed=19.8  wheelie=0.21 drift=0.07
+[iter   189] ts=   995,268  eplen= 3678T  rew=+2.882  start=0.98 completion=1.330 prog=+0.35  win=1  pool=1  speed=19.2  wheelie=0.24 drift=0.08
+[iter   190] ts=   998,748  eplen= 3480T  rew=+3.058  start=0.98 completion=1.330 prog=+0.35  win=1  pool=1  speed=20.7  wheelie=0.22 drift=0.09
+[iter   191] ts= 1,002,804  eplen= 4056T  rew=+2.292  start=0.98 completion=1.219 prog=+0.24  win=0  pool=1  speed=14.3  wheelie=0.15 drift=0.08
+[selfplay] pushed snapshot (pool=2)
+[iter   192] ts= 1,005,582  eplen= 2778T  rew=+3.603  start=0.98 completion=1.281 prog=+0.30  win=0  pool=2  speed=25.1  wheelie=0.12 drift=0.18
+[iter   193] ts= 1,010,334  eplen= 4752T  rew=+2.208  start=0.98 completion=1.329 prog=+0.35  win=1  pool=2  speed=16.1  wheelie=0.24 drift=0.07
+[iter   194] ts= 1,014,300  eplen= 3966T  rew=+3.002  start=0.98 completion=1.332 prog=+0.35  win=1  pool=2  speed=17.7  wheelie=0.25 drift=0.12
+[iter   195] ts= 1,017,984  eplen= 3684T  rew=+3.212  start=0.98 completion=1.339 prog=+0.36  win=1  pool=2  speed=22.0  wheelie=0.31 drift=0.14
+[iter   196] ts= 1,021,908  eplen= 3924T  rew=+3.295  start=0.98 completion=1.332 prog=+0.35  win=1  pool=2  speed=21.1  wheelie=0.26 drift=0.08
+[iter   197] ts= 1,031,688  eplen= 9780T  rew=-0.906  start=0.98 completion=1.328 prog=+0.35  win=1  pool=2  speed=7.9  wheelie=0.29 drift=0.06
+[iter   198] ts= 1,036,896  eplen= 5208T  rew=+3.109  start=0.98 completion=1.276 prog=+0.30  win=0  pool=2  speed=11.7  wheelie=0.04 drift=0.49
+[iter   199] ts= 1,056,672  eplen=19776T  rew=-3.669  start=0.98 completion=1.347 prog=+0.37  win=1  pool=2  speed=4.1  wheelie=0.13 drift=0.51
+[iter   200] ts= 1,060,998  eplen= 4326T  rew=+3.073  start=0.98 completion=1.289 prog=+0.31  win=0  pool=2  speed=14.0  wheelie=0.06 drift=0.44
+[iter   201] ts= 1,064,778  eplen= 3780T  rew=+2.742  start=0.98 completion=1.329 prog=+0.35  win=1  pool=2  speed=17.1  wheelie=0.23 drift=0.08
+[iter   202] ts= 1,072,320  eplen= 7542T  rew=+0.737  start=0.98 completion=1.340 prog=+0.36  win=1  pool=2  speed=9.1  wheelie=0.24 drift=0.04
+[iter   203] ts= 1,075,350  eplen= 3030T  rew=+3.725  start=0.98 completion=1.354 prog=+0.38  win=1  pool=2  speed=25.3  wheelie=0.20 drift=0.09
+[iter   204] ts= 1,078,656  eplen= 3306T  rew=+3.363  start=0.98 completion=1.343 prog=+0.37  win=1  pool=2  speed=21.5  wheelie=0.20 drift=0.06
+[iter   205] ts= 1,083,162  eplen= 4506T  rew=+3.874  start=0.98 completion=1.316 prog=+0.34  win=0  pool=2  speed=15.4  wheelie=0.06 drift=0.36
+[iter   206] ts= 1,099,848  eplen=16686T  rew=-4.644  start=0.98 completion=1.366 prog=+0.39  win=1  pool=2  speed=5.2  wheelie=0.29 drift=0.11
+[iter   207] ts= 1,108,860  eplen= 9012T  rew=-0.147  start=0.98 completion=1.343 prog=+0.37  win=1  pool=2  speed=7.8  wheelie=0.22 drift=0.04
+[iter   208] ts= 1,114,686  eplen= 5826T  rew=+1.748  start=0.98 completion=1.346 prog=+0.37  win=1  pool=2  speed=12.7  wheelie=0.24 drift=0.06
+[iter   209] ts= 1,118,190  eplen= 3504T  rew=+3.273  start=0.98 completion=1.356 prog=+0.38  win=1  pool=2  speed=22.2  wheelie=0.32 drift=0.10
+[iter   210] ts= 1,122,774  eplen= 4584T  rew=+1.956  start=0.98 completion=1.214 prog=+0.24  win=0  pool=2  speed=10.6  wheelie=0.33 drift=0.10
+[iter   211] ts= 1,130,148  eplen= 7374T  rew=+0.869  start=0.98 completion=1.208 prog=+0.23  win=0  pool=2  speed=9.3  wheelie=0.25 drift=0.15
+[iter   212] ts= 1,135,890  eplen= 5742T  rew=+1.754  start=0.98 completion=1.222 prog=+0.25  win=0  pool=2  speed=10.8  wheelie=0.36 drift=0.07
+[iter   213] ts= 1,147,056  eplen=11166T  rew=+2.643  start=0.98 completion=1.191 prog=+0.21  win=0  pool=2  speed=6.4  wheelie=0.21 drift=0.16
+[iter   214] ts= 1,167,060  eplen=20004   rew=-1.339  start=0.98 completion=1.359 prog=+0.38  win=1  pool=2  speed=3.7  wheelie=0.14 drift=0.22
+[iter   215] ts= 1,187,064  eplen=20004   rew=-1.375  start=0.98 completion=1.369 prog=+0.39  win=1  pool=2  speed=4.0  wheelie=0.19 drift=0.18
+[iter   216] ts= 1,190,670  eplen= 3606T  rew=+2.396  start=0.98 completion=1.216 prog=+0.24  win=0  pool=2  speed=16.3  wheelie=0.24 drift=0.10
+[iter   217] ts= 1,202,070  eplen=11400T  rew=-1.614  start=0.98 completion=1.367 prog=+0.39  win=1  pool=2  speed=6.7  wheelie=0.37 drift=0.05
+[checkpoint] saved checkpoint_1202070.pt
+[iter   218] ts= 1,209,732  eplen= 7662T  rew=+0.706  start=0.98 completion=1.379 prog=+0.40  win=1  pool=2  speed=9.6  wheelie=0.33 drift=0.04
+[iter   219] ts= 1,216,848  eplen= 7116T  rew=+1.480  start=0.98 completion=1.399 prog=+0.42  win=1  pool=2  speed=13.1  wheelie=0.32 drift=0.06
+[iter   220] ts= 1,221,054  eplen= 4206T  rew=+3.152  start=0.98 completion=1.383 prog=+0.41  win=1  pool=2  speed=20.8  wheelie=0.29 drift=0.08
+[iter   221] ts= 1,235,634  eplen=14580T  rew=-3.283  start=0.98 completion=1.377 prog=+0.40  win=1  pool=2  speed=5.7  wheelie=0.35 drift=0.14
+[iter   222] ts= 1,239,372  eplen= 3738T  rew=+2.979  start=0.98 completion=1.280 prog=+0.30  win=0  pool=2  speed=15.0  wheelie=0.28 drift=0.11
+[iter   223] ts= 1,246,986  eplen= 7614T  rew=+1.125  start=0.98 completion=1.396 prog=+0.42  win=1  pool=2  speed=12.9  wheelie=0.34 drift=0.07
+[iter   224] ts= 1,256,664  eplen= 9678T  rew=-0.516  start=0.98 completion=1.373 prog=+0.40  win=1  pool=2  speed=8.1  wheelie=0.30 drift=0.17
+[iter   225] ts= 1,261,680  eplen= 5016T  rew=+3.177  start=0.98 completion=1.398 prog=+0.42  win=1  pool=2  speed=19.3  wheelie=0.29 drift=0.13
+[iter   226] ts= 1,267,326  eplen= 5646T  rew=+2.290  start=0.98 completion=1.365 prog=+0.39  win=1  pool=2  speed=13.3  wheelie=0.34 drift=0.14
+[iter   227] ts= 1,270,992  eplen= 3666T  rew=+3.774  start=0.98 completion=1.404 prog=+0.43  win=1  pool=2  speed=25.4  wheelie=0.27 drift=0.13
+[iter   228] ts= 1,275,756  eplen= 4764T  rew=+2.145  start=0.98 completion=1.287 prog=+0.31  win=1  pool=2  speed=12.1  wheelie=0.14 drift=0.05
+[iter   229] ts= 1,281,330  eplen= 5574T  rew=+2.868  start=0.98 completion=1.398 prog=+0.42  win=1  pool=2  speed=16.7  wheelie=0.24 drift=0.14
+[iter   230] ts= 1,285,944  eplen= 4614T  rew=+2.002  start=0.98 completion=1.314 prog=+0.34  win=1  pool=2  speed=15.1  wheelie=0.15 drift=0.08
+[iter   231] ts= 1,290,534  eplen= 4590T  rew=+3.259  start=0.98 completion=1.394 prog=+0.42  win=1  pool=2  speed=20.4  wheelie=0.26 drift=0.12
+[iter   232] ts= 1,299,462  eplen= 8928T  rew=+0.792  start=0.98 completion=1.395 prog=+0.42  win=1  pool=2  speed=11.3  wheelie=0.29 drift=0.14
+[iter   233] ts= 1,302,150  eplen= 2688T  rew=+2.919  start=0.98 completion=1.278 prog=+0.30  win=1  pool=2  speed=22.2  wheelie=0.20 drift=0.11
+[iter   234] ts= 1,310,280  eplen= 8130T  rew=+0.885  start=0.98 completion=1.387 prog=+0.41  win=1  pool=2  speed=11.1  wheelie=0.31 drift=0.12
+[iter   235] ts= 1,313,850  eplen= 3570T  rew=+3.839  start=0.98 completion=1.385 prog=+0.41  win=1  pool=2  speed=27.0  wheelie=0.22 drift=0.14
+[iter   236] ts= 1,317,660  eplen= 3810T  rew=+3.862  start=0.98 completion=1.405 prog=+0.43  win=1  pool=2  speed=28.9  wheelie=0.23 drift=0.17
+[iter   237] ts= 1,323,306  eplen= 5646T  rew=+2.551  start=0.98 completion=1.392 prog=+0.41  win=1  pool=2  speed=16.6  wheelie=0.32 drift=0.11
+[iter   238] ts= 1,327,968  eplen= 4662T  rew=+3.228  start=0.98 completion=1.394 prog=+0.42  win=1  pool=2  speed=19.5  wheelie=0.32 drift=0.12
+[iter   239] ts= 1,332,486  eplen= 4518T  rew=+3.642  start=0.98 completion=1.398 prog=+0.42  win=1  pool=2  speed=25.4  wheelie=0.23 drift=0.24
+[iter   240] ts= 1,342,572  eplen=10086T  rew=+0.146  start=0.98 completion=1.393 prog=+0.42  win=1  pool=2  speed=9.4  wheelie=0.32 drift=0.13
+[iter   241] ts= 1,349,562  eplen= 6990T  rew=+2.671  start=0.98 completion=1.396 prog=+0.42  win=1  pool=2  speed=17.4  wheelie=0.20 drift=0.18
+[iter   242] ts= 1,354,446  eplen= 4884T  rew=+3.275  start=0.98 completion=1.411 prog=+0.43  win=1  pool=2  speed=24.0  wheelie=0.17 drift=0.14
+[iter   243] ts= 1,360,452  eplen= 6006T  rew=+4.115  start=0.98 completion=1.527 prog=+0.55  win=1  pool=2  speed=26.7  wheelie=0.11 drift=0.18
+[iter   244] ts= 1,364,814  eplen= 4362T  rew=+3.133  start=0.98 completion=1.411 prog=+0.43  win=1  pool=2  speed=26.0  wheelie=0.16 drift=0.12
+[iter   245] ts= 1,368,210  eplen= 3396T  rew=+4.403  start=0.98 completion=1.425 prog=+0.45  win=1  pool=2  speed=31.3  wheelie=0.13 drift=0.12
+[iter   246] ts= 1,372,362  eplen= 4152T  rew=+2.801  start=0.98 completion=1.324 prog=+0.35  win=1  pool=2  speed=20.2  wheelie=0.12 drift=0.11
+[iter   247] ts= 1,378,674  eplen= 6312T  rew=+2.404  start=0.98 completion=1.454 prog=+0.48  win=1  pool=2  speed=18.3  wheelie=0.09 drift=0.08
+[iter   248] ts= 1,382,640  eplen= 3966T  rew=+2.892  start=0.98 completion=1.351 prog=+0.37  win=1  pool=2  speed=20.2  wheelie=0.12 drift=0.10
+[iter   249] ts= 1,389,348  eplen= 6708T  rew=+3.164  start=0.98 completion=1.496 prog=+0.52  win=1  pool=2  speed=24.7  wheelie=0.10 drift=0.11
+[iter   250] ts= 1,393,152  eplen= 3804T  rew=+3.557  start=0.98 completion=1.386 prog=+0.41  win=1  pool=2  speed=25.3  wheelie=0.11 drift=0.11
+[iter   251] ts= 1,398,372  eplen= 5220T  rew=+3.733  start=0.98 completion=1.501 prog=+0.52  win=1  pool=2  speed=20.9  wheelie=0.08 drift=0.05
+[iter   252] ts= 1,403,304  eplen= 4932T  rew=+3.925  start=0.98 completion=1.429 prog=+0.45  win=1  pool=2  speed=21.7  wheelie=0.18 drift=0.12
+[iter   253] ts= 1,407,018  eplen= 3714T  rew=+3.152  start=0.98 completion=1.339 prog=+0.36  win=1  pool=2  speed=22.9  wheelie=0.13 drift=0.12
+[iter   254] ts= 1,412,778  eplen= 5760T  rew=+3.080  start=0.98 completion=1.498 prog=+0.52  win=1  pool=2  speed=23.0  wheelie=0.12 drift=0.11
+[iter   255] ts= 1,416,426  eplen= 3648T  rew=+3.139  start=0.98 completion=1.342 prog=+0.36  win=1  pool=2  speed=22.6  wheelie=0.16 drift=0.13
+[iter   256] ts= 1,421,424  eplen= 4998T  rew=+3.410  start=0.98 completion=1.495 prog=+0.52  win=1  pool=2  speed=22.0  wheelie=0.13 drift=0.08
+[iter   257] ts= 1,426,530  eplen= 5106T  rew=+2.968  start=0.98 completion=1.418 prog=+0.44  win=1  pool=2  speed=17.9  wheelie=0.20 drift=0.07
+[iter   258] ts= 1,431,828  eplen= 5298T  rew=+3.489  start=0.98 completion=1.422 prog=+0.44  win=1  pool=2  speed=19.9  wheelie=0.27 drift=0.06
+[iter   259] ts= 1,445,964  eplen=14136T  rew=-2.225  start=0.98 completion=1.394 prog=+0.42  win=1  pool=2  speed=6.0  wheelie=0.24 drift=0.09
+[iter   260] ts= 1,453,584  eplen= 7620T  rew=+2.707  start=0.98 completion=1.493 prog=+0.52  win=1  pool=2  speed=20.2  wheelie=0.18 drift=0.11
+[iter   261] ts= 1,461,336  eplen= 7752T  rew=+2.319  start=0.98 completion=1.463 prog=+0.49  win=1  pool=2  speed=13.1  wheelie=0.29 drift=0.10
+[iter   262] ts= 1,465,236  eplen= 3900T  rew=+2.994  start=0.98 completion=1.337 prog=+0.36  win=1  pool=2  speed=21.4  wheelie=0.20 drift=0.13
+[iter   263] ts= 1,471,164  eplen= 5928T  rew=+3.487  start=0.98 completion=1.511 prog=+0.53  win=1  pool=2  speed=19.6  wheelie=0.17 drift=0.09
+[iter   264] ts= 1,473,762  eplen= 2598T  rew=+4.194  start=0.98 completion=1.386 prog=+0.41  win=1  pool=2  speed=35.2  wheelie=0.11 drift=0.20
+[iter   265] ts= 1,479,600  eplen= 5838T  rew=+3.311  start=0.98 completion=1.470 prog=+0.49  win=1  pool=2  speed=17.5  wheelie=0.22 drift=0.09
+[iter   266] ts= 1,490,016  eplen=10416T  rew=+0.824  start=0.98 completion=1.487 prog=+0.51  win=1  pool=2  speed=10.6  wheelie=0.19 drift=0.06
+[iter   267] ts= 1,495,068  eplen= 5052T  rew=+4.496  start=0.98 completion=1.547 prog=+0.57  win=1  pool=2  speed=25.4  wheelie=0.12 drift=0.09
+[iter   268] ts= 1,498,830  eplen= 3762T  rew=+3.892  start=0.98 completion=1.405 prog=+0.43  win=1  pool=2  speed=26.1  wheelie=0.13 drift=0.11
+[iter   269] ts= 1,505,004  eplen= 6174T  rew=+3.252  start=0.98 completion=1.476 prog=+0.50  win=1  pool=2  speed=16.5  wheelie=0.16 drift=0.05
+[iter   270] ts= 1,509,828  eplen= 4824T  rew=+3.846  start=0.98 completion=1.495 prog=+0.52  win=1  pool=2  speed=21.8  wheelie=0.21 drift=0.09
+[iter   271] ts= 1,515,348  eplen= 5520T  rew=+3.199  start=0.98 completion=1.454 prog=+0.48  win=1  pool=2  speed=17.0  wheelie=0.25 drift=0.07
+[iter   272] ts= 1,521,834  eplen= 6486T  rew=+3.076  start=0.98 completion=1.492 prog=+0.51  win=1  pool=2  speed=16.5  wheelie=0.21 drift=0.06
+[iter   273] ts= 1,526,610  eplen= 4776T  rew=+3.966  start=0.98 completion=1.450 prog=+0.47  win=1  pool=2  speed=18.6  wheelie=0.22 drift=0.07
+[iter   274] ts= 1,531,074  eplen= 4464T  rew=+4.068  start=0.98 completion=1.499 prog=+0.52  win=1  pool=2  speed=24.9  wheelie=0.23 drift=0.10
+[iter   275] ts= 1,536,756  eplen= 5682T  rew=+3.423  start=0.98 completion=1.448 prog=+0.47  win=1  pool=2  speed=18.5  wheelie=0.26 drift=0.09
+[iter   276] ts= 1,542,192  eplen= 5436T  rew=+4.299  start=0.98 completion=1.572 prog=+0.60  win=1  pool=2  speed=22.4  wheelie=0.19 drift=0.08
+[iter   277] ts= 1,554,150  eplen=11958T  rew=+0.922  start=0.98 completion=1.589 prog=+0.61  win=1  pool=2  speed=10.6  wheelie=0.18 drift=0.06
+[iter   278] ts= 1,563,378  eplen= 9228T  rew=+4.635  start=0.98 completion=1.794 prog=+0.82  win=1  pool=2  speed=17.7  wheelie=0.17 drift=0.05
+[iter   279] ts= 1,568,586  eplen= 5208T  rew=+3.517  start=0.98 completion=1.461 prog=+0.48  win=1  pool=2  speed=20.2  wheelie=0.17 drift=0.10
+[iter   280] ts= 1,573,038  eplen= 4452T  rew=+3.563  start=0.98 completion=1.472 prog=+0.49  win=1  pool=2  speed=22.1  wheelie=0.15 drift=0.10
+[iter   281] ts= 1,577,010  eplen= 3972T  rew=+3.589  start=0.98 completion=1.381 prog=+0.40  win=1  pool=2  speed=21.9  wheelie=0.19 drift=0.12
+[iter   282] ts= 1,583,958  eplen= 6948T  rew=+3.144  start=0.98 completion=1.561 prog=+0.58  win=1  pool=2  speed=19.5  wheelie=0.19 drift=0.07
+[iter   283] ts= 1,588,392  eplen= 4434T  rew=+3.959  start=0.98 completion=1.457 prog=+0.48  win=1  pool=2  speed=25.4  wheelie=0.24 drift=0.14
+[iter   284] ts= 1,601,616  eplen=13224T  rew=-1.628  start=0.98 completion=1.455 prog=+0.48  win=1  pool=2  speed=8.1  wheelie=0.28 drift=0.08
+[iter   285] ts= 1,609,356  eplen= 7740T  rew=+2.534  start=0.98 completion=1.487 prog=+0.51  win=1  pool=2  speed=14.7  wheelie=0.27 drift=0.07
+[checkpoint] saved checkpoint_1609356.pt
+[iter   286] ts= 1,616,952  eplen= 7596T  rew=+2.225  start=0.98 completion=1.480 prog=+0.50  win=1  pool=2  speed=14.7  wheelie=0.29 drift=0.09
+[iter   287] ts= 1,622,466  eplen= 5514T  rew=+3.757  start=0.98 completion=1.538 prog=+0.56  win=1  pool=2  speed=22.8  wheelie=0.24 drift=0.14
+[iter   288] ts= 1,626,828  eplen= 4362T  rew=+3.196  start=0.98 completion=1.383 prog=+0.41  win=1  pool=2  speed=19.4  wheelie=0.24 drift=0.10
+[iter   289] ts= 1,632,390  eplen= 5562T  rew=+4.340  start=0.98 completion=1.566 prog=+0.59  win=1  pool=2  speed=19.9  wheelie=0.17 drift=0.05
+[iter   290] ts= 1,637,748  eplen= 5358T  rew=+2.733  start=0.98 completion=1.314 prog=+0.34  win=0  pool=2  speed=12.1  wheelie=0.20 drift=0.12
+[iter   291] ts= 1,640,844  eplen= 3096T  rew=+2.808  start=0.98 completion=1.292 prog=+0.31  win=1  pool=2  speed=20.2  wheelie=0.09 drift=0.13
+[iter   292] ts= 1,647,312  eplen= 6468T  rew=+3.395  start=0.98 completion=1.554 prog=+0.58  win=1  pool=2  speed=17.7  wheelie=0.30 drift=0.06
+[iter   293] ts= 1,660,836  eplen=13524T  rew=+3.515  start=0.98 completion=1.984 prog=+1.01  win=1  pool=2  speed=15.6  wheelie=0.27 drift=0.06
+[iter   294] ts= 1,665,534  eplen= 4698T  rew=+3.708  start=0.98 completion=1.473 prog=+0.50  win=1  pool=2  speed=23.9  wheelie=0.31 drift=0.13
+[iter   295] ts= 1,670,556  eplen= 5022T  rew=+2.731  start=0.98 completion=1.428 prog=+0.45  win=1  pool=2  speed=17.5  wheelie=0.27 drift=0.07
+[iter   296] ts= 1,675,098  eplen= 4542T  rew=+4.363  start=0.98 completion=1.535 prog=+0.56  win=1  pool=2  speed=24.0  wheelie=0.30 drift=0.07
+[iter   297] ts= 1,679,328  eplen= 4230T  rew=+4.549  start=0.98 completion=1.511 prog=+0.53  win=1  pool=2  speed=26.2  wheelie=0.22 drift=0.10
+[iter   298] ts= 1,683,564  eplen= 4236T  rew=+3.740  start=0.98 completion=1.434 prog=+0.46  win=1  pool=2  speed=24.9  wheelie=0.19 drift=0.21
+[iter   299] ts= 1,688,616  eplen= 5052T  rew=+3.715  start=0.98 completion=1.523 prog=+0.55  win=1  pool=2  speed=23.8  wheelie=0.18 drift=0.17
+[iter   300] ts= 1,695,858  eplen= 7242T  rew=+3.027  start=0.98 completion=1.544 prog=+0.57  win=1  pool=2  speed=18.3  wheelie=0.20 drift=0.12
+[iter   301] ts= 1,699,062  eplen= 3204T  rew=+4.285  start=0.98 completion=1.424 prog=+0.45  win=1  pool=2  speed=31.7  wheelie=0.13 drift=0.19
+[iter   302] ts= 1,702,926  eplen= 3864T  rew=+4.506  start=0.98 completion=1.499 prog=+0.52  win=1  pool=2  speed=29.7  wheelie=0.16 drift=0.19
+[iter   303] ts= 1,710,498  eplen= 7572T  rew=+1.690  start=0.98 completion=1.397 prog=+0.42  win=1  pool=2  speed=12.3  wheelie=0.18 drift=0.09
+[iter   304] ts= 1,714,038  eplen= 3540T  rew=+2.999  start=0.98 completion=1.294 prog=+0.32  win=1  pool=2  speed=17.6  wheelie=0.12 drift=0.07
+[iter   305] ts= 1,721,670  eplen= 7632T  rew=+4.121  start=0.98 completion=1.685 prog=+0.71  win=1  pool=2  speed=21.4  wheelie=0.16 drift=0.11
+[iter   306] ts= 1,727,400  eplen= 5730T  rew=+3.857  start=0.98 completion=1.522 prog=+0.54  win=1  pool=2  speed=22.6  wheelie=0.20 drift=0.15
+[iter   307] ts= 1,735,608  eplen= 8208T  rew=+2.826  start=0.98 completion=1.548 prog=+0.57  win=1  pool=2  speed=19.1  wheelie=0.22 drift=0.15
+[iter   308] ts= 1,739,628  eplen= 4020T  rew=+4.919  start=0.98 completion=1.571 prog=+0.59  win=1  pool=2  speed=27.7  wheelie=0.21 drift=0.13
+[iter   309] ts= 1,744,848  eplen= 5220T  rew=+3.749  start=0.98 completion=1.565 prog=+0.59  win=1  pool=2  speed=23.9  wheelie=0.24 drift=0.11
+[iter   310] ts= 1,752,294  eplen= 7446T  rew=+3.266  start=0.98 completion=1.563 prog=+0.59  win=1  pool=2  speed=19.1  wheelie=0.22 drift=0.13
+[iter   311] ts= 1,758,018  eplen= 5724T  rew=+4.141  start=0.98 completion=1.552 prog=+0.57  win=1  pool=2  speed=22.6  wheelie=0.20 drift=0.17
+[iter   312] ts= 1,763,946  eplen= 5928T  rew=+3.829  start=0.98 completion=1.555 prog=+0.58  win=1  pool=2  speed=22.1  wheelie=0.18 drift=0.16
+[iter   313] ts= 1,770,012  eplen= 6066T  rew=+4.324  start=0.98 completion=1.587 prog=+0.61  win=1  pool=2  speed=24.4  wheelie=0.14 drift=0.19
+[iter   314] ts= 1,784,304  eplen=14292T  rew=+3.041  start=0.98 completion=1.952 prog=+0.97  win=1  pool=2  speed=14.8  wheelie=0.21 drift=0.09
+[iter   315] ts= 1,789,836  eplen= 5532T  rew=+4.173  start=0.98 completion=1.574 prog=+0.60  win=1  pool=2  speed=23.3  wheelie=0.23 drift=0.10
+[iter   316] ts= 1,795,128  eplen= 5292T  rew=+3.620  start=0.98 completion=1.423 prog=+0.45  win=1  pool=2  speed=19.9  wheelie=0.22 drift=0.13
+[iter   317] ts= 1,801,998  eplen= 6870T  rew=+3.485  start=0.98 completion=1.535 prog=+0.56  win=1  pool=2  speed=16.0  wheelie=0.24 drift=0.06
+[iter   318] ts= 1,819,416  eplen=17418T  rew=+4.277  start=0.98 completion=2.180 prog=+1.20  win=1  pool=2  speed=17.9  wheelie=0.27 drift=0.08
+[iter   319] ts= 1,824,132  eplen= 4716T  rew=+4.121  start=0.98 completion=1.488 prog=+0.51  win=1  pool=2  speed=24.9  wheelie=0.20 drift=0.11
+[iter   320] ts= 1,831,320  eplen= 7188T  rew=+3.244  start=0.98 completion=1.545 prog=+0.57  win=1  pool=2  speed=20.5  wheelie=0.27 drift=0.11
+[iter   321] ts= 1,836,120  eplen= 4800T  rew=+3.690  start=0.98 completion=1.393 prog=+0.42  win=1  pool=2  speed=17.7  wheelie=0.18 drift=0.10
+[iter   322] ts= 1,841,778  eplen= 5658T  rew=+4.070  start=0.98 completion=1.549 prog=+0.57  win=1  pool=2  speed=24.5  wheelie=0.20 drift=0.13
+[iter   323] ts= 1,846,242  eplen= 4464T  rew=+3.648  start=0.98 completion=1.456 prog=+0.48  win=1  pool=2  speed=22.1  wheelie=0.15 drift=0.08
+[iter   324] ts= 1,851,486  eplen= 5244T  rew=+2.899  start=0.98 completion=1.434 prog=+0.46  win=1  pool=2  speed=22.5  wheelie=0.17 drift=0.10
+[iter   325] ts= 1,857,582  eplen= 6096T  rew=+4.127  start=0.98 completion=1.501 prog=+0.52  win=1  pool=2  speed=21.1  wheelie=0.20 drift=0.09
+[iter   326] ts= 1,863,138  eplen= 5556T  rew=+3.558  start=0.98 completion=1.487 prog=+0.51  win=1  pool=2  speed=20.3  wheelie=0.21 drift=0.10
+[iter   327] ts= 1,868,022  eplen= 4884T  rew=+3.966  start=0.98 completion=1.511 prog=+0.53  win=1  pool=2  speed=25.2  wheelie=0.22 drift=0.11
+[iter   328] ts= 1,875,036  eplen= 7014T  rew=+3.809  start=0.98 completion=1.525 prog=+0.55  win=1  pool=2  speed=17.5  wheelie=0.25 drift=0.07
+[iter   329] ts= 1,879,242  eplen= 4206T  rew=+4.630  start=0.98 completion=1.510 prog=+0.53  win=1  pool=2  speed=25.8  wheelie=0.22 drift=0.11
+[iter   330] ts= 1,884,540  eplen= 5298T  rew=+3.590  start=0.98 completion=1.483 prog=+0.51  win=1  pool=2  speed=22.0  wheelie=0.22 drift=0.11
+[iter   331] ts= 1,890,390  eplen= 5850T  rew=+3.715  start=0.98 completion=1.553 prog=+0.58  win=1  pool=2  speed=22.7  wheelie=0.22 drift=0.11
+[iter   332] ts= 1,898,052  eplen= 7662T  rew=+3.286  start=0.98 completion=1.574 prog=+0.60  win=1  pool=2  speed=23.7  wheelie=0.25 drift=0.13
+[iter   333] ts= 1,910,400  eplen=12348T  rew=+2.814  start=0.98 completion=1.756 prog=+0.78  win=1  pool=2  speed=13.7  wheelie=0.19 drift=0.07
+[iter   334] ts= 1,914,960  eplen= 4560T  rew=+4.423  start=0.98 completion=1.546 prog=+0.57  win=1  pool=2  speed=24.8  wheelie=0.16 drift=0.10
+[iter   335] ts= 1,920,276  eplen= 5316T  rew=+4.444  start=0.98 completion=1.567 prog=+0.59  win=1  pool=2  speed=23.7  wheelie=0.16 drift=0.12
+[iter   336] ts= 1,925,598  eplen= 5322T  rew=+3.564  start=0.98 completion=1.485 prog=+0.51  win=1  pool=2  speed=18.5  wheelie=0.12 drift=0.16
+[iter   337] ts= 1,930,764  eplen= 5166T  rew=+4.397  start=0.98 completion=1.533 prog=+0.56  win=1  pool=2  speed=26.3  wheelie=0.13 drift=0.14
+[iter   338] ts= 1,936,176  eplen= 5412T  rew=+4.428  start=0.98 completion=1.581 prog=+0.60  win=1  pool=2  speed=23.8  wheelie=0.14 drift=0.11
+[iter   339] ts= 1,941,378  eplen= 5202T  rew=+3.783  start=0.98 completion=1.511 prog=+0.53  win=1  pool=2  speed=25.3  wheelie=0.14 drift=0.15
+[iter   340] ts= 1,946,364  eplen= 4986T  rew=+3.737  start=0.98 completion=1.499 prog=+0.52  win=1  pool=2  speed=20.8  wheelie=0.17 drift=0.09
+[iter   341] ts= 1,950,852  eplen= 4488T  rew=+4.731  start=0.98 completion=1.600 prog=+0.62  win=1  pool=2  speed=28.6  wheelie=0.17 drift=0.09
+[iter   342] ts= 1,955,454  eplen= 4602T  rew=+4.136  start=0.98 completion=1.518 prog=+0.54  win=1  pool=2  speed=24.3  wheelie=0.17 drift=0.10
+[iter   343] ts= 1,961,214  eplen= 5760T  rew=+4.194  start=0.98 completion=1.577 prog=+0.60  win=1  pool=2  speed=24.4  wheelie=0.13 drift=0.11
+[iter   344] ts= 1,966,122  eplen= 4908T  rew=+4.222  start=0.98 completion=1.498 prog=+0.52  win=1  pool=2  speed=22.6  wheelie=0.14 drift=0.09
+[iter   345] ts= 1,975,242  eplen= 9120T  rew=+0.637  start=0.98 completion=1.395 prog=+0.42  win=1  pool=2  speed=10.4  wheelie=0.17 drift=0.07
+[iter   346] ts= 1,982,670  eplen= 7428T  rew=+4.002  start=0.98 completion=1.603 prog=+0.63  win=1  pool=2  speed=20.8  wheelie=0.13 drift=0.11
+[iter   347] ts= 1,988,580  eplen= 5910T  rew=+3.762  start=0.98 completion=1.527 prog=+0.55  win=1  pool=2  speed=22.7  wheelie=0.13 drift=0.13
+[iter   348] ts= 1,997,922  eplen= 9342T  rew=+2.130  start=0.98 completion=1.544 prog=+0.57  win=1  pool=2  speed=14.2  wheelie=0.14 drift=0.15
+[iter   349] ts= 2,005,122  eplen= 7200T  rew=+1.398  start=0.98 completion=1.394 prog=+0.42  win=1  pool=2  speed=11.5  wheelie=0.13 drift=0.06
+[selfplay] pushed snapshot (pool=3)
+[iter   350] ts= 2,007,036  eplen= 1914T  rew=+1.729  start=0.98 completion=1.112 prog=+0.13  win=0  pool=3  speed=13.0  wheelie=0.09 drift=0.01
+[iter   351] ts= 2,010,342  eplen= 3306T  rew=+3.873  start=0.98 completion=1.367 prog=+0.39  win=0  pool=3  speed=20.4  wheelie=0.08 drift=0.11
+[checkpoint] saved checkpoint_2010342.pt
+[iter   352] ts= 2,014,776  eplen= 4434T  rew=+4.214  start=0.98 completion=1.512 prog=+0.53  win=1  pool=3  speed=26.4  wheelie=0.10 drift=0.14
+[iter   353] ts= 2,028,240  eplen=13464T  rew=+2.927  start=0.98 completion=1.381 prog=+0.40  win=0  pool=3  speed=5.9  wheelie=0.08 drift=0.15
+[iter   354] ts= 2,030,700  eplen= 2460T  rew=+3.269  start=0.98 completion=1.264 prog=+0.29  win=0  pool=3  speed=23.7  wheelie=0.06 drift=0.05
+[iter   355] ts= 2,035,428  eplen= 4728T  rew=+3.445  start=0.98 completion=1.315 prog=+0.34  win=0  pool=3  speed=14.2  wheelie=0.11 drift=0.13
+[iter   356] ts= 2,041,410  eplen= 5982T  rew=+3.240  start=0.98 completion=1.524 prog=+0.55  win=1  pool=3  speed=19.3  wheelie=0.17 drift=0.07
+[iter   357] ts= 2,045,982  eplen= 4572T  rew=+3.928  start=0.98 completion=1.484 prog=+0.51  win=1  pool=3  speed=23.1  wheelie=0.17 drift=0.09
+[iter   358] ts= 2,049,396  eplen= 3414T  rew=+4.410  start=0.98 completion=1.453 prog=+0.48  win=1  pool=3  speed=28.3  wheelie=0.17 drift=0.15
+[iter   359] ts= 2,055,300  eplen= 5904T  rew=+3.300  start=0.98 completion=1.476 prog=+0.50  win=1  pool=3  speed=20.0  wheelie=0.18 drift=0.11
+[iter   360] ts= 2,059,170  eplen= 3870T  rew=+3.540  start=0.98 completion=1.400 prog=+0.42  win=1  pool=3  speed=19.9  wheelie=0.11 drift=0.07
+[iter   361] ts= 2,069,946  eplen=10776T  rew=+3.359  start=0.98 completion=1.372 prog=+0.39  win=0  pool=3  speed=7.6  wheelie=0.12 drift=0.18
+[iter   362] ts= 2,073,900  eplen= 3954T  rew=+4.585  start=0.98 completion=1.469 prog=+0.49  win=1  pool=3  speed=29.4  wheelie=0.18 drift=0.10
+[iter   363] ts= 2,077,872  eplen= 3972T  rew=+4.296  start=0.98 completion=1.484 prog=+0.51  win=1  pool=3  speed=25.6  wheelie=0.19 drift=0.11
+[iter   364] ts= 2,081,418  eplen= 3546T  rew=+4.472  start=0.98 completion=1.494 prog=+0.52  win=1  pool=3  speed=25.6  wheelie=0.16 drift=0.07
+[iter   365] ts= 2,092,518  eplen=11100T  rew=+3.499  start=0.98 completion=1.372 prog=+0.39  win=0  pool=3  speed=7.6  wheelie=0.13 drift=0.17
+[iter   366] ts= 2,101,536  eplen= 9018T  rew=+3.215  start=0.98 completion=1.513 prog=+0.54  win=1  pool=3  speed=15.5  wheelie=0.14 drift=0.06
+[iter   367] ts= 2,105,574  eplen= 4038T  rew=+3.967  start=0.98 completion=1.466 prog=+0.49  win=1  pool=3  speed=26.5  wheelie=0.27 drift=0.12
+[iter   368] ts= 2,108,610  eplen= 3036T  rew=+4.027  start=0.98 completion=1.385 prog=+0.41  win=1  pool=3  speed=23.9  wheelie=0.05 drift=0.12
+[iter   369] ts= 2,112,228  eplen= 3618T  rew=+4.081  start=0.98 completion=1.392 prog=+0.41  win=1  pool=3  speed=24.0  wheelie=0.10 drift=0.10
+[iter   370] ts= 2,117,910  eplen= 5682T  rew=+4.235  start=0.98 completion=1.611 prog=+0.63  win=1  pool=3  speed=22.5  wheelie=0.15 drift=0.06
+[iter   371] ts= 2,121,270  eplen= 3360T  rew=+4.483  start=0.98 completion=1.478 prog=+0.50  win=1  pool=3  speed=27.3  wheelie=0.24 drift=0.12
+[iter   372] ts= 2,126,376  eplen= 5106T  rew=+3.871  start=0.98 completion=1.516 prog=+0.54  win=1  pool=3  speed=25.3  wheelie=0.32 drift=0.10
+[iter   373] ts= 2,130,738  eplen= 4362T  rew=+4.632  start=0.98 completion=1.546 prog=+0.57  win=1  pool=3  speed=24.6  wheelie=0.21 drift=0.07
+[iter   374] ts= 2,134,908  eplen= 4170T  rew=+4.700  start=0.98 completion=1.535 prog=+0.56  win=1  pool=3  speed=28.4  wheelie=0.10 drift=0.10
+[iter   375] ts= 2,138,442  eplen= 3534T  rew=+4.812  start=0.98 completion=1.513 prog=+0.54  win=1  pool=3  speed=28.7  wheelie=0.16 drift=0.11
+[iter   376] ts= 2,143,824  eplen= 5382T  rew=+4.553  start=0.98 completion=1.613 prog=+0.64  win=1  pool=3  speed=23.5  wheelie=0.21 drift=0.08
+[iter   377] ts= 2,149,008  eplen= 5184T  rew=+3.019  start=0.98 completion=1.394 prog=+0.42  win=1  pool=3  speed=16.1  wheelie=0.14 drift=0.07
+[iter   378] ts= 2,154,366  eplen= 5358T  rew=+3.983  start=0.98 completion=1.561 prog=+0.58  win=1  pool=3  speed=22.4  wheelie=0.20 drift=0.11
+[iter   379] ts= 2,159,814  eplen= 5448T  rew=+3.029  start=0.98 completion=1.431 prog=+0.45  win=1  pool=3  speed=15.8  wheelie=0.10 drift=0.08
+[iter   380] ts= 2,162,214  eplen= 2400T  rew=+4.138  start=0.98 completion=1.381 prog=+0.40  win=1  pool=3  speed=29.9  wheelie=0.11 drift=0.14
+[iter   381] ts= 2,166,378  eplen= 4164T  rew=+4.519  start=0.98 completion=1.513 prog=+0.54  win=1  pool=3  speed=23.3  wheelie=0.17 drift=0.10
+[iter   382] ts= 2,170,794  eplen= 4416T  rew=+3.348  start=0.98 completion=1.362 prog=+0.39  win=1  pool=3  speed=17.6  wheelie=0.12 drift=0.16
+[iter   383] ts= 2,174,532  eplen= 3738T  rew=+4.786  start=0.98 completion=1.527 prog=+0.55  win=1  pool=3  speed=26.9  wheelie=0.15 drift=0.11
+[iter   384] ts= 2,178,504  eplen= 3972T  rew=+4.667  start=0.98 completion=1.518 prog=+0.54  win=1  pool=3  speed=26.5  wheelie=0.16 drift=0.12
+[iter   385] ts= 2,183,028  eplen= 4524T  rew=+3.924  start=0.98 completion=1.498 prog=+0.52  win=1  pool=3  speed=23.8  wheelie=0.17 drift=0.12
+[iter   386] ts= 2,186,802  eplen= 3774T  rew=+4.546  start=0.98 completion=1.503 prog=+0.53  win=1  pool=3  speed=29.6  wheelie=0.16 drift=0.11
+[iter   387] ts= 2,190,822  eplen= 4020T  rew=+3.531  start=0.98 completion=1.408 prog=+0.43  win=1  pool=3  speed=23.0  wheelie=0.16 drift=0.07
+[iter   388] ts= 2,195,676  eplen= 4854T  rew=+4.589  start=0.98 completion=1.569 prog=+0.59  win=1  pool=3  speed=24.2  wheelie=0.13 drift=0.07
+[iter   389] ts= 2,198,802  eplen= 3126T  rew=+3.762  start=0.98 completion=1.357 prog=+0.38  win=1  pool=3  speed=22.8  wheelie=0.08 drift=0.19
+[iter   390] ts= 2,202,084  eplen= 3282T  rew=+3.462  start=0.98 completion=1.365 prog=+0.39  win=1  pool=3  speed=20.5  wheelie=0.08 drift=0.19
+[iter   391] ts= 2,206,176  eplen= 4092T  rew=+4.732  start=0.98 completion=1.551 prog=+0.57  win=1  pool=3  speed=25.4  wheelie=0.23 drift=0.07
+[iter   392] ts= 2,215,920  eplen= 9744T  rew=+3.814  start=0.98 completion=1.788 prog=+0.81  win=1  pool=3  speed=16.8  wheelie=0.11 drift=0.05
+[iter   393] ts= 2,220,222  eplen= 4302T  rew=+3.964  start=0.98 completion=1.495 prog=+0.52  win=1  pool=3  speed=23.4  wheelie=0.28 drift=0.09
+[iter   394] ts= 2,225,952  eplen= 5730T  rew=+2.890  start=0.98 completion=1.471 prog=+0.49  win=1  pool=3  speed=20.5  wheelie=0.26 drift=0.08
+[iter   395] ts= 2,232,114  eplen= 6162T  rew=+4.066  start=0.98 completion=1.602 prog=+0.62  win=1  pool=3  speed=22.8  wheelie=0.19 drift=0.10
+[iter   396] ts= 2,234,826  eplen= 2712T  rew=+4.355  start=0.98 completion=1.398 prog=+0.42  win=1  pool=3  speed=29.0  wheelie=0.09 drift=0.12
+[iter   397] ts= 2,239,476  eplen= 4650T  rew=+3.757  start=0.98 completion=1.353 prog=+0.38  win=0  pool=3  speed=16.1  wheelie=0.10 drift=0.20
+[iter   398] ts= 2,243,226  eplen= 3750T  rew=+4.059  start=0.98 completion=1.477 prog=+0.50  win=1  pool=3  speed=26.8  wheelie=0.15 drift=0.19
+[iter   399] ts= 2,250,846  eplen= 7620T  rew=+3.480  start=0.98 completion=1.631 prog=+0.65  win=1  pool=3  speed=19.7  wheelie=0.21 drift=0.08
+[iter   400] ts= 2,258,910  eplen= 8064T  rew=+3.143  start=0.98 completion=1.609 prog=+0.63  win=1  pool=3  speed=16.5  wheelie=0.07 drift=0.09
+[iter   401] ts= 2,263,074  eplen= 4164T  rew=+3.361  start=0.98 completion=1.362 prog=+0.38  win=0  pool=3  speed=16.0  wheelie=0.12 drift=0.22
+[iter   402] ts= 2,271,168  eplen= 8094T  rew=+2.772  start=0.98 completion=1.595 prog=+0.62  win=1  pool=3  speed=15.4  wheelie=0.08 drift=0.09
+[iter   403] ts= 2,274,708  eplen= 3540T  rew=+3.597  start=0.98 completion=1.437 prog=+0.46  win=1  pool=3  speed=23.7  wheelie=0.08 drift=0.07
+[iter   404] ts= 2,281,956  eplen= 7248T  rew=+3.644  start=0.98 completion=1.656 prog=+0.68  win=1  pool=3  speed=17.1  wheelie=0.06 drift=0.06
+[iter   405] ts= 2,287,104  eplen= 5148T  rew=+4.035  start=0.98 completion=1.518 prog=+0.54  win=1  pool=3  speed=23.8  wheelie=0.20 drift=0.12
+[iter   406] ts= 2,291,424  eplen= 4320T  rew=+3.559  start=0.98 completion=1.474 prog=+0.50  win=1  pool=3  speed=22.5  wheelie=0.15 drift=0.13
+[iter   407] ts= 2,302,194  eplen=10770T  rew=+2.585  start=0.98 completion=1.730 prog=+0.75  win=1  pool=3  speed=16.1  wheelie=0.09 drift=0.08
+[iter   408] ts= 2,311,728  eplen= 9534T  rew=+3.411  start=0.98 completion=1.698 prog=+0.72  win=1  pool=3  speed=17.2  wheelie=0.12 drift=0.09
+[iter   409] ts= 2,317,272  eplen= 5544T  rew=+3.800  start=0.98 completion=1.503 prog=+0.53  win=1  pool=3  speed=20.8  wheelie=0.12 drift=0.09
+[iter   410] ts= 2,326,212  eplen= 8940T  rew=+3.208  start=0.98 completion=1.694 prog=+0.72  win=1  pool=3  speed=15.1  wheelie=0.07 drift=0.05
+[iter   411] ts= 2,332,950  eplen= 6738T  rew=+3.927  start=0.98 completion=1.624 prog=+0.65  win=1  pool=3  speed=19.8  wheelie=0.14 drift=0.08
+[iter   412] ts= 2,346,048  eplen=13098T  rew=+1.743  start=0.98 completion=1.816 prog=+0.84  win=1  pool=3  speed=11.5  wheelie=0.06 drift=0.09
+[iter   413] ts= 2,350,338  eplen= 4290T  rew=+3.970  start=0.98 completion=1.478 prog=+0.50  win=1  pool=3  speed=24.7  wheelie=0.21 drift=0.12
+[iter   414] ts= 2,353,812  eplen= 3474T  rew=+3.334  start=0.98 completion=1.370 prog=+0.39  win=0  pool=3  speed=22.8  wheelie=0.14 drift=0.18
+[iter   415] ts= 2,357,790  eplen= 3978T  rew=+3.628  start=0.98 completion=1.430 prog=+0.45  win=1  pool=3  speed=22.2  wheelie=0.19 drift=0.15
+[iter   416] ts= 2,365,680  eplen= 7890T  rew=+3.544  start=0.98 completion=1.640 prog=+0.66  win=1  pool=3  speed=16.2  wheelie=0.08 drift=0.04
+[iter   417] ts= 2,379,318  eplen=13638T  rew=+0.917  start=0.98 completion=1.719 prog=+0.74  win=1  pool=3  speed=12.8  wheelie=0.07 drift=0.03
+[iter   418] ts= 2,383,806  eplen= 4488T  rew=+3.439  start=0.98 completion=1.411 prog=+0.43  win=1  pool=3  speed=17.7  wheelie=0.17 drift=0.07
+[iter   419] ts= 2,389,164  eplen= 5358T  rew=+4.507  start=0.98 completion=1.567 prog=+0.59  win=1  pool=3  speed=22.4  wheelie=0.12 drift=0.07
+[iter   420] ts= 2,397,006  eplen= 7842T  rew=+2.320  start=0.98 completion=1.347 prog=+0.37  win=0  pool=3  speed=7.8  wheelie=0.15 drift=0.21
+[iter   421] ts= 2,407,374  eplen=10368T  rew=+1.417  start=0.98 completion=1.580 prog=+0.60  win=1  pool=3  speed=14.8  wheelie=0.09 drift=0.36
+[iter   422] ts= 2,416,650  eplen= 9276T  rew=+3.345  start=0.98 completion=1.713 prog=+0.74  win=1  pool=3  speed=15.7  wheelie=0.12 drift=0.05
+[checkpoint] saved checkpoint_2416650.pt
+[iter   423] ts= 2,420,784  eplen= 4134T  rew=+4.323  start=0.98 completion=1.529 prog=+0.55  win=1  pool=3  speed=25.5  wheelie=0.12 drift=0.11
+[iter   424] ts= 2,425,266  eplen= 4482T  rew=+2.269  start=0.98 completion=1.192 prog=+0.21  win=0  pool=3  speed=18.9  wheelie=0.12 drift=0.16
+[iter   425] ts= 2,427,546  eplen= 2280T  rew=+2.631  start=0.98 completion=1.221 prog=+0.24  win=0  pool=3  speed=18.9  wheelie=0.09 drift=0.16
+[iter   426] ts= 2,439,816  eplen=12270T  rew=+1.915  start=0.98 completion=1.766 prog=+0.79  win=1  pool=3  speed=12.6  wheelie=0.10 drift=0.03
+[iter   427] ts= 2,445,510  eplen= 5694T  rew=+4.707  start=0.98 completion=1.601 prog=+0.62  win=1  pool=3  speed=23.9  wheelie=0.13 drift=0.12
+[iter   428] ts= 2,450,964  eplen= 5454T  rew=+5.090  start=0.98 completion=1.651 prog=+0.67  win=1  pool=3  speed=25.3  wheelie=0.15 drift=0.11
+[iter   429] ts= 2,454,876  eplen= 3912T  rew=+4.283  start=0.98 completion=1.458 prog=+0.48  win=1  pool=3  speed=25.5  wheelie=0.15 drift=0.12
+[iter   430] ts= 2,458,908  eplen= 4032T  rew=+4.002  start=0.98 completion=1.472 prog=+0.49  win=1  pool=3  speed=24.7  wheelie=0.17 drift=0.11
+[iter   431] ts= 2,465,796  eplen= 6888T  rew=+3.766  start=0.98 completion=1.640 prog=+0.66  win=1  pool=3  speed=19.0  wheelie=0.19 drift=0.05
+[iter   432] ts= 2,470,770  eplen= 4974T  rew=+4.633  start=0.98 completion=1.508 prog=+0.53  win=0  pool=3  speed=20.1  wheelie=0.18 drift=0.10
+[iter   433] ts= 2,479,392  eplen= 8622T  rew=+4.399  start=0.98 completion=1.795 prog=+0.82  win=1  pool=3  speed=17.7  wheelie=0.15 drift=0.04
+[iter   434] ts= 2,486,880  eplen= 7488T  rew=+4.357  start=0.98 completion=1.713 prog=+0.74  win=1  pool=3  speed=19.9  wheelie=0.17 drift=0.05
+[iter   435] ts= 2,495,928  eplen= 9048T  rew=+2.221  start=0.98 completion=1.360 prog=+0.38  win=0  pool=3  speed=7.6  wheelie=0.13 drift=0.25
+[iter   436] ts= 2,505,468  eplen= 9540T  rew=+1.484  start=0.98 completion=1.552 prog=+0.57  win=1  pool=3  speed=13.0  wheelie=0.13 drift=0.05
+[iter   437] ts= 2,510,988  eplen= 5520T  rew=+4.983  start=0.98 completion=1.662 prog=+0.68  win=1  pool=3  speed=26.3  wheelie=0.19 drift=0.08
+[iter   438] ts= 2,520,006  eplen= 9018T  rew=+1.420  start=0.98 completion=1.541 prog=+0.56  win=1  pool=3  speed=13.4  wheelie=0.08 drift=0.06
+[iter   439] ts= 2,523,528  eplen= 3522T  rew=+4.347  start=0.98 completion=1.492 prog=+0.51  win=1  pool=3  speed=27.1  wheelie=0.13 drift=0.11
+[iter   440] ts= 2,528,550  eplen= 5022T  rew=+3.724  start=0.98 completion=1.447 prog=+0.47  win=1  pool=3  speed=21.4  wheelie=0.17 drift=0.10
+[iter   441] ts= 2,533,182  eplen= 4632T  rew=+5.388  start=0.98 completion=1.645 prog=+0.67  win=1  pool=3  speed=27.8  wheelie=0.10 drift=0.08
+[iter   442] ts= 2,535,624  eplen= 2442T  rew=+3.156  start=0.98 completion=1.253 prog=+0.28  win=0  pool=3  speed=26.6  wheelie=0.04 drift=0.15
+[iter   443] ts= 2,545,986  eplen=10362T  rew=+2.409  start=0.98 completion=1.384 prog=+0.41  win=1  pool=3  speed=8.6  wheelie=0.19 drift=0.17
+[iter   444] ts= 2,551,416  eplen= 5430T  rew=+3.851  start=0.98 completion=1.465 prog=+0.49  win=1  pool=3  speed=23.1  wheelie=0.12 drift=0.11
+[iter   445] ts= 2,555,664  eplen= 4248T  rew=+2.445  start=0.98 completion=1.308 prog=+0.33  win=1  pool=3  speed=14.3  wheelie=0.10 drift=0.03
+[iter   446] ts= 2,562,024  eplen= 6360T  rew=+3.489  start=0.98 completion=1.472 prog=+0.49  win=1  pool=3  speed=20.7  wheelie=0.11 drift=0.09
+[iter   447] ts= 2,565,396  eplen= 3372T  rew=+4.277  start=0.98 completion=1.397 prog=+0.42  win=0  pool=3  speed=24.9  wheelie=0.14 drift=0.10
+[iter   448] ts= 2,572,350  eplen= 6954T  rew=+3.562  start=0.98 completion=1.442 prog=+0.46  win=1  pool=3  speed=15.0  wheelie=0.20 drift=0.03
+[iter   449] ts= 2,575,704  eplen= 3354T  rew=+4.243  start=0.98 completion=1.372 prog=+0.39  win=0  pool=3  speed=25.2  wheelie=0.14 drift=0.12
+[iter   450] ts= 2,581,602  eplen= 5898T  rew=+4.285  start=0.98 completion=1.543 prog=+0.57  win=1  pool=3  speed=21.9  wheelie=0.08 drift=0.04
+[iter   451] ts= 2,588,928  eplen= 7326T  rew=+4.103  start=0.98 completion=1.638 prog=+0.66  win=1  pool=3  speed=21.5  wheelie=0.10 drift=0.05
+[iter   452] ts= 2,594,418  eplen= 5490T  rew=+3.864  start=0.98 completion=1.461 prog=+0.48  win=1  pool=3  speed=21.9  wheelie=0.09 drift=0.06
+[iter   453] ts= 2,605,188  eplen=10770T  rew=+0.960  start=0.98 completion=1.490 prog=+0.51  win=1  pool=3  speed=10.2  wheelie=0.18 drift=0.03
+[iter   454] ts= 2,613,876  eplen= 8688T  rew=+5.550  start=0.98 completion=1.832 prog=+0.85  win=1  pool=3  speed=20.3  wheelie=0.11 drift=0.01
+[iter   455] ts= 2,618,922  eplen= 5046T  rew=+4.261  start=0.98 completion=1.490 prog=+0.51  win=1  pool=3  speed=25.7  wheelie=0.10 drift=0.04
+[iter   456] ts= 2,625,564  eplen= 6642T  rew=+6.156  start=0.98 completion=1.794 prog=+0.82  win=1  pool=3  speed=24.6  wheelie=0.11 drift=0.03
+[iter   457] ts= 2,629,812  eplen= 4248T  rew=+3.498  start=0.98 completion=1.386 prog=+0.41  win=1  pool=3  speed=18.8  wheelie=0.14 drift=0.04
+[iter   458] ts= 2,637,654  eplen= 7842T  rew=+5.452  start=0.98 completion=1.825 prog=+0.85  win=1  pool=3  speed=21.2  wheelie=0.09 drift=0.03
+
+[shutdown] signal 2 received — finishing current episode then saving.
+[iter   459] ts= 2,641,170  eplen= 3516   rew=+4.888  start=0.98 completion=1.524 prog=+0.55  win=1  pool=3  speed=33.0  wheelie=0.08 drift=0.12
+[shutdown] final checkpoint at ts=2641170
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading history steps 457-458, summary, console lines 467-470
+wandb: 
+wandb: Run history:
+wandb:   rollout/best_race_position ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁██▁▁▁▁▁▁▁▁
+wandb:           rollout/brake_frac ▂▅▁▁▁▄█▆▇▃▄▂▂▁▃▁▅▅▃▂▆▆▃▆▃▂▂▄▃▃▂▂▁▁▁▂▅▆▂▁
+wandb:           rollout/drift_frac ▁▃▁▃▁▂▃▃▂▂▂▂▂▃▁▂▂▂█▂▁▁▃▂▂▂▁▄▂▂▂▃▁▂▂▃▃▃▂▁
+wandb:        rollout/episode_steps ▁▁▁▁▁▁▃▃▁▂▃▂▃▁▄▂▂▂█▇▂▃▄▂▄▂▂▃▂▂▂▁▂▂▂▃▄▂▂▂
+wandb:          rollout/finish_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  rollout/mean_episode_reward ▆▆▆▃▄▅▅▅▆▅▅▄▅▁▃▆▆▆▆▆▆▆▇▅▇▇▆▇▆▇▆▆▇▇▇▆▆▇▇█
+wandb: rollout/mean_race_completion ▁▁▂▁▄▃▄▄▄▄▂▂▂▄▃▃▁▃▄▄▄▆▅▄▆▅▇▇▇▆▆▇▆▆▅▆▄▄█▆
+wandb:           rollout/mean_speed ▅▇▇▆▅▆▇▃▃▁▂▁▄▄▆▆▄▃▆▄▄▆▆▆▇▅▅▆▅▆█▂▇▅▄▅▄▆▃▅
+wandb:             rollout/progress ▁▂▁▁▂▃▁▃▄▂▂▂▁▂▃▃▃▃▃▄▃▅▅▄▅▅▅▅▅▆▅▄▄▃▇▆▆▇▅█
+wandb:              rollout/stalled ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                           +9 ...
+wandb: 
+wandb: Run summary:
+wandb:   rollout/best_race_position 1
+wandb:           rollout/brake_frac 0.00171
+wandb:           rollout/drift_frac 0.12201
+wandb:        rollout/episode_steps 3516
+wandb:          rollout/finish_rate 0
+wandb:  rollout/mean_episode_reward 4.88799
+wandb: rollout/mean_race_completion 1.52402
+wandb:           rollout/mean_speed 33.0328
+wandb:             rollout/progress 0.54662
+wandb:              rollout/stalled 0
+wandb:                           +9 ...
+wandb: 
+wandb: 🚀 View run cs377-2v2-mappo-12-fast at: https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/82ds3m1s
+wandb: ⭐️ View project at: https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260601_133252-82ds3m1s/logs
+
+A signal was received. A second signal will force Dolphin to stop.
+ In exit
+caught signal: 15
+01/06/2026 16:34:12 deleted 20 tile_row polling images.

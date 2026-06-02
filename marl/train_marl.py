@@ -119,6 +119,9 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
     cum_reward = {a: 0.0 for a in learner_team}
     speed_acc = {a: 0.0 for a in learner_team}
     steps = 0
+    # learner action-usage histogram (diagnostic): on a BIKE the "Up" actions are
+    # WHEELIES (you cannot steer mid-wheelie), a suspect for the off-road drift.
+    action_hist = np.zeros(action_parser.get_action_space().n)
 
     start_completion = float(np.mean([state.players[a].max_race_completion for a in learner_team]))
     best_progress = max(state.players[a].max_race_completion for a in learner_team)
@@ -158,6 +161,7 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
         done = any(terminations.values()) or any(truncations.values()) or stalled
 
         for a in learner_team:                            # train ONLY learner team
+            action_hist[actions[a]] += 1
             traj[a].append({
                 "actor_obs":         flat[a],
                 "global_state":      gstate[a],
@@ -179,6 +183,11 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
     learner_ranks = sum(state.players[a].race_position for a in learner_team)
     opp_ranks = sum(state.players[a].race_position for a in opp_team) if opp_team else 1e9
     end_completion = float(np.mean([state.players[a].max_race_completion for a in learner_team]))
+    # action-mix diagnostic (Up=wheelie on bikes, R=drift, B=brake)
+    n_acts = max(action_hist.sum(), 1.0)
+    wheelie_frac = float(action_hist[[1, 13, 14]].sum() / n_acts)
+    drift_frac = float(action_hist[[5, 6, 10, 11]].sum() / n_acts)
+    brake_frac = float(action_hist[[15, 16, 17]].sum() / n_acts)
     stats = {
         "episode_steps": steps,
         "stalled": float(stalled),
@@ -190,6 +199,9 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
         "mean_speed": float(np.mean([speed_acc[a] / denom for a in learner_team])),
         "best_race_position": float(min(state.players[a].race_position for a in learner_team)),
         "win_vs_snapshot": float(learner_ranks < opp_ranks),
+        "wheelie_frac": wheelie_frac,
+        "drift_frac": drift_frac,
+        "brake_frac": brake_frac,
     }
     return traj, stats
 
@@ -293,7 +305,8 @@ def main() -> None:
                   f"start={stats['start_completion']:.2f} completion={stats['mean_race_completion']:.3f} "
                   f"prog={stats['progress']:+.2f}  "
                   f"win={stats['win_vs_snapshot']:.0f}  pool={len(pool)}  "
-                  f"speed={stats['mean_speed']:.1f}", flush=True)
+                  f"speed={stats['mean_speed']:.1f}  "
+                  f"wheelie={stats['wheelie_frac']:.2f} drift={stats['drift_frac']:.2f}", flush=True)
 
             if use_wandb:
                 import wandb

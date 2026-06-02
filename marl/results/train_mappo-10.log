@@ -350,3 +350,189 @@ diverse starts: 1 options (0 at start line, 1 mid-track)
 [iter    35] ts=   108,198  eplen= 8646T  rew=-2.507  start=0.98 completion=1.235 prog=+0.26  win=1  pool=1  speed=5.9
 [iter    36] ts=   110,592  eplen= 2394T  rew=+1.365  start=0.98 completion=1.201 prog=+0.22  win=1  pool=1  speed=17.3
 [iter    37] ts=   112,260  eplen= 1668T  rew=+1.507  start=0.98 completion=1.172 prog=+0.19  win=0  pool=1  speed=19.9
+[iter    38] ts=   119,010  eplen= 6750T  rew=-0.642  start=0.98 completion=1.372 prog=+0.39  win=1  pool=1  speed=10.1
+[iter    39] ts=   120,816  eplen= 1806T  rew=+1.747  start=0.98 completion=1.222 prog=+0.24  win=1  pool=1  speed=21.1
+[iter    40] ts=   122,700  eplen= 1884T  rew=+1.751  start=0.98 completion=1.226 prog=+0.25  win=1  pool=1  speed=20.5
+[iter    41] ts=   134,676  eplen=11976T  rew=-3.630  start=0.98 completion=1.341 prog=+0.36  win=0  pool=1  speed=7.0
+[iter    42] ts=   137,106  eplen= 2430T  rew=+1.321  start=0.98 completion=1.222 prog=+0.24  win=1  pool=1  speed=20.1
+[iter    43] ts=   146,982  eplen= 9876T  rew=-2.442  start=0.98 completion=1.377 prog=+0.40  win=1  pool=1  speed=8.1
+[iter    44] ts=   149,136  eplen= 2154T  rew=+1.347  start=0.98 completion=1.190 prog=+0.21  win=1  pool=1  speed=21.9
+[iter    45] ts=   160,824  eplen=11688T  rew=-3.251  start=0.98 completion=1.382 prog=+0.40  win=1  pool=1  speed=7.8
+[iter    46] ts=   162,558  eplen= 1734T  rew=+1.567  start=0.98 completion=1.175 prog=+0.20  win=0  pool=1  speed=24.4
+[iter    47] ts=   169,212  eplen= 6654T  rew=-1.068  start=0.98 completion=1.271 prog=+0.29  win=1  pool=1  speed=8.3
+[iter    48] ts=   176,310  eplen= 7098T  rew=-1.385  start=0.98 completion=1.269 prog=+0.29  win=1  pool=1  speed=7.4
+[iter    49] ts=   179,190  eplen= 2880T  rew=+1.045  start=0.98 completion=1.223 prog=+0.25  win=1  pool=1  speed=14.3
+[iter    50] ts=   184,458  eplen= 5268T  rew=-0.198  start=0.98 completion=1.257 prog=+0.28  win=1  pool=1  speed=11.2
+[iter    51] ts=   187,632  eplen= 3174T  rew=+1.061  start=0.98 completion=1.267 prog=+0.29  win=1  pool=1  speed=17.8
+[iter    52] ts=   189,828  eplen= 2196T  rew=+1.393  start=0.98 completion=1.211 prog=+0.23  win=1  pool=1  speed=19.9
+[iter    53] ts=   209,832  eplen=20004   rew=-8.680  start=0.98 completion=1.422 prog=+0.44  win=1  pool=1  speed=5.3
+[iter    54] ts=   211,656  eplen= 1824T  rew=+1.820  start=0.98 completion=1.249 prog=+0.27  win=1  pool=1  speed=30.4
+[iter    55] ts=   226,728  eplen=15072T  rew=-6.264  start=0.98 completion=1.287 prog=+0.31  win=1  pool=1  speed=4.5
+[iter    56] ts=   229,302  eplen= 2574T  rew=+1.202  start=0.98 completion=1.220 prog=+0.24  win=1  pool=1  speed=20.4
+[iter    57] ts=   231,174  eplen= 1872T  rew=+1.762  start=0.98 completion=1.244 prog=+0.27  win=1  pool=1  speed=30.2
+[iter    58] ts=   241,362  eplen=10188T  rew=-1.558  start=0.98 completion=1.546 prog=+0.57  win=0  pool=1  speed=15.0
+[iter    59] ts=   244,974  eplen= 3612T  rew=+0.716  start=0.98 completion=1.251 prog=+0.27  win=1  pool=1  speed=14.6
+[iter    60] ts=   247,380  eplen= 2406T  rew=+1.105  start=0.98 completion=1.162 prog=+0.18  win=0  pool=1  speed=23.3
+[iter    61] ts=   249,246  eplen= 1866T  rew=+1.745  start=0.98 completion=1.238 prog=+0.26  win=1  pool=1  speed=27.2
+[iter    62] ts=   251,358  eplen= 2112T  rew=+1.616  start=0.98 completion=1.178 prog=+0.20  win=1  pool=1  speed=21.7
+[iter    63] ts=   253,644  eplen= 2286T  rew=+1.574  start=0.98 completion=1.257 prog=+0.28  win=1  pool=1  speed=25.4
+[iter    64] ts=   256,044  eplen= 2400T  rew=+1.258  start=0.98 completion=1.207 prog=+0.23  win=1  pool=1  speed=20.8
+[iter    65] ts=   257,748  eplen= 1704T  rew=+1.638  start=0.98 completion=1.165 prog=+0.19  win=1  pool=1  speed=24.2
+[iter    66] ts=   260,706  eplen= 2958T  rew=+1.290  start=0.98 completion=1.269 prog=+0.29  win=1  pool=1  speed=19.0
+[iter    67] ts=   272,292  eplen=11586T  rew=-3.453  start=0.98 completion=1.409 prog=+0.43  win=1  pool=1  speed=7.8
+[iter    68] ts=   274,854  eplen= 2562T  rew=+1.272  start=0.98 completion=1.233 prog=+0.26  win=1  pool=1  speed=20.0
+[iter    69] ts=   276,618  eplen= 1764T  rew=+1.169  start=0.98 completion=1.087 prog=+0.11  win=0  pool=1  speed=15.6
+[iter    70] ts=   278,406  eplen= 1788T  rew=+1.677  start=0.98 completion=1.215 prog=+0.24  win=1  pool=1  speed=26.6
+[iter    71] ts=   280,830  eplen= 2424T  rew=+1.410  start=0.98 completion=1.181 prog=+0.20  win=0  pool=1  speed=15.4
+[iter    72] ts=   282,906  eplen= 2076T  rew=+1.350  start=0.98 completion=1.143 prog=+0.17  win=0  pool=1  speed=15.2
+[iter    73] ts=   284,526  eplen= 1620T  rew=+1.387  start=0.98 completion=1.116 prog=+0.14  win=0  pool=1  speed=21.7
+[iter    74] ts=   287,364  eplen= 2838T  rew=+1.296  start=0.98 completion=1.157 prog=+0.18  win=0  pool=1  speed=16.1
+[iter    75] ts=   305,058  eplen=17694T  rew=-7.888  start=0.98 completion=1.280 prog=+0.30  win=1  pool=1  speed=3.0
+[iter    76] ts=   307,482  eplen= 2424T  rew=+1.388  start=0.98 completion=1.177 prog=+0.20  win=0  pool=1  speed=16.4
+[iter    77] ts=   309,228  eplen= 1746T  rew=+1.698  start=0.98 completion=1.216 prog=+0.24  win=1  pool=1  speed=24.9
+[iter    78] ts=   310,962  eplen= 1734T  rew=+1.642  start=0.98 completion=1.201 prog=+0.22  win=1  pool=1  speed=27.2
+[iter    79] ts=   321,342  eplen=10380T  rew=-2.992  start=0.98 completion=1.338 prog=+0.36  win=1  pool=1  speed=7.6
+[iter    80] ts=   323,118  eplen= 1776T  rew=+1.698  start=0.98 completion=1.221 prog=+0.24  win=1  pool=1  speed=25.3
+[iter    81] ts=   325,494  eplen= 2376T  rew=+1.261  start=0.98 completion=1.211 prog=+0.23  win=1  pool=1  speed=22.7
+[iter    82] ts=   340,554  eplen=15060T  rew=-6.473  start=0.98 completion=1.244 prog=+0.27  win=1  pool=1  speed=3.8
+[iter    83] ts=   342,384  eplen= 1830T  rew=+1.465  start=0.98 completion=1.147 prog=+0.17  win=0  pool=1  speed=18.7
+[iter    84] ts=   346,020  eplen= 3636T  rew=+0.541  start=0.98 completion=1.228 prog=+0.25  win=1  pool=1  speed=14.3
+[iter    85] ts=   347,814  eplen= 1794T  rew=+1.457  start=0.98 completion=1.177 prog=+0.20  win=0  pool=1  speed=20.5
+[iter    86] ts=   350,214  eplen= 2400T  rew=+1.243  start=0.98 completion=1.195 prog=+0.22  win=1  pool=1  speed=18.2
+[iter    87] ts=   352,254  eplen= 2040T  rew=+1.478  start=0.98 completion=1.207 prog=+0.23  win=1  pool=1  speed=21.9
+[iter    88] ts=   354,156  eplen= 1902T  rew=+1.564  start=0.98 completion=1.207 prog=+0.23  win=1  pool=1  speed=24.2
+[iter    89] ts=   356,502  eplen= 2346T  rew=+1.084  start=0.98 completion=1.120 prog=+0.14  win=0  pool=1  speed=18.0
+[iter    90] ts=   358,524  eplen= 2022T  rew=+1.490  start=0.98 completion=1.207 prog=+0.23  win=1  pool=1  speed=23.4
+[iter    91] ts=   371,034  eplen=12510T  rew=-4.217  start=0.98 completion=1.382 prog=+0.40  win=1  pool=1  speed=8.5
+[iter    92] ts=   373,698  eplen= 2664T  rew=+1.062  start=0.98 completion=1.198 prog=+0.22  win=0  pool=1  speed=17.2
+[iter    93] ts=   375,390  eplen= 1692T  rew=+1.358  start=0.98 completion=1.166 prog=+0.19  win=0  pool=1  speed=17.1
+[iter    94] ts=   378,234  eplen= 2844T  rew=+0.963  start=0.98 completion=1.205 prog=+0.23  win=1  pool=1  speed=13.8
+[iter    95] ts=   380,604  eplen= 2370T  rew=+1.168  start=0.98 completion=1.184 prog=+0.21  win=1  pool=1  speed=14.4
+[iter    96] ts=   383,160  eplen= 2556T  rew=+1.254  start=0.98 completion=1.209 prog=+0.23  win=1  pool=1  speed=16.0
+[iter    97] ts=   394,290  eplen=11130T  rew=-3.129  start=0.98 completion=1.418 prog=+0.44  win=1  pool=1  speed=10.0
+[iter    98] ts=   396,882  eplen= 2592T  rew=+1.248  start=0.98 completion=1.202 prog=+0.22  win=1  pool=1  speed=18.2
+[iter    99] ts=   399,336  eplen= 2454T  rew=+1.435  start=0.98 completion=1.208 prog=+0.23  win=0  pool=1  speed=21.3
+[iter   100] ts=   401,262  eplen= 1926T  rew=+1.408  start=0.98 completion=1.190 prog=+0.21  win=0  pool=1  speed=20.9
+[iter   101] ts=   403,134  eplen= 1872T  rew=+1.474  start=0.98 completion=1.183 prog=+0.21  win=1  pool=1  speed=15.9
+[iter   102] ts=   405,738  eplen= 2604T  rew=+1.277  start=0.98 completion=1.169 prog=+0.19  win=0  pool=1  speed=17.5
+[iter   103] ts=   408,162  eplen= 2424T  rew=+1.169  start=0.98 completion=1.188 prog=+0.21  win=1  pool=1  speed=9.9
+[iter   104] ts=   411,348  eplen= 3186T  rew=+0.919  start=0.98 completion=1.240 prog=+0.26  win=1  pool=1  speed=15.5
+[iter   105] ts=   413,202  eplen= 1854T  rew=+1.536  start=0.98 completion=1.175 prog=+0.20  win=0  pool=1  speed=19.6
+10.249.240.44 - - [01/Jun/2026 12:14:03] code 404, message File not found
+10.249.240.44 - - [01/Jun/2026 12:14:07] 10.249.240.44: Plain non-SSL (ws://) WebSocket connection
+10.249.240.44 - - [01/Jun/2026 12:14:07] 10.249.240.44: Path: '/websockify'
+10.249.240.44 - - [01/Jun/2026 12:14:07] connecting to: localhost:5900
+01/06/2026 12:14:07 Got connection from client 127.0.0.1
+01/06/2026 12:14:07   0 other clients
+01/06/2026 12:14:07 Normal socket connection
+01/06/2026 12:14:07 Disabled X server key autorepeat.
+01/06/2026 12:14:07   to force back on run: 'xset r on' (3 times)
+01/06/2026 12:14:07 incr accepted_client=2 for 127.0.0.1:48780  sock=10
+01/06/2026 12:14:07 Client Protocol Version 3.8
+01/06/2026 12:14:07 Protocol version sent 3.8, using 3.8
+01/06/2026 12:14:07 rfbProcessClientSecurityType: executing handler for type 1
+01/06/2026 12:14:07 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+01/06/2026 12:14:07 Pixel format for client 127.0.0.1:
+01/06/2026 12:14:07   32 bpp, depth 24, little endian
+01/06/2026 12:14:07   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+01/06/2026 12:14:07 Using image quality level 6 for client 127.0.0.1
+01/06/2026 12:14:07 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+01/06/2026 12:14:07 Using compression level 2 for client 127.0.0.1
+01/06/2026 12:14:07 Enabling NewFBSize protocol extension for client 127.0.0.1
+01/06/2026 12:14:07 Enabling LastRect protocol extension for client 127.0.0.1
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+01/06/2026 12:14:07 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+01/06/2026 12:14:07 Enabling ExtendedClipboard extension for client 127.0.0.1
+01/06/2026 12:14:07 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+01/06/2026 12:14:07 Enabling full-color cursor updates for client 127.0.0.1
+01/06/2026 12:14:07 Using tight encoding for client 127.0.0.1
+01/06/2026 12:14:08 Sending rfbEncodingExtDesktopSize for size (640x480) 
+01/06/2026 12:14:08 client_set_net: 127.0.0.1  0.0000
+01/06/2026 12:14:08 created   xdamage object: 0x20001a
+01/06/2026 12:14:08 client 2 network rate 3192.1 KB/sec (43119.2 eff KB/sec)
+01/06/2026 12:14:08 client 2 latency:  1.9 ms
+01/06/2026 12:14:08 dt1: 0.0113, dt2: 0.0105 dt3: 0.0019 bytes: 66488
+01/06/2026 12:14:08 link_rate: LR_LAN - 1 ms, 3192 KB/s
+[iter   106] ts=   417,306  eplen= 4104T  rew=+0.484  start=0.98 completion=1.180 prog=+0.20  win=0  pool=1  speed=10.6
+01/06/2026 12:14:29 client_count: 0
+01/06/2026 12:14:29 Restored X server key autorepeat to: 1
+01/06/2026 12:14:29 Client 127.0.0.1 gone
+01/06/2026 12:14:29 Statistics             events    Transmit/ RawEquiv ( saved)
+01/06/2026 12:14:29  ServerCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 12:14:29  FramebufferUpdate   :    380 |         0/        0 (  0.0%)
+01/06/2026 12:14:29  LastRect            :    373 |      4476/     4476 (  0.0%)
+01/06/2026 12:14:29  tight               :   2203 |  24586353/335708356 ( 92.7%)
+01/06/2026 12:14:29  RichCursor          :      1 |       696/      696 (  0.0%)
+01/06/2026 12:14:29  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+01/06/2026 12:14:29  TOTALS              :   2959 |  24591573/335713576 ( 92.7%)
+01/06/2026 12:14:29 Statistics             events    Received/ RawEquiv ( saved)
+01/06/2026 12:14:29  ClientCutText       :      1 |        16/       16 (  0.0%)
+01/06/2026 12:14:29  PointerEvent        :     46 |       276/      276 (  0.0%)
+01/06/2026 12:14:29  FramebufferUpdate   :    381 |      3810/     3810 (  0.0%)
+01/06/2026 12:14:29  SetEncodings        :      1 |        80/       80 (  0.0%)
+01/06/2026 12:14:29  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+01/06/2026 12:14:29  TOTALS              :    430 |      4202/     4202 (  0.0%)
+01/06/2026 12:14:29 destroyed xdamage object: 0x20001a
+[iter   107] ts=   419,208  eplen= 1902T  rew=+1.476  start=0.98 completion=1.188 prog=+0.21  win=1  pool=1  speed=17.3
+[iter   108] ts=   427,560  eplen= 8352T  rew=-0.788  start=0.98 completion=1.351 prog=+0.37  win=0  pool=1  speed=9.1
+[iter   109] ts=   429,576  eplen= 2016T  rew=+1.410  start=0.98 completion=1.191 prog=+0.21  win=1  pool=1  speed=14.9
+[iter   110] ts=   431,754  eplen= 2178T  rew=+1.392  start=0.98 completion=1.204 prog=+0.23  win=1  pool=1  speed=17.1
+[iter   111] ts=   445,158  eplen=13404T  rew=-4.708  start=0.98 completion=1.392 prog=+0.41  win=1  pool=1  speed=7.8
+[iter   112] ts=   447,036  eplen= 1878T  rew=+1.553  start=0.98 completion=1.202 prog=+0.22  win=1  pool=1  speed=23.1
+[iter   113] ts=   449,022  eplen= 1986T  rew=+1.577  start=0.98 completion=1.214 prog=+0.24  win=1  pool=1  speed=22.3
+[iter   114] ts=   463,836  eplen=14814T  rew=-4.413  start=0.98 completion=1.395 prog=+0.42  win=0  pool=1  speed=6.3
+[iter   115] ts=   468,366  eplen= 4530T  rew=+0.395  start=0.98 completion=1.210 prog=+0.23  win=0  pool=1  speed=9.4
+[iter   116] ts=   471,696  eplen= 3330T  rew=+0.973  start=0.98 completion=1.255 prog=+0.28  win=1  pool=1  speed=16.4
+[iter   117] ts=   473,424  eplen= 1728T  rew=+1.413  start=0.98 completion=1.170 prog=+0.19  win=0  pool=1  speed=11.4
+[iter   118] ts=   479,010  eplen= 5586T  rew=-0.522  start=0.98 completion=1.251 prog=+0.27  win=1  pool=1  speed=10.1
+
+[shutdown] signal 2 received — finishing current episode then saving.
+[iter   119] ts=   480,018  eplen= 1008   rew=+2.162  start=0.98 completion=1.218 prog=+0.24  win=1  pool=1  speed=38.7
+[shutdown] final checkpoint at ts=480018
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading history steps 116-118, summary, console lines 118-122
+wandb: 
+wandb: Run history:
+wandb:   rollout/best_race_position ▅▁▁▅▁▁▁▁▁▁▁▅▅▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▅▁
+wandb:        rollout/episode_steps ▂▁▁▁▁▁▃▃▁▁▁▁▂▁▂▇▁▁▃▂▁▁▁▁▂▁▁▂▁▁▂▁▂▁▁▂▂█▁▂
+wandb:          rollout/finish_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  rollout/mean_episode_reward ▇▇▇▇█▇▇▇▇▇█▇▆▇█▇▅▇▆▆█▂▅▇▇▁▇█▇▇▄▇▇▇█▇▆▃██
+wandb: rollout/mean_race_completion ▂▂▂▂▂▂▄▂▂▂▃▃▃▂▅▃▂▄▆▃▃█▃▃▄▄▁▂▄▂▃▃▃▃▃▆▃▂▃▄
+wandb:           rollout/mean_speed ▄▂▃▄▄▄▄▄▅▃▅▅▄▁▃▆▄▆▃▄▅▅▁▃▅▅▂▄▄▃▃▄▂▄▂▃▄▂▃█
+wandb:             rollout/progress ▂▂▅▂▂▃▂▂▂▂▄▂▄▂▃▇▅▄▃█▂▄▃▂▂▆▃▄▃▁▃▃▃▂▂▃▃▃▂▃
+wandb:              rollout/stalled ███████████████████████████████████████▁
+wandb:     rollout/start_completion ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:      rollout/win_vs_snapshot ▁██▁▁█▁█████████████████▁█▁█████▁██▁█▁██
+wandb:                           +6 ...
+wandb: 
+wandb: Run summary:
+wandb:   rollout/best_race_position 1
+wandb:        rollout/episode_steps 1008
+wandb:          rollout/finish_rate 0
+wandb:  rollout/mean_episode_reward 2.16239
+wandb: rollout/mean_race_completion 1.21783
+wandb:           rollout/mean_speed 38.69726
+wandb:             rollout/progress 0.24043
+wandb:              rollout/stalled 0
+wandb:     rollout/start_completion 0.9774
+wandb:      rollout/win_vs_snapshot 1
+wandb:                           +6 ...
+wandb: 
+wandb: 🚀 View run cs377-2v2-mappo-10-racepretrain at: https://wandb.ai/checkcheckcheck/mario-kart-rl/runs/0i3zxx3e
+wandb: ⭐️ View project at: https://wandb.ai/checkcheckcheck/mario-kart-rl
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260601_112105-0i3zxx3e/logs
+
+A signal was received. A second signal will force Dolphin to stop.
+ In exit
+caught signal: 15
+01/06/2026 12:22:08 deleted 20 tile_row polling images.
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:267: UserWarning: resource_tracker: '/DolphinSharedFrameBuffer_0': [Errno 2] No such file or directory: '/DolphinSharedFrameBuffer_0'
+  warnings.warn('resource_tracker: %r: %s' % (name, e))

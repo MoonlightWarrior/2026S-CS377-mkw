@@ -160,17 +160,27 @@ class RaceProgressReward(RewardFunction):
     `scale * final_completion` over an episode.
     """
 
-    def __init__(self, scale: float = 1.0):
+    def __init__(self, scale: float = 1.0, use_current: bool = False):
         self.scale = scale
+        # use_current: key on current_race_completion (SIGNED delta) instead of
+        # max_race_completion (monotone). Signed delta yields a NEGATIVE reward for
+        # going backward / looping off the racing line, giving a directional
+        # gradient that pulls the agent back toward the track — targeting the
+        # off-road-wandering failure mode without an explicit (timid) offroad penalty.
+        self.use_current = use_current
+
+    def _c(self, p):
+        return p.current_race_completion if self.use_current else p.max_race_completion
 
     def reset(self, agents, state) -> None:
-        self.prev = {a: state.players[a].max_race_completion for a in agents}
+        self.prev = {a: self._c(state.players[a]) for a in agents}
 
     def get_rewards(self, agents, state) -> Dict[int, float]:
         out = {}
         for a in agents:
-            c = state.players[a].max_race_completion
-            out[a] = self.scale * max(0.0, c - self.prev[a])  # max_completion is monotone
+            c = self._c(state.players[a])
+            delta = c - self.prev[a]
+            out[a] = self.scale * (delta if self.use_current else max(0.0, delta))
             self.prev[a] = c
         return out
 
@@ -188,6 +198,36 @@ class SpeedReward(RewardFunction):
 
     def get_rewards(self, agents, state) -> Dict[int, float]:
         return {a: state.players[a].speed / self.speed_norm for a in agents}
+
+
+class ProgressGatedSpeedReward(RewardFunction):
+    """Reward normalized speed ONLY while the kart is making forward track
+    progress (current_race_completion increased this step).
+
+    This pays for *carrying speed along the racing line* while avoiding both
+    failure modes seen earlier: (i) raw SpeedReward is direction-agnostic and
+    rewards fast-the-wrong-way motion — here, going the wrong way does not advance
+    completion, so it earns nothing; (ii) an explicit OffroadPenalty made the
+    policy timid — here off-road simply earns less, because grass caps speed and
+    stalls progress, but is never punished below zero.
+    """
+
+    def __init__(self, speed_norm: float = 120.0, eps: float = 1e-4):
+        self.speed_norm = speed_norm
+        self.eps = eps
+
+    def reset(self, agents, state) -> None:
+        self.prev = {a: state.players[a].current_race_completion for a in agents}
+
+    def get_rewards(self, agents, state) -> Dict[int, float]:
+        out = {}
+        for a in agents:
+            p = state.players[a]
+            c = p.current_race_completion
+            progressing = (c - self.prev[a]) > self.eps
+            out[a] = (p.speed / self.speed_norm) if progressing else 0.0
+            self.prev[a] = c
+        return out
 
 
 class MTBoostReward(RewardFunction):
@@ -242,6 +282,7 @@ _REGISTRY = {
     "FinishReward": FinishReward,
     "LapReward": LapReward,
     "SpeedReward": SpeedReward,
+    "ProgressGatedSpeedReward": ProgressGatedSpeedReward,
     "MTBoostReward": MTBoostReward,
     "OffroadPenalty": OffroadPenalty,
 }

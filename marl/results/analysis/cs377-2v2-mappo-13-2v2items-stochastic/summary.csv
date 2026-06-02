@@ -1,0 +1,17 @@
+metric,value
+holding_differentiation_best_minus_worst,8.413086322428066
+overtakes_total,430
+miniturbo_total,0
+opponent_hits,16
+teamkills,3
+opp_to_teamkill_ratio,5.333333333333333
+n_steps,40008
+completion_mean,3.741731067498525
+completion_max,4.264709949493408
+finish_rate,0.0
+
+rank,mean_item_holding_frames,n_uses,item_use_rate
+1,17.389830508474578,59,0.05263157894736842
+2,18.224489795918366,49,0.056712962962962965
+3,13.578125,64,0.05909510618651893
+4,8.976744186046512,86,0.09806157354618016
