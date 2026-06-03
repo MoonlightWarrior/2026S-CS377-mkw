@@ -1,0 +1,91 @@
+env_setting:
+  num_agents: 4
+  env_id: 0
+  character:
+  - Funky Kong
+  - Funky Kong
+  - Funky Kong
+  - Funky Kong
+  vehicle:
+  - Standard Kart L
+  - Standard Kart L
+  - Standard Kart L
+  - Standard Kart L
+  drift_modes:
+  - Manual
+  - Manual
+  - Manual
+  - Manual
+  cup: Mushroom Cup
+  course: Luigi Circuit
+  cc: 100cc
+  action_repeats: 6
+  items_enabled: true
+  disable_item_use: false
+  disable_cpu: false
+model:
+  actor_obs: AsymmetricTeamObs
+  critic_state: CentralizedTeamState
+  action_parser: MKWTeamAction
+  policy_kwargs:
+    layer_sizes:
+    - 512
+    - 512
+    - 256
+  critic_kwargs:
+    layer_sizes:
+    - 512
+    - 512
+    - 256
+  opponent_obs: none
+reward:
+  concatenate_function: CombinedReward
+  reward_functions:
+  - RaceProgressReward:
+      weight: 5.0
+      params:
+        use_current: true
+  - ProgressGatedSpeedReward: 0.02
+  - RankReward: 0.3
+  - TeamRankReward: 0.15
+  - FinishReward:
+      weight: 1.0
+      params:
+        bonus: 10.0
+  - LapReward:
+      weight: 1.0
+      params:
+        bonus: 1.0
+  - MTBoostReward: 0.25
+start_states:
+  files:
+  - /cs377/marl/results/startstates/funky_4p_ourbuild.sav
+  n_start_line: 0
+selfplay:
+  learner_team:
+  - 0
+  - 1
+  opponent_team:
+  - 2
+  - 3
+  snapshot_every_ts: 1000000
+  pool_size: 10
+  opponent_sample: uniform
+hyperparameter:
+  policy_lr: 0.0003
+  critic_lr: 0.0003
+  ppo_epochs: 4
+  ppo_minibatch_size: 4096
+  ts_per_iteration: 50000
+  gae_gamma: 0.99
+  gae_lambda: 0.95
+  ppo_ent_coef: 0.01
+  clip_eps: 0.2
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  save_every_ts: 400000
+  timestep_limit: 200000000
+wandb:
+  wandb_run_name: cs377-2v2-mappo-14-obsnone
+  wandb_project: mario-kart-rl
+  wandb_entity: null

@@ -1,0 +1,249 @@
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Could not resolve keysym XF86CameraAccessEnable
+> Warning:          Could not resolve keysym XF86CameraAccessDisable
+> Warning:          Could not resolve keysym XF86CameraAccessToggle
+> Warning:          Could not resolve keysym XF86NextElement
+> Warning:          Could not resolve keysym XF86PreviousElement
+> Warning:          Could not resolve keysym XF86AutopilotEngageToggle
+> Warning:          Could not resolve keysym XF86MarkWaypoint
+> Warning:          Could not resolve keysym XF86Sos
+> Warning:          Could not resolve keysym XF86NavChart
+> Warning:          Could not resolve keysym XF86FishingChart
+> Warning:          Could not resolve keysym XF86SingleRangeRadar
+> Warning:          Could not resolve keysym XF86DualRangeRadar
+> Warning:          Could not resolve keysym XF86RadarOverlay
+> Warning:          Could not resolve keysym XF86TraditionalSonar
+> Warning:          Could not resolve keysym XF86ClearvuSonar
+> Warning:          Could not resolve keysym XF86SidevuSonar
+> Warning:          Could not resolve keysym XF86NavInfo
+Errors from xkbcomp are not fatal to the X server
+02/06/2026 14:41:07 passing arg to libvncserver: -rfbport
+02/06/2026 14:41:07 passing arg to libvncserver: 5900
+02/06/2026 14:41:07 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 3834
+02/06/2026 14:41:07 Using X display :0
+02/06/2026 14:41:07 rootwin: 0x3a7 reswin: 0x200001 dpy: 0x596295a0
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 ------------------ USEFUL INFORMATION ------------------
+02/06/2026 14:41:07 X DAMAGE available on display, using it for polling hints.
+02/06/2026 14:41:07   To disable this behavior use: '-noxdamage'
+02/06/2026 14:41:07 
+02/06/2026 14:41:07   Most compositing window managers like 'compiz' or 'beryl'
+02/06/2026 14:41:07   cause X DAMAGE to fail, and so you may not see any screen
+02/06/2026 14:41:07   updates via VNC.  Either disable 'compiz' (recommended) or
+02/06/2026 14:41:07   supply the x11vnc '-noxdamage' command line option.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 Wireframing: -wireframe mode is in effect for window moves.
+02/06/2026 14:41:07   If this yields undesired behavior (poor response, painting
+02/06/2026 14:41:07   errors, etc) it may be disabled:
+02/06/2026 14:41:07    - use '-nowf' to disable wireframing completely.
+02/06/2026 14:41:07    - use '-nowcr' to disable the Copy Rectangle after the
+02/06/2026 14:41:07      moved window is released in the new position.
+02/06/2026 14:41:07   Also see the -help entry for tuning parameters.
+02/06/2026 14:41:07   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+02/06/2026 14:41:07   repaint the screen, also see the -fixscreen option for
+02/06/2026 14:41:07   periodic repaints.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 XFIXES available on display, resetting cursor mode
+02/06/2026 14:41:07   to: '-cursor most'.
+02/06/2026 14:41:07   to disable this behavior use: '-cursor arrow'
+02/06/2026 14:41:07   or '-noxfixes'.
+02/06/2026 14:41:07 using XFIXES for cursor drawing.
+02/06/2026 14:41:07 GrabServer control via XTEST.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 Scroll Detection: -scrollcopyrect mode is in effect to
+02/06/2026 14:41:07   use RECORD extension to try to detect scrolling windows
+02/06/2026 14:41:07   (induced by either user keystroke or mouse input).
+02/06/2026 14:41:07   If this yields undesired behavior (poor response, painting
+02/06/2026 14:41:07   errors, etc) it may be disabled via: '-noscr'
+02/06/2026 14:41:07   Also see the -help entry for tuning parameters.
+02/06/2026 14:41:07   You can press 3 Alt_L's (Left "Alt" key) in a row to 
+02/06/2026 14:41:07   repaint the screen, also see the -fixscreen option for
+02/06/2026 14:41:07   periodic repaints.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 XKEYBOARD: number of keysyms per keycode 7 is greater
+02/06/2026 14:41:07   than 4 and 51 keysyms are mapped above 4.
+02/06/2026 14:41:07   Automatically switching to -xkb mode.
+02/06/2026 14:41:07   If this makes the key mapping worse you can
+02/06/2026 14:41:07   disable it with the "-noxkb" option.
+02/06/2026 14:41:07   Also, remember "-remap DEAD" for accenting characters.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":0".
+02/06/2026 14:41:07 X display is not capable of DPMS.
+02/06/2026 14:41:07 --------------------------------------------------------
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 Default visual ID: 0x21
+02/06/2026 14:41:07 Read initial data from X display into framebuffer.
+02/06/2026 14:41:07 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 X display :0 is 32bpp depth=24 true color
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 Listening for VNC connections on TCP port 5900
+02/06/2026 14:41:07 Listening for VNC connections on TCP6 port 5900
+02/06/2026 14:41:07 listen6: bind: Address already in use
+02/06/2026 14:41:07 Not listening on IPv6 interface.
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 Xinerama is present and active (e.g. multi-head).
+02/06/2026 14:41:07 Xinerama: number of sub-screens: 1
+02/06/2026 14:41:07 Xinerama: no blackouts needed (only one sub-screen)
+02/06/2026 14:41:07 
+02/06/2026 14:41:07 fb read rate: 1078 MB/sec
+02/06/2026 14:41:07 fast read: reset -wait  ms to: 10
+02/06/2026 14:41:07 fast read: reset -defer ms to: 10
+02/06/2026 14:41:07 The X server says there are 10 mouse buttons.
+02/06/2026 14:41:07 screen setup finished.
+02/06/2026 14:41:07 
+
+The VNC desktop is:      1c49e4efd1c2:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+sh: 1: xdg-mime: not found
+WebSocket server settings:
+  - Listen on :6080
+  - Web server. Web root: /usr/share/novnc
+  - No SSL/TLS support (no cert file)
+  - proxying from :6080 to localhost:5900
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+[eval] episode 1/5 done (20004 steps, max_completion=1.14, finished=False)
+[eval] episode 2/5 done (20004 steps, max_completion=5.00, finished=False)
+110.76.108.199 - - [02/Jun/2026 14:49:16] code 404, message File not found
+110.76.108.199 - - [02/Jun/2026 14:49:17] 110.76.108.199: Plain non-SSL (ws://) WebSocket connection
+110.76.108.199 - - [02/Jun/2026 14:49:17] 110.76.108.199: Path: '/websockify'
+110.76.108.199 - - [02/Jun/2026 14:49:17] connecting to: localhost:5900
+02/06/2026 14:49:17 Got connection from client 127.0.0.1
+02/06/2026 14:49:17   0 other clients
+02/06/2026 14:49:17 Normal socket connection
+02/06/2026 14:49:17 Disabled X server key autorepeat.
+02/06/2026 14:49:17   to force back on run: 'xset r on' (3 times)
+02/06/2026 14:49:17 incr accepted_client=1 for 127.0.0.1:42690  sock=10
+02/06/2026 14:49:17 Client Protocol Version 3.8
+02/06/2026 14:49:17 Protocol version sent 3.8, using 3.8
+02/06/2026 14:49:17 rfbProcessClientSecurityType: executing handler for type 1
+02/06/2026 14:49:17 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+02/06/2026 14:49:17 Pixel format for client 127.0.0.1:
+02/06/2026 14:49:17   32 bpp, depth 24, little endian
+02/06/2026 14:49:17   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+02/06/2026 14:49:18 Using image quality level 6 for client 127.0.0.1
+02/06/2026 14:49:18 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+02/06/2026 14:49:18 Using compression level 2 for client 127.0.0.1
+02/06/2026 14:49:18 Enabling NewFBSize protocol extension for client 127.0.0.1
+02/06/2026 14:49:18 Enabling LastRect protocol extension for client 127.0.0.1
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+02/06/2026 14:49:18 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+02/06/2026 14:49:18 Enabling ExtendedClipboard extension for client 127.0.0.1
+02/06/2026 14:49:18 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+02/06/2026 14:49:18 Enabling full-color cursor updates for client 127.0.0.1
+02/06/2026 14:49:18 Using tight encoding for client 127.0.0.1
+02/06/2026 14:49:18 Sending rfbEncodingExtDesktopSize for size (640x480) 
+02/06/2026 14:49:18 client_set_net: 127.0.0.1  0.0002
+02/06/2026 14:49:18 created   xdamage object: 0x200018
+02/06/2026 14:49:18 copy_tiles: allocating first_line at size 21
+02/06/2026 14:49:19 client 1 network rate 3476.6 KB/sec (46369.9 eff KB/sec)
+02/06/2026 14:49:19 client 1 latency:  4.0 ms
+02/06/2026 14:49:19 dt1: 0.0012, dt2: 0.0180 dt3: 0.0040 bytes: 59491
+02/06/2026 14:49:19 link_rate: LR_LAN - 4 ms, 3476 KB/s
+02/06/2026 14:49:26 client_count: 0
+02/06/2026 14:49:26 Restored X server key autorepeat to: 1
+02/06/2026 14:49:26 Client 127.0.0.1 gone
+02/06/2026 14:49:26 Statistics             events    Transmit/ RawEquiv ( saved)
+02/06/2026 14:49:26  ServerCutText       :      1 |        16/       16 (  0.0%)
+02/06/2026 14:49:26  FramebufferUpdate   :    227 |         0/        0 (  0.0%)
+02/06/2026 14:49:26  LastRect            :    223 |      2676/     2676 (  0.0%)
+02/06/2026 14:49:26  tight               :   2547 |  13294287/174509412 ( 92.4%)
+02/06/2026 14:49:26  RichCursor          :      1 |      1374/     1374 (  0.0%)
+02/06/2026 14:49:26  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+02/06/2026 14:49:26  TOTALS              :   3000 |  13298385/174513510 ( 92.4%)
+02/06/2026 14:49:26 Statistics             events    Received/ RawEquiv ( saved)
+02/06/2026 14:49:26  ClientCutText       :      1 |        16/       16 (  0.0%)
+02/06/2026 14:49:26  PointerEvent        :     21 |       126/      126 (  0.0%)
+02/06/2026 14:49:26  FramebufferUpdate   :    229 |      2290/     2290 (  0.0%)
+02/06/2026 14:49:26  SetEncodings        :      1 |        80/       80 (  0.0%)
+02/06/2026 14:49:26  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+02/06/2026 14:49:26  TOTALS              :    253 |      2532/     2532 (  0.0%)
+02/06/2026 14:49:26 destroyed xdamage object: 0x200018
+110.76.108.199 - - [02/Jun/2026 14:49:28] code 404, message File not found
+110.76.108.199 - - [02/Jun/2026 14:49:29] 110.76.108.199: Plain non-SSL (ws://) WebSocket connection
+110.76.108.199 - - [02/Jun/2026 14:49:29] 110.76.108.199: Path: '/websockify'
+110.76.108.199 - - [02/Jun/2026 14:49:29] connecting to: localhost:5900
+02/06/2026 14:49:30 Got connection from client 127.0.0.1
+02/06/2026 14:49:30   0 other clients
+02/06/2026 14:49:30 Normal socket connection
+02/06/2026 14:49:30 Disabled X server key autorepeat.
+02/06/2026 14:49:30   to force back on run: 'xset r on' (3 times)
+02/06/2026 14:49:30 incr accepted_client=2 for 127.0.0.1:40274  sock=10
+02/06/2026 14:49:30 Client Protocol Version 3.8
+02/06/2026 14:49:30 Protocol version sent 3.8, using 3.8
+02/06/2026 14:49:30 rfbProcessClientSecurityType: executing handler for type 1
+02/06/2026 14:49:30 rfbProcessClientSecurityType: returning securityResult for client rfb version >= 3.8
+02/06/2026 14:49:30 Pixel format for client 127.0.0.1:
+02/06/2026 14:49:30   32 bpp, depth 24, little endian
+02/06/2026 14:49:30   true colour: max r 255 g 255 b 255, shift r 0 g 8 b 16
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type tightPng
+02/06/2026 14:49:30 Using image quality level 6 for client 127.0.0.1
+02/06/2026 14:49:30 Using JPEG subsampling 0, Q79 for client 127.0.0.1
+02/06/2026 14:49:30 Using compression level 2 for client 127.0.0.1
+02/06/2026 14:49:30 Enabling NewFBSize protocol extension for client 127.0.0.1
+02/06/2026 14:49:30 Enabling LastRect protocol extension for client 127.0.0.1
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEFE)
+02/06/2026 14:49:30 Enabling ExtDesktopSize protocol extension for client 127.0.0.1
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC8)
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFEC7)
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0xFFFFFECD)
+02/06/2026 14:49:30 Enabling ExtendedClipboard extension for client 127.0.0.1
+02/06/2026 14:49:30 rfbProcessClientNormalMessage: ignoring unsupported encoding type Enc(0x574D5664)
+02/06/2026 14:49:30 Enabling full-color cursor updates for client 127.0.0.1
+02/06/2026 14:49:30 Using tight encoding for client 127.0.0.1
+02/06/2026 14:49:30 Sending rfbEncodingExtDesktopSize for size (640x480) 
+02/06/2026 14:49:30 client_set_net: 127.0.0.1  0.0001
+02/06/2026 14:49:30 created   xdamage object: 0x200019
+02/06/2026 14:49:30 client 2 network rate 7814.9 KB/sec (108445.8 eff KB/sec)
+02/06/2026 14:49:30 client 2 latency:  3.3 ms
+02/06/2026 14:49:30 dt1: 0.0011, dt2: 0.0078 dt3: 0.0033 bytes: 56360
+02/06/2026 14:49:30 link_rate: LR_LAN - 3 ms, 7814 KB/s
+02/06/2026 14:49:39 created selwin: 0x20001a
+02/06/2026 14:49:39 called initialize_xfixes()
+[eval] episode 3/5 done (20004 steps, max_completion=5.00, finished=False)
+02/06/2026 14:51:15 client_count: 0
+02/06/2026 14:51:15 Restored X server key autorepeat to: 1
+02/06/2026 14:51:15 Client 127.0.0.1 gone
+02/06/2026 14:51:15 Statistics             events    Transmit/ RawEquiv ( saved)
+02/06/2026 14:51:15  ServerCutText       :      2 |        24/       24 (  0.0%)
+02/06/2026 14:51:15  FramebufferUpdate   :   3153 |         0/        0 (  0.0%)
+02/06/2026 14:51:15  LastRect            :   3147 |     37764/    37764 (  0.0%)
+02/06/2026 14:51:15  tight               :  18309 | 226550438/-1507418816 (  0.0%)
+02/06/2026 14:51:15  RichCursor          :      2 |      2070/     2070 (  0.0%)
+02/06/2026 14:51:15  ExtendedDesktopSize :      1 |        32/       32 (  0.0%)
+02/06/2026 14:51:15  TOTALS              :  24614 | 226590328/-1507378926 (  0.0%)
+02/06/2026 14:51:15 Statistics             events    Received/ RawEquiv ( saved)
+02/06/2026 14:51:15  KeyEvent            :      4 |        32/       32 (  0.0%)
+02/06/2026 14:51:15  PointerEvent        :     82 |       492/      492 (  0.0%)
+02/06/2026 14:51:15  ClientCutText       :      1 |        16/       16 (  0.0%)
+02/06/2026 14:51:15  FramebufferUpdate   :   3154 |     31540/    31540 (  0.0%)
+02/06/2026 14:51:15  SetEncodings        :      1 |        80/       80 (  0.0%)
+02/06/2026 14:51:15  SetPixelFormat      :      1 |        20/       20 (  0.0%)
+02/06/2026 14:51:15  TOTALS              :   3243 |     32180/    32180 (  0.0%)
+02/06/2026 14:51:15 destroyed xdamage object: 0x200019
+/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

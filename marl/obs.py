@@ -107,19 +107,40 @@ def _opponent_ids(agent_id: AgentID, agents: List[AgentID]) -> List[AgentID]:
     return sorted(a for a in agents if _team_of(a) != team)
 
 
-class AsymmetricTeamObs(ObsBuilder):
-    """Actor observation (decentralized execution view)."""
+#: opponent-observability ablation modes (Section "Scope" of the report).
+#: how much of each OPPONENT the actor sees — the only thing that varies across
+#: the ablation; self + teammate stay full and the critic stays fully global.
+OPPONENT_OBS_MODES = ("none", "coarse", "full")
+_OPP_BLOCK_DIM = {"none": 0, "coarse": COARSE_DIM, "full": FULL_DIM}
 
-    def __init__(self, num_agents: int = 4):
+
+class AsymmetricTeamObs(ObsBuilder):
+    """Actor observation (decentralized execution view).
+
+    `opponent_obs` selects the opponent-observability ablation condition:
+      "none"   — opponents not observed at all (only self + teammate + team id);
+                 directed offense at opponents can then only be chance.
+      "coarse" — DEFAULT; each opponent as relative position + rank (4-d), with
+                 item/velocity/charge hidden (what a human reads off-screen).
+      "full"   — each opponent as the complete 25-d state (enables sharp,
+                 velocity/item-aware targeting).
+    Self and teammate are always FULL; only the opponent block changes, so the
+    three conditions differ purely in opponent information.
+    """
+
+    def __init__(self, num_agents: int = 4, opponent_obs: str = "coarse"):
         assert num_agents == 4, "AsymmetricTeamObs is defined for 2v2 (4 agents)"
+        assert opponent_obs in OPPONENT_OBS_MODES, (
+            f"opponent_obs must be one of {OPPONENT_OBS_MODES}, got {opponent_obs!r}")
         self.num_agents = num_agents
+        self.opponent_obs = opponent_obs
 
     def reset(self, agents: List[AgentID], initial_state: KartGameState) -> None:
         pass
 
     def get_obs_size(self) -> int:
-        # self full + teammate full + 2 opponents coarse + team indicator
-        return FULL_DIM + FULL_DIM + 2 * COARSE_DIM + 1
+        # self full + teammate full + 2 opponents (size by mode) + team indicator
+        return FULL_DIM + FULL_DIM + 2 * _OPP_BLOCK_DIM[self.opponent_obs] + 1
 
     def build_obs(self, agent_id: AgentID, state: KartGameState) -> np.ndarray:
         agents = list(state.players.keys())
@@ -131,7 +152,11 @@ class AsymmetricTeamObs(ObsBuilder):
         vec += _full_block(me, me, relative_pos=False)
         vec += _full_block(mate, me, relative_pos=True)
         for o in opps:
-            vec += _coarse_block(o, me)
+            if self.opponent_obs == "coarse":
+                vec += _coarse_block(o, me)
+            elif self.opponent_obs == "full":
+                vec += _full_block(o, me, relative_pos=True)
+            # "none": opponents contribute nothing
         vec += [float(_team_of(agent_id))]  # team indicator
 
         out = np.asarray(vec, dtype=np.float32)

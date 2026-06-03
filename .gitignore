@@ -31,3 +31,7 @@ id_num.txt
 alive.txt
 # academic report — keep out of the public repo
 report/
+
+# rendered race videos (large, not for the public repo)
+marl/results/videos/
+*.mp4

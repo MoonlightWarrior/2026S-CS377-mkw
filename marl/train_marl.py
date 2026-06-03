@@ -131,6 +131,7 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
     flat = {a: actor_obs_b.build_obs(a, state) for a in agents}
     gstate = {a: critic_b.build_obs(a, state) for a in agents}
 
+    step_fails = 0   # consecutive env.step failures -> guard against a busy-loop hang
     while steps < max_steps:
         # decentralized execution: each side acts on its own restricted views
         actions = learner.get_actions({a: flat[a] for a in learner_team})
@@ -141,8 +142,16 @@ def collect_episode(env, learner, opponent, learner_team, actor_obs_b, critic_b,
             for _ in range(repeats):
                 obs_dict, _, terminations, truncations, _ = env.step(kart_actions)
             state = KartGameState.from_obs_dict(obs_dict)
+            step_fails = 0
         except ValueError:
-            continue  # transient read at a load boundary
+            # transient read at a load boundary -> retry; but if env.step keeps
+            # failing, Dolphin is wedged. Without this cap the loop spins forever
+            # at ~100% CPU (never advancing `steps`) -> a silent hang. Escalate to
+            # a RuntimeError, which the training loop catches and recreates the env.
+            step_fails += 1
+            if step_fails > 400:
+                raise RuntimeError("env.step failed >400x consecutively; Dolphin wedged")
+            continue
 
         rewards = reward_fn.get_rewards(agents, state)   # needs all agents (team term)
         next_flat = {a: actor_obs_b.build_obs(a, state) for a in agents}
@@ -219,8 +228,11 @@ def main() -> None:
     cfg = OmegaConf.load(args.config)
     hp = cfg.hyperparameter
 
-    actor_obs_b = AsymmetricTeamObs(num_agents=cfg.env_setting.num_agents)
+    opponent_obs = cfg.model.get("opponent_obs", "coarse")  # ablation: none|coarse|full
+    actor_obs_b = AsymmetricTeamObs(num_agents=cfg.env_setting.num_agents,
+                                    opponent_obs=opponent_obs)
     critic_b = CentralizedTeamState(num_agents=cfg.env_setting.num_agents)
+    print(f"[obs] actor opponent_obs={opponent_obs!r}", flush=True)
     action_parser = MKWTeamAction(
         disable_item_use=bool(cfg.env_setting.get("disable_item_use", False)))
     reward_fn = build_reward(cfg.reward, gamma=hp.gae_gamma)
